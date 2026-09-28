@@ -23,7 +23,6 @@ namespace Timesheeter.Data
 
 
 
-        private LibSqlLite.SqliteStore _dataStore;
         //private List<Customer> _list = new List<Customer>();
         //private BindingList<Customer> _list = new BindingList<Customer>();
 
@@ -36,11 +35,10 @@ namespace Timesheeter.Data
         }
 
 
-        public Customers(SqliteStore dataStore)
+        public Customers(SqliteStore dataStore) : base(dataStore) 
         {
             _list = new BindingList<Customer>();
 
-            _dataStore = dataStore;
             _dataStore.EnsureTable<Customer>();
 
             foreach (var customer in _dataStore.All<Customer>())

@@ -21,7 +21,7 @@ namespace Timesheeter.Data
             } 
         }
 
-        private LibSqlLite.SqliteStore _dataStore;
+        //private LibSqlLite.SqliteStore _dataStore;
 
 
         public class ProjectCode
@@ -34,11 +34,10 @@ namespace Timesheeter.Data
         }
 
 
-        public ProjectCodes(SqliteStore dataStore)
+        public ProjectCodes(SqliteStore dataStore) : base(dataStore)
         {
             _list = new BindingList<ProjectCode>();
 
-            _dataStore = dataStore;
             _dataStore.EnsureTable<ProjectCode>();
 
             foreach (var proj in _dataStore.All<ProjectCode>())

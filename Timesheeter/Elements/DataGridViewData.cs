@@ -11,6 +11,8 @@ namespace Timesheeter.Elements
     public class DataGridViewData<T> : DataGridView
     {
 
+        //protected DataClass<T>? _data;
+
         protected DataClass<T>? _data;
 
         public DataGridViewData() : base()
@@ -29,12 +31,19 @@ namespace Timesheeter.Elements
             }
 
             _data = data;
+            CellEndEdit += DataGridViewData_CellEndEdit;
 
             // Lookup columns must exist before DataSource is set: auto-generation keeps a
             // column whose DataPropertyName matches a property instead of generating its own.
             AddLookupColumns(factory);
 
             this.DataSource = data.All;
+
+
+        }
+
+        private void DataGridViewData_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+        {
 
 
         }
