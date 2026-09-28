@@ -11,7 +11,7 @@ namespace Timesheeter
         public Object? GetData(Type dataType)
         {
 
-            if (dataType.GetType() == typeof(Data.Customers))
+            if (dataType == typeof(Data.Customers))
             {
                 return _customers;
             }
@@ -45,10 +45,13 @@ namespace Timesheeter
                 Console.WriteLine(customer.Name);
             }
 
-            _customers.Save(new Data.Customers.Customer()
+            if (!_customers.CustomerExistsByName("New Customer"))
             {
-                Name = "New Customer"
-            });
+                _customers.Save(new Data.Customers.Customer()
+                {
+                    Name = "New Customer"
+                });
+            }
 
             Console.WriteLine($"Customers");
             foreach (var customer in _customers.All)
