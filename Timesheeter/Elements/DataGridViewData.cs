@@ -11,22 +11,24 @@ namespace Timesheeter.Elements
     public class DataGridViewData<T> : DataGridView
     {
 
-
-        T? _data;
+        protected DataClass<T>? _data;
 
         public DataGridViewData() : base()
         {
-            
+            base.AllowUserToAddRows = false;
         }
 
 
         public void PostInit(DataClass<T>? data, IFactory factory)
         {
+
             
             if (data == null)
             {
                 throw new ArgumentNullException(nameof(data));
             }
+
+            _data = data;
 
             // Lookup columns must exist before DataSource is set: auto-generation keeps a
             // column whose DataPropertyName matches a property instead of generating its own.
