@@ -2,35 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 using Timesheeter.Data;
-using Timesheeter.Lib;
 
 namespace Timesheeter.Elements
 {
-    public class DataComboBox : ComboBox
+    public class CustomerComboBox : DataComboBox<Customers.Customer>
     {
 
 
-        public DataComboBox() : base()
+        public CustomerComboBox() : base()
         {
 
         }
-
-        internal void PostInit(LibSqlLite.SqliteStore store)//IFactory factory)
-        {
-        }
-
-
-
-
-        private void PopulateCustomers()
-        {
-
-
-
-
-        }
-
-
 
 
 

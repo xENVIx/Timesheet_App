@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Timesheeter.Data;
 
 namespace Timesheeter.UserControls
 {
@@ -13,6 +14,17 @@ namespace Timesheeter.UserControls
         public UCNewProjectCode()
         {
             InitializeComponent();
+        }
+
+        protected override void PostInit()
+        {
+            if (_factory == null)
+            {
+                throw new ArgumentNullException(nameof(_factory));
+            }
+
+            _cbCustomer.PostInit(_factory.GetData<Customers>());
+
         }
     }
 }

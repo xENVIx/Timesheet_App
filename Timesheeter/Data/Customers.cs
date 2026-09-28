@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 using LibSqlLite;
 
 namespace Timesheeter.Data
 {
-    public class Customers
+    public class Customers : DataClass<Customers.Customer>
     {
-        public IReadOnlyCollection<Customer> All { get { return _list; } }
+        //public IReadOnlyCollection<Customer> All { get { return _list; } }
+        //public BindingList<Customer> All { get { return _list; } }
         public Customer? this[long key] 
         { 
             get
@@ -25,13 +27,16 @@ namespace Timesheeter.Data
             //if (this[key] != null) return true;
             //return false;
 
-            if (_list.Exists(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)) return true;
+            //if (_list.Exists(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)) return true;
+            if (_list.Where(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0).Count() > 0) return true;
+
 
             return false;
         }
 
         private LibSqlLite.SqliteStore _dataStore;
-        private List<Customer> _list = new List<Customer>();
+        //private List<Customer> _list = new List<Customer>();
+        //private BindingList<Customer> _list = new BindingList<Customer>();
 
 
         public class Customer
@@ -44,6 +49,8 @@ namespace Timesheeter.Data
 
         public Customers(SqliteStore dataStore)
         {
+            _list = new BindingList<Customer>();
+
             _dataStore = dataStore;
             _dataStore.EnsureTable<Customer>();
 

@@ -28,17 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            _cbCustomer = new ComboBox();
+            _cbCustomer = new Timesheeter.Elements.CustomerComboBox();
             label1 = new Label();
             _tbLocation = new TextBox();
             label2 = new Label();
             _tbProjectCode = new TextBox();
             label3 = new Label();
+            _btnAdd = new Button();
             _pnlElements.SuspendLayout();
             SuspendLayout();
             // 
             // _pnlElements
             // 
+            _pnlElements.Controls.Add(_btnAdd);
             _pnlElements.Controls.Add(label3);
             _pnlElements.Controls.Add(_tbProjectCode);
             _pnlElements.Controls.Add(label2);
@@ -49,11 +51,13 @@
             // 
             // _cbCustomer
             // 
+            _cbCustomer.DisplayMember = "Name";
             _cbCustomer.FormattingEnabled = true;
             _cbCustomer.Location = new Point(25, 29);
             _cbCustomer.Name = "_cbCustomer";
             _cbCustomer.Size = new Size(121, 23);
             _cbCustomer.TabIndex = 5;
+            _cbCustomer.ValueMember = "ID";
             // 
             // label1
             // 
@@ -96,6 +100,15 @@
             label3.TabIndex = 10;
             label3.Text = "Project Code";
             // 
+            // _btnAdd
+            // 
+            _btnAdd.Location = new Point(25, 160);
+            _btnAdd.Name = "_btnAdd";
+            _btnAdd.Size = new Size(121, 23);
+            _btnAdd.TabIndex = 11;
+            _btnAdd.Text = "Add Code";
+            _btnAdd.UseVisualStyleBackColor = true;
+            // 
             // UCNewProjectCode
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -114,6 +127,7 @@
         private Label label2;
         private TextBox _tbLocation;
         private Label label1;
-        private ComboBox _cbCustomer;
+        private Elements.CustomerComboBox _cbCustomer;
+        private Button _btnAdd;
     }
 }

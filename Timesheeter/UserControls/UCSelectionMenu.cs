@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Timesheeter.Lib;
 
 namespace Timesheeter.UserControls
 {
@@ -17,6 +18,11 @@ namespace Timesheeter.UserControls
             _ucNewProjectCode.Dock = DockStyle.Fill;
             _ucNewProjectCode.Visible = false;
             _ucNewProjectCode.Enabled = false;
+        }
+
+        public void PostInit(IFactory factory)
+        {
+            _ucNewProjectCode.PostInit(factory);
         }
 
         private void _btnCodes_Click(object sender, EventArgs e)

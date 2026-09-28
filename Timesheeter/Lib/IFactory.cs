@@ -7,6 +7,6 @@ namespace Timesheeter.Lib
     public interface IFactory
     {
 
-        public Object? GetData(Type dataType);
+        public T? GetData<T>();
     }
 }

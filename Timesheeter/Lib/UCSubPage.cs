@@ -11,13 +11,26 @@ namespace Timesheeter.Lib
     public partial class UCSubPage : UserControl
     {
 
-
+        protected IFactory? _factory;
 
         public UCSubPage()
         {
             InitializeComponent();
 
             this.Visible = true;
+
+        }
+
+        protected virtual void PostInit()
+        {
+
+        }
+
+        public void PostInit(IFactory factory)
+        {
+            _factory = factory;
+            PostInit();
+            
 
         }
 

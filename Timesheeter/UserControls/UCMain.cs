@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Timesheeter.Lib;
 
 namespace Timesheeter.UserControls
 {
@@ -13,6 +14,13 @@ namespace Timesheeter.UserControls
         public UCMain()
         {
             InitializeComponent();
+
+        }
+
+
+        public void PostInit(IFactory factory)
+        {
+            _ucSelectionMenu.PostInit(factory);
         }
     }
 }
