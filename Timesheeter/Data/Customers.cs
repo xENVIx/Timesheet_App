@@ -9,19 +9,24 @@ namespace Timesheeter.Data
     public class Customers
     {
         public IReadOnlyCollection<Customer> All { get { return _list; } }
-        public Customer? this[String key] 
+        public Customer? this[long key] 
         { 
             get
             {
                 
-                return _list.Where(x => String.Compare(x.CustomerName, key, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault() ?? null;
+                return _list.Where(x => String.Compare(x.ID, key, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault() ?? null;
                 
             } 
         }
 
-        public bool CustomerExists(String key)
+
+        public bool CustomerExistsByName(String name)
         {
-            if (this[key] != null) return true;
+            //if (this[key] != null) return true;
+            //return false;
+
+            if (_list.Exists(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)) return true;
+
             return false;
         }
 
@@ -31,8 +36,8 @@ namespace Timesheeter.Data
 
         public class Customer
         {
-
-            [PrimaryKey] public string CustomerName { get; set; } = string.Empty;
+            [PrimaryKey] public long ID { get; set; }
+            [Unique(IgnoreCase = true) public string Name { get; set; } = string.Empty;
 
         }
 
