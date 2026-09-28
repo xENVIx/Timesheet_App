@@ -26,5 +26,65 @@ namespace Timesheeter.UserControls
             _cbCustomer.PostInit(_factory.GetData<Customers>());
 
         }
+
+        private void _btnAdd_Click(object sender, EventArgs e)
+        {
+
+
+            // check the values...
+            String custName = _cbCustomer.Text;
+            String location = _tbLocation.Text;
+            String projCode = _tbProjectCode.Text;
+
+            if (custName.Length <= 0 || projCode.Length <= 0)
+            {
+                MessageBox.Show($"Project Code and / or Customer Name must have a value");
+                return;
+            }
+
+
+            var custs = _factory!.GetData<Customers>();
+            if (custs == null) throw new ArgumentNullException(nameof(custs));
+
+
+            Customers.Customer? customer;
+            if (!custs.CustomerExistsByName(custName))
+            {
+                customer = new Customers.Customer()
+                {
+                    Name = custName,
+                };
+
+                if (!custs.Save(customer))
+                {
+                    MessageBox.Show($"Failed to add new customer {custName}");
+                    return;
+                }
+               
+            }
+            else
+            {
+                customer = custs.GetCustomerByName(custName);
+            }
+
+            if (customer == null)
+                throw new Exception($"Failed to retrieve customer information {custName}");
+
+            ProjectCodes.ProjectCode newCode = new ProjectCodes.ProjectCode()
+            {
+                Code = projCode,
+                Location = location,
+                CustomerID = customer.ID,
+            };
+
+            var projCodesFactory = _factory.GetData<ProjectCodes>();
+            if (projCodesFactory == null) throw new Exception($"Failed to retrieve project codes factory");
+
+            if (!projCodesFactory.Save(newCode))
+            {
+                MessageBox.Show($"Failed to create project code: {projCode}, perhaps a duplicate?");
+            }
+
+        }
     }
 }

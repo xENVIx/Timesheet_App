@@ -18,7 +18,7 @@ namespace Timesheeter.Elements
 
         }
 
-        internal void PostInit(DataClass<T> data)//IFactory factory)
+        internal void PostInit(DataClass<T>? data)//IFactory factory)
         {
 
             if (data == null) throw new ArgumentNullException(nameof(data));

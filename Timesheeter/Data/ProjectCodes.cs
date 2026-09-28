@@ -7,11 +7,11 @@ using LibSqlLite;
 
 namespace Timesheeter.Data
 {
-    public class Customers : DataClass<Customers.Customer>
+    public class ProjectCodes : DataClass<ProjectCodes.ProjectCode>
     {
         //public IReadOnlyCollection<Customer> All { get { return _list; } }
         //public BindingList<Customer> All { get { return _list; } }
-        public Customer? this[long key] 
+        public ProjectCode? this[long key] 
         { 
             get
             {
@@ -21,66 +21,56 @@ namespace Timesheeter.Data
             } 
         }
 
-
-
         private LibSqlLite.SqliteStore _dataStore;
-        //private List<Customer> _list = new List<Customer>();
-        //private BindingList<Customer> _list = new BindingList<Customer>();
 
 
-        public class Customer
+        public class ProjectCode
         {
             [PrimaryKey] public long ID { get; set; }
-            [Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;
+            [Unique(IgnoreCase = true)] public string Code { get; set; } = string.Empty;
+            public long CustomerID { get; set; }
+            public String Location { get; set; } = String.Empty;
 
         }
 
 
-        public Customers(SqliteStore dataStore)
+        public ProjectCodes(SqliteStore dataStore)
         {
-            _list = new BindingList<Customer>();
+            _list = new BindingList<ProjectCode>();
 
             _dataStore = dataStore;
-            _dataStore.EnsureTable<Customer>();
+            _dataStore.EnsureTable<ProjectCode>();
 
-            foreach (var customer in _dataStore.All<Customer>())
+            foreach (var proj in _dataStore.All<ProjectCode>())
             {
-                _list.Add(customer);
+                _list.Add(proj);
             }
         }
 
-        public Customer? GetCustomerByName(String name)
-        {
-
-            return _list.Where(cust => string.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault();
-
-        }
-
-
-        public bool CustomerExistsByName(String name)
+        public bool ProjectCodeExistsByCode(String projCode)
         {
             //if (this[key] != null) return true;
             //return false;
 
             //if (_list.Exists(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)) return true;
-            if (_list.Where(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0).Count() > 0) return true;
+            if (_list.Where(code => String.Compare(code.Code, projCode, StringComparison.InvariantCultureIgnoreCase) == 0).ToList().Count > 0) return true;
 
 
             return false;
         }
 
-        public bool Save(Customer customer)
+        public bool Save(ProjectCode projCode)
         {
             try
             {
-                _dataStore.Insert(customer);
+                _dataStore.Insert(projCode);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 return false;
             }
-            _list.Add(customer);
+            _list.Add(projCode);
             return true;
         }
         

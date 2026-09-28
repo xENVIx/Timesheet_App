@@ -12,6 +12,7 @@ namespace Timesheeter
 
         private LibSqlLite.SqliteStore _store;
         private Data.Customers _customers;
+        private Data.ProjectCodes _projectCodes;
         private readonly System.Windows.Forms.Timer _timer;
 
 
@@ -22,6 +23,7 @@ namespace Timesheeter
             String dbFile = Path.Combine(AppContext.BaseDirectory, "Timesheeter.db");
             _store = new LibSqlLite.SqliteStore(dbFile);
             _customers = new Data.Customers(_store);
+            _projectCodes = new ProjectCodes(_store);
 
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 10000;
@@ -45,6 +47,10 @@ namespace Timesheeter
             if (typeof(T) == typeof(Customers))
             {
                 return (T)(object)_customers;
+            }
+            else if (typeof(T) == typeof(ProjectCodes))
+            {
+                return (T)(object)_projectCodes;
             }
 
             return default(T);

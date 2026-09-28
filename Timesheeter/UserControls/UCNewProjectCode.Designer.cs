@@ -108,6 +108,7 @@
             _btnAdd.TabIndex = 11;
             _btnAdd.Text = "Add Code";
             _btnAdd.UseVisualStyleBackColor = true;
+            _btnAdd.Click += _btnAdd_Click;
             // 
             // UCNewProjectCode
             // 
