@@ -24,6 +24,7 @@ namespace Timesheeter.UserControls
             }
 
             _cbCustomer.PostInit(_factory.GetData<Customers>());
+            _projCodesDgv.PostInit(_factory.GetData<ProjectCodes>());
 
         }
 

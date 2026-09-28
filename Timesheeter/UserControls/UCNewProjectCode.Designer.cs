@@ -35,11 +35,14 @@
             _tbProjectCode = new TextBox();
             label3 = new Label();
             _btnAdd = new Button();
+            _projCodesDgv = new Timesheeter.Elements.ProjectCodesDataGridView();
             _pnlElements.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)_projCodesDgv).BeginInit();
             SuspendLayout();
             // 
             // _pnlElements
             // 
+            _pnlElements.Controls.Add(_projCodesDgv);
             _pnlElements.Controls.Add(_btnAdd);
             _pnlElements.Controls.Add(label3);
             _pnlElements.Controls.Add(_tbProjectCode);
@@ -110,6 +113,14 @@
             _btnAdd.UseVisualStyleBackColor = true;
             _btnAdd.Click += _btnAdd_Click;
             // 
+            // _projCodesDgv
+            // 
+            _projCodesDgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _projCodesDgv.Location = new Point(152, 29);
+            _projCodesDgv.Name = "_projCodesDgv";
+            _projCodesDgv.Size = new Size(395, 327);
+            _projCodesDgv.TabIndex = 12;
+            // 
             // UCNewProjectCode
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -118,6 +129,7 @@
             Size = new Size(577, 413);
             _pnlElements.ResumeLayout(false);
             _pnlElements.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)_projCodesDgv).EndInit();
             ResumeLayout(false);
         }
 
@@ -130,5 +142,6 @@
         private Label label1;
         private Elements.CustomerComboBox _cbCustomer;
         private Button _btnAdd;
+        private Elements.ProjectCodesDataGridView _projCodesDgv;
     }
 }
