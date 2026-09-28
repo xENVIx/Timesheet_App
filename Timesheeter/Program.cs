@@ -1,0 +1,25 @@
+using Timesheeter.Data;
+
+namespace Timesheeter
+{
+    internal static class Program
+    {
+        /// <summary>
+        ///  The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            // To customize application configuration such as set high DPI settings or default font,
+            // see https://aka.ms/applicationconfiguration.
+            ApplicationConfiguration.Initialize();
+
+
+            Factory factory = new Factory();
+            factory.Run();
+
+        }
+
+        
+    }
+}

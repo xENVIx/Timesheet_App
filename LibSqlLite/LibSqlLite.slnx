@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="LibSqlLite.csproj" />
+  <Project Path="../LibSqlLite.Tests/LibSqlLite.Tests.csproj" />
+</Solution>
