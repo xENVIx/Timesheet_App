@@ -42,18 +42,18 @@ namespace Timesheeter
             Console.WriteLine($"Customers");
             foreach (var customer in _customers.All)
             {
-                Console.WriteLine(customer.CustomerName);
+                Console.WriteLine(customer.Name);
             }
 
             _customers.Save(new Data.Customers.Customer()
             {
-                CustomerName = "New Customer"
+                Name = "New Customer"
             });
 
             Console.WriteLine($"Customers");
             foreach (var customer in _customers.All)
             {
-                Console.WriteLine(customer.CustomerName);
+                Console.WriteLine(customer.Name);
             }
 
             Application.Run(new Form1());

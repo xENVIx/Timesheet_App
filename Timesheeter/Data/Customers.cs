@@ -14,7 +14,7 @@ namespace Timesheeter.Data
             get
             {
                 
-                return _list.Where(x => String.Compare(x.ID, key, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault() ?? null;
+                return _list.Where(x => x.ID == key).FirstOrDefault();
                 
             } 
         }
@@ -37,7 +37,7 @@ namespace Timesheeter.Data
         public class Customer
         {
             [PrimaryKey] public long ID { get; set; }
-            [Unique(IgnoreCase = true) public string Name { get; set; } = string.Empty;
+            [Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;
 
         }
 
