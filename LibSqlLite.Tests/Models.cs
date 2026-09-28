@@ -152,6 +152,39 @@ public class ReflectionExclusionModel
     }
 }
 
+public class UniqueModel
+{
+    public int Id { get; set; }
+
+    [Unique(IgnoreCase = true)]
+    public string Name { get; set; } = "";
+
+    [Unique]
+    public string Code { get; set; } = "";
+}
+
+[Table("UniqueMigrationModel")]
+public class UniqueMigrationModelV1
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+}
+
+[Table("UniqueMigrationModel")]
+public class UniqueMigrationModelV2
+{
+    public int Id { get; set; }
+
+    [Unique(IgnoreCase = true)]
+    public string Name { get; set; } = "";
+}
+
+public class UniqueKeyModel
+{
+    [PrimaryKey, Unique]
+    public string Code { get; set; } = "";
+}
+
 internal sealed class PragmaColumn
 {
     public string Name { get; set; } = "";

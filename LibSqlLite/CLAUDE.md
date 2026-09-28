@@ -38,7 +38,7 @@ LibSqlLite/                        (repo root; also the library project director
     Schema/TableBuilder.cs     // CREATE TABLE / ALTER TABLE generation
     Schema/TypeMap.cs          // CLR type -> SQLite type affinity
     Schema/EntityInfo.cs       // cached reflection metadata per type, pre-built SQL
-    Attributes/                // TableAttribute, IgnoreAttribute, PrimaryKeyAttribute
+    Attributes/                // TableAttribute, IgnoreAttribute, PrimaryKeyAttribute, UniqueAttribute
     TypeHandlers/               // Dapper handlers (Guid, DateTime, DateTimeOffset, decimal)
 ../LibSqlLite.Tests/            // sibling directory, referenced by the .slnx
     LibSqlLite.Tests.csproj
@@ -153,6 +153,7 @@ All in namespace `LibSqlLite`:
 - `[Table("Name")]`: class-level, overrides table name
 - `[Ignore]`: property-level, excludes from storage
 - `[PrimaryKey]`: property-level, marks the key when it isn't named `Id`
+- `[Unique]` / `[Unique(IgnoreCase = true)]`: property-level, creates `UX_{Table}_{Column}` via `CREATE UNIQUE INDEX IF NOT EXISTS` (with `COLLATE NOCASE` when `IgnoreCase`). Ignored on the key. Created in `EnsureTable` after columns are added, so it also applies to existing tables; it's never dropped or altered afterwards.
 
 Keep attributes as the only customization mechanism in v1. No fluent configuration.
 
@@ -173,7 +174,7 @@ Cover at least:
 
 ## Non-goals for v1
 
-Do not build these unless asked: relationships/navigation properties, LINQ-to-SQL expression translation, column renames/drops or versioned migrations, encryption, indexes (beyond the primary key), non-SQLite databases.
+Do not build these unless asked: relationships/navigation properties, LINQ-to-SQL expression translation, column renames/drops or versioned migrations, encryption, indexes (beyond the primary key and `[Unique]`), non-SQLite databases.
 
 ## Coding standards
 

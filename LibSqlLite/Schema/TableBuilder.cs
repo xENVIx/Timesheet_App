@@ -44,6 +44,15 @@ internal static class TableBuilder
                   $"NOT NULL DEFAULT {EntityInfo.DefaultLiteral(column.SqliteType)};";
             alter.ExecuteNonQuery();
         }
+
+        // After the column step, so a [Unique] property added to an existing class has its column.
+        foreach (var sql in entity.CreateUniqueIndexSql)
+        {
+            using var index = connection.CreateCommand();
+            index.Transaction = transaction;
+            index.CommandText = sql;
+            index.ExecuteNonQuery();
+        }
     }
 
     public static async Task EnsureTableAsync(
@@ -83,6 +92,14 @@ internal static class TableBuilder
                 : $"ALTER TABLE [{entity.TableName}] ADD COLUMN [{column.Name}] {column.SqliteType} " +
                   $"NOT NULL DEFAULT {EntityInfo.DefaultLiteral(column.SqliteType)};";
             await alter.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        foreach (var sql in entity.CreateUniqueIndexSql)
+        {
+            using var index = connection.CreateCommand();
+            index.Transaction = transaction;
+            index.CommandText = sql;
+            await index.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }

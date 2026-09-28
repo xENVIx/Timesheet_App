@@ -40,6 +40,7 @@ internal sealed class EntityInfo
     public required string SelectAllSql { get; init; }
     public required string DeleteByIdSql { get; init; }
     public required string DeleteAllSql { get; init; }
+    public required IReadOnlyList<string> CreateUniqueIndexSql { get; init; }
 
     public bool IsKeyDefault(object? keyValue)
     {
@@ -130,6 +131,7 @@ internal sealed class EntityInfo
             SelectAllSql = $"SELECT * FROM [{tableName}];",
             DeleteByIdSql = $"DELETE FROM [{tableName}] WHERE [{keyColumn.Name}] = @__key;",
             DeleteAllSql = $"DELETE FROM [{tableName}];",
+            CreateUniqueIndexSql = BuildCreateUniqueIndexSql(tableName, columns),
         };
     }
 
@@ -156,6 +158,22 @@ internal sealed class EntityInfo
         sb.Append(string.Join(",\n", definitions));
         sb.Append("\n);");
         return sb.ToString();
+    }
+
+    private static IReadOnlyList<string> BuildCreateUniqueIndexSql(string tableName, IReadOnlyList<ColumnInfo> columns)
+    {
+        // The key is already unique; an extra index on it would be redundant.
+        return columns
+            .Where(c => !c.IsKey)
+            .Select(c => (Column: c, Unique: c.Property.GetCustomAttribute<UniqueAttribute>()))
+            .Where(x => x.Unique is not null)
+            .Select(x =>
+            {
+                var collate = x.Unique!.IgnoreCase ? " COLLATE NOCASE" : "";
+                return $"CREATE UNIQUE INDEX IF NOT EXISTS [UX_{tableName}_{x.Column.Name}] " +
+                       $"ON [{tableName}] ([{x.Column.Name}]{collate});";
+            })
+            .ToList();
     }
 
     internal static string DefaultLiteral(string sqliteType) => sqliteType switch
