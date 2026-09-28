@@ -8,7 +8,7 @@ using Timesheeter.Lib;
 
 namespace Timesheeter.Elements
 {
-    public class DataGridViewData<T> : DataGridView
+    public class DataGridViewData<T> : DataGridView where T : class
     {
 
         //protected DataClass<T>? _data;
@@ -44,8 +44,16 @@ namespace Timesheeter.Elements
 
         private void DataGridViewData_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex < 0 || _data == null) return;
 
+            // The grid has already written the edited value into the bound object.
+            if (Rows[e.RowIndex].DataBoundItem is not T item) return;
 
+            if (!_data.Update(item))
+            {
+                MessageBox.Show("Could not save the change (duplicate value?).");
+                _data.Reload(item);
+            }
         }
 
         private void AddLookupColumns(IFactory factory)

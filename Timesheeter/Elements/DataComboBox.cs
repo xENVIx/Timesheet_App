@@ -6,7 +6,7 @@ using Timesheeter.Lib;
 
 namespace Timesheeter.Elements
 {
-    public class DataComboBox<T> : ComboBox
+    public class DataComboBox<T> : ComboBox where T : class
     {
 
 
