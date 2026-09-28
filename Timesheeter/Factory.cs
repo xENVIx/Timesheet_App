@@ -42,18 +42,22 @@ namespace Timesheeter
 
         public T? GetData<T>()
         {
+            return (T?)GetData(typeof(T));
+        }
 
+        public Object? GetData(Type dataType)
+        {
 
-            if (typeof(T) == typeof(Customers))
+            if (dataType == typeof(Customers))
             {
-                return (T)(object)_customers;
+                return _customers;
             }
-            else if (typeof(T) == typeof(ProjectCodes))
+            else if (dataType == typeof(ProjectCodes))
             {
-                return (T)(object)_projectCodes;
+                return _projectCodes;
             }
 
-            return default(T);
+            return null;
 
         }
 

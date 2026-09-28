@@ -8,5 +8,7 @@ namespace Timesheeter.Lib
     {
 
         public T? GetData<T>();
+
+        public Object? GetData(Type dataType);
     }
 }
