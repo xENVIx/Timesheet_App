@@ -44,18 +44,26 @@ namespace Timesheeter
 
         public T? GetData<T>()
         {
-            return (T?)GetData(typeof(T));
+
+
+            if (typeof(T) == typeof(Customers)) return (T)(object)_customers;
+            else if (typeof(T) == typeof(ProjectCodes)) return (T)(object)_projectCodes;
+            else if (typeof(T) == typeof(TimeEntries)) return (T)(object)_timeEntries;
+            return default(T);
+
         }
+
 
         public Object? GetData(Type dataType)
         {
 
             if (dataType == typeof(Customers)) return _customers;
-            else if (dataType == typeof(ProjectCodes)) return _projectCodes;            
+            else if (dataType == typeof(ProjectCodes)) return _projectCodes;
             else if (dataType == typeof(TimeEntries)) return _timeEntries;
             else return null;
 
         }
+        
 
         internal void Run()
         {
@@ -63,7 +71,7 @@ namespace Timesheeter
 
 
 
-            Application.Run(new Form1(this));
+            Application.Run(new UserInterface(this));
         }
 
 
