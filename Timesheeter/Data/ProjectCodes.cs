@@ -10,8 +10,7 @@ namespace Timesheeter.Data
 {
     public class ProjectCodes : DataClass<ProjectCodes.ProjectCode>
     {
-        //public IReadOnlyCollection<Customer> All { get { return _list; } }
-        //public BindingList<Customer> All { get { return _list; } }
+
         public ProjectCode? this[long key] 
         { 
             get
@@ -22,15 +21,18 @@ namespace Timesheeter.Data
             } 
         }
 
-        //private LibSqlLite.SqliteStore _dataStore;
 
 
         public class ProjectCode
         {
             [PrimaryKey, GridHidden] public long ID { get; set; }
             [Required, Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
-            [DisplayName("Customer"), GridLookup(typeof(Customers), "Name")] public long CustomerID { get; set; }
+            [Required, DisplayName("Customer"), GridLookup(typeof(Customers), "Name")] public long CustomerID { get; set; }
+            [DisplayName("Description")] public String Description { get; set; } = string.Empty;
             public String Location { get; set; } = String.Empty;
+
+
+            [Ignore] public String Name { get { return Code; } set {  Code = value; } }
 
         }
 
@@ -59,6 +61,7 @@ namespace Timesheeter.Data
             return false;
         }
 
+        /*
         public bool Save(ProjectCode projCode)
         {
             if (!IsValid(projCode)) return false;
@@ -75,7 +78,7 @@ namespace Timesheeter.Data
             _list.Add(projCode);
             return true;
         }
-        
+        */
 
 
     }

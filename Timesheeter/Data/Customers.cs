@@ -62,12 +62,13 @@ namespace Timesheeter.Data
             //return false;
 
             //if (_list.Exists(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)) return true;
-            if (_list.Where(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0).Count() > 0) return true;
+            if (_list.Where(cust => String.Compare(cust.Name, name.Trim(), StringComparison.InvariantCultureIgnoreCase) == 0).Count() > 0) return true;
 
 
             return false;
         }
 
+        /*
         public bool Save(Customer customer)
         {
             if (!IsValid(customer)) return false;
@@ -84,6 +85,7 @@ namespace Timesheeter.Data
             _list.Add(customer);
             return true;
         }
+        */
         
 
 

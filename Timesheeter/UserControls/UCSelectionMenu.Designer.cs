@@ -32,6 +32,8 @@
             _ucNewProjectCode = new UCNewProjectCode();
             _btnCustomers = new Button();
             _ucCustomers = new UCCustomers();
+            _btnTimeEntries = new Button();
+            _ucTimeEntries = new UCTimeEntries();
             SuspendLayout();
             // 
             // _btnCodes
@@ -70,14 +72,34 @@
             _ucCustomers.TabIndex = 3;
             _ucCustomers.Visible = false;
             // 
+            // _btnTimeEntries
+            // 
+            _btnTimeEntries.Location = new Point(31, 134);
+            _btnTimeEntries.Name = "_btnTimeEntries";
+            _btnTimeEntries.Size = new Size(93, 43);
+            _btnTimeEntries.TabIndex = 4;
+            _btnTimeEntries.Text = "Time Entry Managment";
+            _btnTimeEntries.UseVisualStyleBackColor = true;
+            _btnTimeEntries.Click += _btnTimeEntries_Click;
+            // 
+            // _ucTimeEntries
+            // 
+            _ucTimeEntries.Location = new Point(627, 495);
+            _ucTimeEntries.Name = "_ucTimeEntries";
+            _ucTimeEntries.Size = new Size(628, 480);
+            _ucTimeEntries.TabIndex = 5;
+            _ucTimeEntries.Visible = false;
+            // 
             // UCSelectionMenu
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(_ucTimeEntries);
             Controls.Add(_ucCustomers);
             Controls.Add(_ucNewProjectCode);
             Controls.Add(_btnCodes);
             Controls.Add(_btnCustomers);
+            Controls.Add(_btnTimeEntries);
             Name = "UCSelectionMenu";
             Size = new Size(608, 477);
             ResumeLayout(false);
@@ -89,5 +111,7 @@
         private UCNewProjectCode _ucNewProjectCode;
         private Button _btnCustomers;
         private UCCustomers _ucCustomers;
+        private Button _btnTimeEntries;
+        private UCTimeEntries _ucTimeEntries;
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using static Timesheeter.Data.ProjectCodes;
 
 namespace Timesheeter.Data
 {
@@ -53,6 +54,25 @@ namespace Timesheeter.Data
             var fresh = _dataStore.Get<T>(id);
             if (index >= 0 && fresh != null) _list[index] = fresh;
         }
+
+        public bool Save(T item)
+        {
+            if (!IsValid(item)) return false;
+
+            try
+            {
+                _dataStore.Insert(item);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
+            _list.Add(item);
+            return true;
+        }
+
+        
 
         public BindingList<T> All { get { return _list; } }
 

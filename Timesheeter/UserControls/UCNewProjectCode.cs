@@ -33,9 +33,10 @@ namespace Timesheeter.UserControls
 
 
             // check the values...
-            String custName = _cbCustomer.Text;
-            String location = _tbLocation.Text;
-            String projCode = _tbProjectCode.Text;
+            String custName = _cbCustomer.Text.Trim();
+            String location = _tbLocation.Text.Trim();
+            String projCode = _tbProjectCode.Text.Trim();
+            String projDescription = _tbDescription.Text.Trim();
 
             if (custName.Length <= 0 || projCode.Length <= 0)
             {
@@ -76,6 +77,7 @@ namespace Timesheeter.UserControls
                 Code = projCode,
                 Location = location,
                 CustomerID = customer.ID,
+                Description = projDescription,
             };
 
             var projCodesFactory = _factory.GetData<ProjectCodes>();

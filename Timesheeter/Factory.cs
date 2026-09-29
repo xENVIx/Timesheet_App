@@ -13,6 +13,7 @@ namespace Timesheeter
         private LibSqlLite.SqliteStore _store;
         private Data.Customers _customers;
         private Data.ProjectCodes _projectCodes;
+        private TimeEntries _timeEntries;
         private readonly System.Windows.Forms.Timer _timer;
 
 
@@ -24,6 +25,7 @@ namespace Timesheeter
             _store = new LibSqlLite.SqliteStore(dbFile);
             _customers = new Data.Customers(_store);
             _projectCodes = new ProjectCodes(_store);
+            _timeEntries = new TimeEntries(_store);
 
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 10000;
@@ -48,16 +50,10 @@ namespace Timesheeter
         public Object? GetData(Type dataType)
         {
 
-            if (dataType == typeof(Customers))
-            {
-                return _customers;
-            }
-            else if (dataType == typeof(ProjectCodes))
-            {
-                return _projectCodes;
-            }
-
-            return null;
+            if (dataType == typeof(Customers)) return _customers;
+            else if (dataType == typeof(ProjectCodes)) return _projectCodes;            
+            else if (dataType == typeof(TimeEntries)) return _timeEntries;
+            else return null;
 
         }
 

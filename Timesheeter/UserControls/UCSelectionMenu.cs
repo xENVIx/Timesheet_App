@@ -22,12 +22,17 @@ namespace Timesheeter.UserControls
             _ucCustomers.Dock = DockStyle.Fill;
             _ucCustomers.Visible = false;
             _ucCustomers.Enabled = false;
+
+            _ucTimeEntries.Dock = DockStyle.Fill;
+            _ucTimeEntries.Visible = false;
+            _ucTimeEntries.Enabled = false;
         }
 
         public void PostInit(IFactory factory)
         {
             _ucNewProjectCode.PostInit(factory);
             _ucCustomers.PostInit(factory);
+            _ucTimeEntries.PostInit(factory);
         }
 
         private void _btnCodes_Click(object sender, EventArgs e)
@@ -38,9 +43,14 @@ namespace Timesheeter.UserControls
 
         private void _btnCustomers_Click(object sender, EventArgs e)
         {
-
             _ucCustomers.Enabled = true;
             _ucCustomers.Visible = true;
+        }
+
+        private void _btnTimeEntries_Click(object sender, EventArgs e)
+        {
+            _ucTimeEntries.Enabled = true;
+            _ucTimeEntries.Visible = true;
         }
     }
 }
