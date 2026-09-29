@@ -56,6 +56,18 @@ namespace Timesheeter.Elements
             }
         }
 
+        protected override void OnColumnAdded(DataGridViewColumnEventArgs e)
+        {
+            // Runs for auto-generated columns too, including when the grid rebinds.
+            var prop = typeof(T).GetProperty(e.Column.DataPropertyName);
+            if (prop?.GetCustomAttribute<GridHiddenAttribute>() != null)
+            {
+                e.Column.Visible = false;
+            }
+
+            base.OnColumnAdded(e);
+        }
+
         private void AddLookupColumns(IFactory factory)
         {
             foreach (var prop in typeof(T).GetProperties())

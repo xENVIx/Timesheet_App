@@ -26,7 +26,7 @@ namespace Timesheeter.Data
 
         public class ProjectCode
         {
-            [PrimaryKey, Browsable(false)] public long ID { get; set; }
+            [PrimaryKey, GridHidden] public long ID { get; set; }
             [Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
             [DisplayName("Customer"), GridLookup(typeof(Customers), "Name")] public long CustomerID { get; set; }
             public String Location { get; set; } = String.Empty;
