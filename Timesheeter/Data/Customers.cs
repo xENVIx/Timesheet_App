@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 using LibSqlLite;
@@ -30,7 +31,7 @@ namespace Timesheeter.Data
         public class Customer
         {
             [PrimaryKey, GridHidden] public long ID { get; set; }
-            [Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;
+            [Required, Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;
 
         }
 
@@ -69,6 +70,8 @@ namespace Timesheeter.Data
 
         public bool Save(Customer customer)
         {
+            if (!IsValid(customer)) return false;
+
             try
             {
                 _dataStore.Insert(customer);

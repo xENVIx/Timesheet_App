@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 using LibSqlLite;
@@ -27,7 +28,7 @@ namespace Timesheeter.Data
         public class ProjectCode
         {
             [PrimaryKey, GridHidden] public long ID { get; set; }
-            [Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
+            [Required, Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
             [DisplayName("Customer"), GridLookup(typeof(Customers), "Name")] public long CustomerID { get; set; }
             public String Location { get; set; } = String.Empty;
 
@@ -60,6 +61,8 @@ namespace Timesheeter.Data
 
         public bool Save(ProjectCode projCode)
         {
+            if (!IsValid(projCode)) return false;
+
             try
             {
                 _dataStore.Insert(projCode);

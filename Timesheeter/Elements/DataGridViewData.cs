@@ -51,7 +51,7 @@ namespace Timesheeter.Elements
 
             if (!_data.Update(item))
             {
-                MessageBox.Show("Could not save the change (duplicate value?).");
+                MessageBox.Show("Could not save the change (blank or duplicate value?).");
                 _data.Reload(item);
             }
         }

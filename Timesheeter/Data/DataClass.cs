@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Timesheeter.Data
@@ -22,8 +23,24 @@ namespace Timesheeter.Data
             _list = new BindingList<T>();
         }
 
+        /// <summary>
+        /// Checks the item's DataAnnotations attributes, e.g. [Required] rejects null, "" and whitespace.
+        /// The database can't do this for text: a UNIQUE index allows any number of NULLs.
+        /// </summary>
+        protected bool IsValid(T item)
+        {
+            var results = new List<ValidationResult>();
+            if (Validator.TryValidateObject(item, new ValidationContext(item), results, validateAllProperties: true))
+                return true;
+
+            foreach (var result in results) Console.WriteLine($"Invalid: {result.ErrorMessage}");
+            return false;
+        }
+
         public bool Update(T item)
         {
+            if (!IsValid(item)) return false;
+
             try { return _dataStore.Update(item);  } 
             catch (Exception ex) { Console.WriteLine($"Exception: {ex.Message}"); return false; }
             
