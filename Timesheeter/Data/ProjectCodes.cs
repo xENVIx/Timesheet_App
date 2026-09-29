@@ -32,6 +32,7 @@ namespace Timesheeter.Data
             public String Location { get; set; } = String.Empty;
 
 
+            // used to allow compatability with the DataComboBox impl...
             [Ignore, GridHidden] public String Name { get { return Code; } set {  Code = value; } }
 
         }
