@@ -32,7 +32,7 @@ namespace Timesheeter.Data
             public String Location { get; set; } = String.Empty;
 
 
-            [Ignore] public String Name { get { return Code; } set {  Code = value; } }
+            [Ignore, GridHidden] public String Name { get { return Code; } set {  Code = value; } }
 
         }
 
