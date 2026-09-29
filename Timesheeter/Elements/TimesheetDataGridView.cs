@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using Timesheeter.Data;
 using Timesheeter.Lib;
@@ -7,28 +8,33 @@ using Timesheeter.UserControls;
 
 namespace Timesheeter.Elements
 {
+    /// <summary>
+    /// A week of hours: one row per project code, one column per day (Monday first), built from
+    /// the time entries. Read-only; it rebuilds itself when time entries change.
+    /// </summary>
     public class TimesheetDataGridView : DataGridView
     {
-
-        private class TimesheetEntry
-        {
-            public String ProjectCode { get; set; }
-            public DateOnly Date { get; set; }
-            public Double Hours { get; set; }
-        }
 
         IFactory? _factory;
         private DateOnly _dateSelected;
 
         private TimeEntries? _timeEntriesFactory;
-        private List<TimeEntries.TimeEntry>? _timeEntries = new List<TimeEntries.TimeEntry>();
+        private ProjectCodes? _projectCodesFactory;
+        private List<TimeEntries.TimeEntry> _timeEntries = new List<TimeEntries.TimeEntry>();
         private int _dateRow = -1;
 
         private volatile bool _postInitOccured = false;
+        private bool _populated = false;
+        private Font? _dateRowFont;
 
         public TimesheetDataGridView() : base()
         {
-
+            // The grid is a report built from the time entries, not bound to them, so edits
+            // here would never be saved.
+            ReadOnly = true;
+            AllowUserToAddRows = false;
+            AllowUserToDeleteRows = false;
+            RowHeadersVisible = false;
         }
 
 
@@ -37,106 +43,79 @@ namespace Timesheeter.Elements
             _factory = factory;
 
             _timeEntriesFactory = _factory.GetData<TimeEntries>();
-
             if (_timeEntriesFactory == null) throw new ArgumentNullException(nameof(_timeEntriesFactory));
+
+            _projectCodesFactory = _factory.GetData<ProjectCodes>();
+            if (_projectCodesFactory == null) throw new ArgumentNullException(nameof(_projectCodesFactory));
+
+            // Keep the week up to date when entries are added or edited on the time entries page.
+            _timeEntriesFactory.All.ListChanged += (s, e) => Rebuild();
+            _projectCodesFactory.All.ListChanged += (s, e) => Rebuild();
 
             _postInitOccured = true;
         }
 
         public void SetStartDate(DateOnly dateOnly)
         {
-            if (dateOnly != _dateSelected)
-            {
-                _dateSelected = dateOnly;
+            // The date picker can set the date before PostInit, so also build the first time
+            // after PostInit even when the date hasn't changed.
+            if (dateOnly == _dateSelected && _populated) return;
 
-                if (_postInitOccured)
-                {
-                    PopulateTimeEntries();
-                    PopulateList();
-                }
-            }
+            _dateSelected = dateOnly;
+            Rebuild();
+        }
+
+        private void Rebuild()
+        {
+            if (!_postInitOccured) return;
+
+            PopulateTimeEntries();
+            PopulateList();
+            _populated = true;
         }
 
         private void PopulateTimeEntries()
         {
-            _timeEntries = _timeEntriesFactory!.All.Where(entry =>
-            {
-                DateOnly sevenDays =
-                DateOnly.FromDateTime(
-                    _dateSelected
-                    .ToDateTime(TimeOnly.MinValue)
-                    .AddDays(6)
-                );
+            DateOnly lastDay = _dateSelected.AddDays(6);
 
-                if (entry.Date >= _dateSelected && entry.Date <= sevenDays) return true;
-                return false;
-            }).ToList();
-
-
-
-            
-
+            // Unfiltered: a filter on the time entries page must not remove hours from the timesheet.
+            _timeEntries = _timeEntriesFactory!.All.Unfiltered
+                .Where(entry => entry.Date >= _dateSelected && entry.Date <= lastDay)
+                .ToList();
         }
 
 
         private void PopulateList()
         {
-            if (_timeEntries == null) return;
-
-            base.Rows.Clear();
+            Rows.Clear();
 
             CreateBaseHeading();
 
-            var consolidated = _timeEntries!
-            .GroupBy(t => new
-            {
-                t.ProjectCodeID,
-                t.Date
-            })
-            .Select(g => new TimesheetEntry
-            {
-                ProjectCode = g.Key.ProjectCodeID.ToString(), // replace with actual code lookup
-                Date = g.Key.Date,
-                Hours = g.Sum(x =>
-                (x.TimeEnd.ToTimeSpan() - x.TimeStart.ToTimeSpan()).TotalHours)
-            })
-            .ToList();
-
-            if (consolidated == null) return;
-
-            //DateOnly date = _dateSelected;
-            foreach (var entry in consolidated)
-            {
-                int newEntryRow = this.Rows.Add();
-                for (int i = 0; i < 8; i++)
+            // One row per project code, with that code's hours summed per day.
+            var byProjectCode = _timeEntries
+                .GroupBy(t => t.ProjectCodeID)
+                .Select(g => new
                 {
-                    
-                    if (i == 0)
+                    ProjectCode = _projectCodesFactory![g.Key]?.Code ?? $"(unknown {g.Key})",
+                    HoursByDate = g
+                        .GroupBy(t => t.Date)
+                        .ToDictionary(d => d.Key, d => d.Sum(x => (x.TimeEnd - x.TimeStart).TotalHours)),
+                })
+                .OrderBy(p => p.ProjectCode, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var project in byProjectCode)
+            {
+                int newEntryRow = Rows.Add();
+                Rows[newEntryRow].Cells[0].Value = project.ProjectCode;
+
+                for (int i = 1; i < 8; i++)
+                {
+                    if (Columns[i].Tag is DateOnly day && project.HoursByDate.TryGetValue(day, out double hours))
                     {
-                        this.Rows[newEntryRow].Cells[i].Value = entry.ProjectCode;
+                        Rows[newEntryRow].Cells[i].Value = hours.ToString("0.##");
                     }
-                    else
-                    {
-                        // get row date...
-                        int addDay = i - 1;
-                        //date = DateOnly.FromDateTime(_dateSelected.ToDateTime(TimeOnly.MinValue).AddDays(addDay));
-
-                        
-                        if (this.Rows[_dateRow].Cells[i].Tag is DateOnly dateRef && entry.Date == dateRef)
-                        {
-                            this.Rows[newEntryRow].Cells[i].Value = entry.Hours.ToString();
-                            break;
-                        }
-
-
-
-                    }
-
                 }
-
             }
-
-            // need consolidated list of entries per project code...
         }
 
         private void CreateBaseHeading()
@@ -145,89 +124,51 @@ namespace Timesheeter.Elements
             // ProjCode | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
             // **       | Date   | Date    | Date      | Date     | Date   | Date     | Date
 
-            this.Columns.Add(new DataGridViewTextBoxColumn()
+            // Built once; later weeks only change the dates.
+            if (Columns.Count == 0)
             {
-                Name = "_colProjCode",
-                HeaderText = "Project Code"
-            });
-
-            this.Columns.Add(new DataGridViewTextBoxColumn()
-            {
-                Name = "_colMonday",
-                HeaderText = "Monday"
-            });
-            
-
-            this.Columns.Add(new DataGridViewTextBoxColumn()
-            {
-                Name = "_colTuesday",
-                HeaderText = "Tuesday"
-            });
-
-            this.Columns.Add(new DataGridViewTextBoxColumn()
-            {
-                Name = "_colWednesday",
-                HeaderText = "Wednesday"
-            });
-
-            this.Columns.Add(new DataGridViewTextBoxColumn()
-            {
-                Name = "_colThursday",
-                HeaderText = "Thursday"
-            });
-
-            this.Columns.Add(new DataGridViewTextBoxColumn()
-            {
-                Name = "_colFriday",
-                HeaderText = "Friday"
-            });
-
-            this.Columns.Add(new DataGridViewTextBoxColumn()
-            {
-                Name = "_colSaturday",
-                HeaderText = "Saturday"
-            });
-
-            this.Columns.Add(new DataGridViewTextBoxColumn()
-            {
-                Name = "_colSunday",
-                HeaderText = "Sunday"
-            });
-
-
-            //Object?[] rowData = new object[8];
-
-            _dateRow = this.Rows.Add();
-            DateOnly date = _dateSelected;
-            
-            for (int i = 0; i < 8; i++)
-            {
-
-                //DataGridViewRowCollection dgvRows = new DataGridViewRowCollection(this)
-                //{
-
-                //};
-                //DataGridViewRow newRow = new DataGridViewRow();
-                //dgvRows.Add(newRow);
-
-                
-
-                if (i == 0)
+                Columns.Add(new DataGridViewTextBoxColumn()
                 {
-                    this.Rows[_dateRow].Cells[i].Value = null;
-                }
-                else
+                    Name = "_colProjCode",
+                    HeaderText = "Project Code"
+                });
+
+                string[] days = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+                foreach (var day in days)
                 {
-                    this.Rows[_dateRow].Cells[i].Value = date.ToString();
-                    this.Rows[_dateRow].Cells[i].Tag = date;
-                    
-                    date = DateOnly.FromDateTime(_dateSelected.ToDateTime(TimeOnly.MinValue).AddDays(1));
+                    Columns.Add(new DataGridViewTextBoxColumn()
+                    {
+                        Name = $"_col{day}",
+                        HeaderText = day
+                    });
                 }
 
-                   
+                // Sorting would move the date row away from the top.
+                foreach (DataGridViewColumn column in Columns)
+                {
+                    column.SortMode = DataGridViewColumnSortMode.NotSortable;
+                }
             }
 
+            _dateRow = Rows.Add();
+            Rows[_dateRow].Frozen = true; // stays at the top when scrolling
+            _dateRowFont ??= new Font(Font, FontStyle.Bold);
+            Rows[_dateRow].DefaultCellStyle.Font = _dateRowFont;
 
+            for (int i = 1; i < 8; i++)
+            {
+                DateOnly date = _dateSelected.AddDays(i - 1);
+
+                // The column's Tag is what hours are matched against; the date row is just for display.
+                Columns[i].Tag = date;
+                Rows[_dateRow].Cells[i].Value = date.ToString();
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _dateRowFont?.Dispose();
+            base.Dispose(disposing);
         }
 
 

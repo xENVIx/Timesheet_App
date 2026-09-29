@@ -15,7 +15,7 @@ dotnet build Timesheeter.slnx     # builds Timesheeter + its LibSqlLite project 
 dotnet run --project Timesheeter.csproj
 ```
 
-`Timesheeter.slnx` references `Timesheeter.csproj`, `../LibSqlLite/LibSqlLite.csproj` and `../Timesheeter.Tests/Timesheeter.Tests.csproj`. `Timesheeter.Tests` targets plain `net10.0` and compiles in (via `<Compile Include=... Link=...>`) only the Timesheeter source files that don't use Windows Forms, such as `Lib/BindingListView.cs`, so its tests run on any OS: `dotnet test ../Timesheeter.Tests`. `LibSqlLite`'s tests live in the separate `../LibSqlLite.Tests` project.
+`Timesheeter.slnx` references `Timesheeter.csproj` and `../LibSqlLite/LibSqlLite.csproj`. The separate `../Timesheeter.Tests` project (not in the solution) targets plain `net10.0` and compiles in (via `<Compile Include=... Link=...>`) only the Timesheeter source files that don't use Windows Forms, such as `Lib/BindingListView.cs`, so its tests run on any OS: `dotnet test ../Timesheeter.Tests`. `LibSqlLite`'s tests live in the separate `../LibSqlLite.Tests` project.
 
 ## Architecture
 
