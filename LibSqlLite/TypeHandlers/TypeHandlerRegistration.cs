@@ -18,11 +18,15 @@ internal static class TypeHandlerRegistration
         RemoveBuiltInMapping<DateTime>();
         RemoveBuiltInMapping<DateTimeOffset>();
         RemoveBuiltInMapping<decimal>();
+        RemoveBuiltInMapping<DateOnly>();
+        RemoveBuiltInMapping<TimeOnly>();
 
         SqlMapper.AddTypeHandler(new GuidTypeHandler());
         SqlMapper.AddTypeHandler(new DateTimeTypeHandler());
         SqlMapper.AddTypeHandler(new DateTimeOffsetTypeHandler());
         SqlMapper.AddTypeHandler(new DecimalTypeHandler());
+        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+        SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
     }
 
     private static void RemoveBuiltInMapping<T>() where T : struct

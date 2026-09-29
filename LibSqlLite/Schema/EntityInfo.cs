@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text;
+using LibSqlLite.TypeHandlers;
 
 namespace LibSqlLite.Schema;
 
@@ -152,7 +154,7 @@ internal sealed class EntityInfo
 
             return c.IsNullable
                 ? $"  [{c.Name}] {c.SqliteType}"
-                : $"  [{c.Name}] {c.SqliteType} NOT NULL DEFAULT {DefaultLiteral(c.SqliteType)}";
+                : $"  [{c.Name}] {c.SqliteType} NOT NULL DEFAULT {DefaultLiteral(c)}";
         });
 
         sb.Append(string.Join(",\n", definitions));
@@ -176,14 +178,30 @@ internal sealed class EntityInfo
             .ToList();
     }
 
-    internal static string DefaultLiteral(string sqliteType) => sqliteType switch
+    /// <summary>
+    /// The DEFAULT for a NOT NULL column: the property type's default value in the same format its
+    /// type handler writes, so rows that predate an added column read back as that default.
+    /// </summary>
+    internal static string DefaultLiteral(ColumnInfo column)
     {
-        "INTEGER" => "0",
-        "REAL" => "0",
-        "TEXT" => "''",
-        "BLOB" => "x''",
-        _ => throw new InvalidOperationException($"Unhandled SQLite type '{sqliteType}'."),
-    };
+        var type = TypeMap.Unwrap(column.Property.PropertyType);
+
+        if (type == typeof(DateOnly)) return $"'{default(DateOnly).ToString(DateOnlyTypeHandler.Format, CultureInfo.InvariantCulture)}'";
+        if (type == typeof(TimeOnly)) return $"'{default(TimeOnly).ToString(TimeOnlyTypeHandler.Format, CultureInfo.InvariantCulture)}'";
+        if (type == typeof(DateTime)) return "'0001-01-01T00:00:00.0000000Z'";
+        if (type == typeof(DateTimeOffset)) return "'0001-01-01T00:00:00.0000000+00:00'";
+        if (type == typeof(Guid)) return $"'{Guid.Empty:D}'";
+        if (type == typeof(decimal)) return "'0'";
+
+        return column.SqliteType switch
+        {
+            "INTEGER" => "0",
+            "REAL" => "0",
+            "TEXT" => "''",
+            "BLOB" => "x''",
+            _ => throw new InvalidOperationException($"Unhandled SQLite type '{column.SqliteType}'."),
+        };
+    }
 
     private static string BuildInsertSql(string tableName, IReadOnlyList<ColumnInfo> insertColumns)
     {

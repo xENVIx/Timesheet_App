@@ -57,7 +57,8 @@ internal static class TypeMap
 
         if (underlying == typeof(decimal) || underlying == typeof(string) ||
             underlying == typeof(Guid) || underlying == typeof(DateTime) ||
-            underlying == typeof(DateTimeOffset))
+            underlying == typeof(DateTimeOffset) || underlying == typeof(DateOnly) ||
+            underlying == typeof(TimeOnly))
         {
             sqliteType = "TEXT";
             return true;

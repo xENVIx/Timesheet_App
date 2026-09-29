@@ -48,7 +48,7 @@ There is no `src/` nesting — the class library's files live directly in the re
 
 ## Implementation notes specific to this codebase
 
-- **Dapper's built-in type map shadows custom handlers.** Dapper has hardcoded `DbType` mappings for `Guid`, `DateTime`, `DateTimeOffset`, and `decimal` that are consulted *before* the `ITypeHandler` registry, so registering handlers for these types via `SqlMapper.AddTypeHandler` alone is silently ignored. `TypeHandlerRegistration` calls `SqlMapper.RemoveTypeMap(typeof(T))` (and `typeof(T?)`) for each of these four types before adding the handler — keep that call, and apply the same pattern if another built-in-mapped type ever needs a custom handler.
+- **Dapper's built-in type map shadows custom handlers.** Dapper has hardcoded `DbType` mappings for `Guid`, `DateTime`, `DateTimeOffset`, and `decimal` that are consulted *before* the `ITypeHandler` registry, so registering handlers for these types via `SqlMapper.AddTypeHandler` alone is silently ignored. `TypeHandlerRegistration` calls `SqlMapper.RemoveTypeMap(typeof(T))` (and `typeof(T?)`) for each of these types (and for `DateOnly`/`TimeOnly`) before adding the handler — keep that call, and apply the same pattern if another built-in-mapped type ever needs a custom handler.
 - **Ambient transaction is `AsyncLocal<SqliteTransaction?>`, not a plain field.** `InTransaction`/`InTransactionAsync` set it so nested calls on the same `SqliteStore` instance enlist in the same transaction instead of opening a new one. It must stay `AsyncLocal` (not `[ThreadStatic]`) because `ThreadStatic` doesn't flow across `await` continuations that resume on a different thread, and it must stay an instance field (not `static`) so two `SqliteStore` instances on the same thread don't see each other's transaction.
 - **Boxing a key value for reflection `SetValue` needs an explicit `(object)` cast on every branch of a ternary.** `cond ? (int)x : longVal` unifies both branches to `long` before boxing, so `SetValue` on an `int`-typed key property throws `ArgumentException`. `SqliteStore.SetKeyValue` casts each branch to `(object)` separately to avoid this.
 - Boxed key parameters (`Get<T>(object id)`, `Delete<T>(object id)`) are passed to Dapper via `DynamicParameters`, not an anonymous object — an anonymous object's property would be typed `object` at compile time, which loses the runtime type Dapper needs to pick the right `ITypeHandler` (e.g. for `Guid` keys).
@@ -82,11 +82,13 @@ There is no `src/` nesting — the class library's files live directly in the re
 | `Guid` | `TEXT` | lowercase `D` format |
 | `DateTime` | `TEXT` | ISO 8601 round-trip (`"O"`); convert to UTC on write |
 | `DateTimeOffset` | `TEXT` | ISO 8601 round-trip (`"O"`) |
+| `DateOnly` | `TEXT` | `yyyy-MM-dd` (fixed width: sorts chronologically, works with SQLite date functions) |
+| `TimeOnly` | `TEXT` | `HH:mm:ss.fffffff` (fixed width, full tick precision) |
 | `byte[]` | `BLOB` | |
 
-Non-nullable CLR value types get `NOT NULL`; reference types and `Nullable<T>` are nullable columns. Columns added later via `ALTER TABLE` must be nullable or have a `DEFAULT` so existing rows stay valid. For non-nullable value types, use the type's default (`0`, `''`, etc.).
+Non-nullable CLR value types get `NOT NULL`; reference types and `Nullable<T>` are nullable columns. Columns added later via `ALTER TABLE` must be nullable or have a `DEFAULT` so existing rows stay valid. For non-nullable value types, the `DEFAULT` is the type's default value written in that type's stored format (`0`, `'0001-01-01'`, `'00000000-0000-0000-0000-000000000000'`, etc. — see `EntityInfo.DefaultLiteral`), so existing rows read back as `default(T)`. Handlers for TEXT-backed value types also read `''` as `default(T)`, for tables migrated by older versions that used `DEFAULT ''`.
 
-Register Dapper `SqlMapper.TypeHandler`s for `Guid`, `DateTime`, `DateTimeOffset`, and `decimal` so values round-trip exactly. Register them once, in a thread-safe static initializer.
+Register Dapper `SqlMapper.TypeHandler`s for `Guid`, `DateTime`, `DateTimeOffset`, `decimal`, `DateOnly`, and `TimeOnly` so values round-trip exactly. Register them once, in a thread-safe static initializer.
 
 ## Schema evolution
 

@@ -15,6 +15,8 @@ internal sealed class DateTimeOffsetTypeHandler : SqlMapper.TypeHandler<DateTime
 
     public override DateTimeOffset Parse(object value) => value switch
     {
+        // Rows from older schema versions may hold '' in a column added later as NOT NULL.
+        string { Length: 0 } => default,
         string s => DateTimeOffset.Parse(s, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
         DateTimeOffset dto => dto,
         _ => throw new InvalidCastException($"Cannot convert '{value}' ({value.GetType()}) to DateTimeOffset."),

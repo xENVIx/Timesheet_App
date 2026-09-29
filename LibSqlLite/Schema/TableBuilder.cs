@@ -41,7 +41,7 @@ internal static class TableBuilder
             alter.CommandText = column.IsNullable
                 ? $"ALTER TABLE [{entity.TableName}] ADD COLUMN [{column.Name}] {column.SqliteType};"
                 : $"ALTER TABLE [{entity.TableName}] ADD COLUMN [{column.Name}] {column.SqliteType} " +
-                  $"NOT NULL DEFAULT {EntityInfo.DefaultLiteral(column.SqliteType)};";
+                  $"NOT NULL DEFAULT {EntityInfo.DefaultLiteral(column)};";
             alter.ExecuteNonQuery();
         }
 
@@ -90,7 +90,7 @@ internal static class TableBuilder
             alter.CommandText = column.IsNullable
                 ? $"ALTER TABLE [{entity.TableName}] ADD COLUMN [{column.Name}] {column.SqliteType};"
                 : $"ALTER TABLE [{entity.TableName}] ADD COLUMN [{column.Name}] {column.SqliteType} " +
-                  $"NOT NULL DEFAULT {EntityInfo.DefaultLiteral(column.SqliteType)};";
+                  $"NOT NULL DEFAULT {EntityInfo.DefaultLiteral(column)};";
             await alter.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 

@@ -14,6 +14,8 @@ internal sealed class GuidTypeHandler : SqlMapper.TypeHandler<Guid>
 
     public override Guid Parse(object value) => value switch
     {
+        // Rows from older schema versions may hold '' in a column added later as NOT NULL.
+        string { Length: 0 } => default,
         string s => Guid.Parse(s),
         Guid g => g,
         _ => throw new InvalidCastException($"Cannot convert '{value}' ({value.GetType()}) to Guid."),

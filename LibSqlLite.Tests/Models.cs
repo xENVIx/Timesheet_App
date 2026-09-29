@@ -185,6 +185,35 @@ public class UniqueKeyModel
     public string Code { get; set; } = "";
 }
 
+public class DateTimeOnlyModel
+{
+    public int Id { get; set; }
+    public DateOnly Date { get; set; }
+    public TimeOnly Time { get; set; }
+    public DateOnly? NullableDate { get; set; }
+    public TimeOnly? NullableTime { get; set; }
+}
+
+[Table("TextDefaultsModel")]
+public class TextDefaultsModelV1
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+}
+
+[Table("TextDefaultsModel")]
+public class TextDefaultsModelV2
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public DateOnly Date { get; set; }
+    public TimeOnly Time { get; set; }
+    public DateTime DateTimeValue { get; set; }
+    public DateTimeOffset DateTimeOffsetValue { get; set; }
+    public Guid GuidValue { get; set; }
+    public decimal DecimalValue { get; set; }
+}
+
 internal sealed class PragmaColumn
 {
     public string Name { get; set; } = "";

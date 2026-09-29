@@ -15,6 +15,8 @@ internal sealed class DateTimeTypeHandler : SqlMapper.TypeHandler<DateTime>
 
     public override DateTime Parse(object value) => value switch
     {
+        // Rows from older schema versions may hold '' in a column added later as NOT NULL.
+        string { Length: 0 } => default,
         string s => DateTime.Parse(s, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
         DateTime dt => dt,
         _ => throw new InvalidCastException($"Cannot convert '{value}' ({value.GetType()}) to DateTime."),
