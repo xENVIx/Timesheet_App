@@ -23,11 +23,44 @@ namespace Timesheeter.UserControls
                 throw new ArgumentNullException(nameof(_factory));
             }
 
-            //_cbCustomer.PostInit(_factory.GetData<Customers>());
-            //_projCodesDgv.PostInit(_factory.GetData<ProjectCodes>(), _factory);
+            projectCodeComboBox1.PostInit(_factory.GetData<ProjectCodes>());
+
+            // Default to a one hour entry starting now.
+            _tpEnd.Time = _tpStart.Time.AddHours(1);
 
         }
 
-        
+        private void _btnAdd_Click(object sender, EventArgs e)
+        {
+            if (_factory == null) throw new ArgumentNullException(nameof(_factory));
+
+            var timeEntries = _factory.GetData<TimeEntries>();
+            if (timeEntries == null) throw new Exception("Failed to retrieve time entries factory");
+
+            var entry = new TimeEntries.TimeEntry()
+            {
+                Date = _dtpDate.Date,
+                TimeStart = _tpStart.Time,
+                TimeEnd = _tpEnd.Time,
+                ProjectCodeID = projectCodeComboBox1.SelectedValue is long id ? id : 0,
+            };
+
+            var errors = timeEntries.GetValidationErrors(entry);
+            if (errors.Count > 0)
+            {
+                MessageBox.Show(string.Join(Environment.NewLine, errors));
+                return;
+            }
+
+            if (!timeEntries.Save(entry))
+            {
+                MessageBox.Show("Failed to save the time entry.");
+                return;
+            }
+
+            // Ready for the next entry: it starts where this one ended.
+            _tpStart.Time = entry.TimeEnd;
+            _tpEnd.Time = entry.TimeEnd.AddHours(1);
+        }
     }
 }

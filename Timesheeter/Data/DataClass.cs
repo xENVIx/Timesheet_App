@@ -30,12 +30,17 @@ namespace Timesheeter.Data
         /// </summary>
         protected bool IsValid(T item)
         {
-            var results = new List<ValidationResult>();
-            if (Validator.TryValidateObject(item, new ValidationContext(item), results, validateAllProperties: true))
-                return true;
+            var errors = GetValidationErrors(item);
+            foreach (var error in errors) Console.WriteLine($"Invalid: {error}");
+            return errors.Count == 0;
+        }
 
-            foreach (var result in results) Console.WriteLine($"Invalid: {result.ErrorMessage}");
-            return false;
+        /// <summary>The item's validation error messages; empty when it can be saved.</summary>
+        public IReadOnlyList<string> GetValidationErrors(T item)
+        {
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(item, new ValidationContext(item), results, validateAllProperties: true);
+            return results.Select(r => r.ErrorMessage ?? "Invalid value.").ToList();
         }
 
         public bool Update(T item)
