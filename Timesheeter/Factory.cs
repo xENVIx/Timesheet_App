@@ -32,8 +32,7 @@ namespace Timesheeter
             _timer.Tick += _timer_Tick;
             
             _timer.Start();
-
-
+                        
         }
 
         private void _timer_Tick(object? sender, EventArgs e)
@@ -61,6 +60,19 @@ namespace Timesheeter
             else if (dataType == typeof(ProjectCodes)) return _projectCodes;
             else if (dataType == typeof(TimeEntries)) return _timeEntries;
             else return null;
+
+        }
+
+        public String[] AvailableDataTypes()
+        {
+
+            return new List<string>()
+            {
+                nameof(Customers),
+                nameof(ProjectCodes),
+                nameof(TimeEntries)
+            }.ToArray();
+
 
         }
         

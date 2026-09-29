@@ -67,12 +67,13 @@
             projectCodeComboBox1.FormattingEnabled = true;
             projectCodeComboBox1.Location = new Point(16, 37);
             projectCodeComboBox1.Name = "projectCodeComboBox1";
-            projectCodeComboBox1.Size = new Size(182, 23);
+            projectCodeComboBox1.Size = new Size(200, 23);
             projectCodeComboBox1.TabIndex = 1;
             projectCodeComboBox1.ValueMember = "ID";
             // 
             // _dtpDate
             // 
+            _dtpDate.Format = DateTimePickerFormat.Short;
             _dtpDate.Location = new Point(16, 88);
             _dtpDate.MaxDate = new DateTime(3000, 12, 31, 0, 0, 0, 0);
             _dtpDate.MinDate = new DateTime(2000, 1, 1, 0, 0, 0, 0);
@@ -100,8 +101,11 @@
             // 
             // _tpStart
             // 
+            _tpStart.CustomFormat = "HH:mm";
+            _tpStart.Format = DateTimePickerFormat.Custom;
             _tpStart.Location = new Point(16, 139);
             _tpStart.Name = "_tpStart";
+            _tpStart.ShowUpDown = true;
             _tpStart.Size = new Size(90, 23);
             _tpStart.TabIndex = 5;
             // 
@@ -116,8 +120,11 @@
             // 
             // _tpEnd
             // 
+            _tpEnd.CustomFormat = "HH:mm";
+            _tpEnd.Format = DateTimePickerFormat.Custom;
             _tpEnd.Location = new Point(126, 139);
             _tpEnd.Name = "_tpEnd";
+            _tpEnd.ShowUpDown = true;
             _tpEnd.Size = new Size(90, 23);
             _tpEnd.TabIndex = 7;
             // 
