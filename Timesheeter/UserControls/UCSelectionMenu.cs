@@ -18,17 +18,29 @@ namespace Timesheeter.UserControls
             _ucNewProjectCode.Dock = DockStyle.Fill;
             _ucNewProjectCode.Visible = false;
             _ucNewProjectCode.Enabled = false;
+
+            _ucCustomers.Dock = DockStyle.Fill;
+            _ucCustomers.Visible = false;
+            _ucCustomers.Enabled = false;
         }
 
         public void PostInit(IFactory factory)
         {
             _ucNewProjectCode.PostInit(factory);
+            _ucCustomers.PostInit(factory);
         }
 
         private void _btnCodes_Click(object sender, EventArgs e)
         {
             _ucNewProjectCode.Enabled = true;
             _ucNewProjectCode.Visible = true;
+        }
+
+        private void _btnCustomers_Click(object sender, EventArgs e)
+        {
+
+            _ucCustomers.Enabled = true;
+            _ucCustomers.Visible = true;
         }
     }
 }

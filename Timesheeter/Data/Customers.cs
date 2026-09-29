@@ -29,7 +29,7 @@ namespace Timesheeter.Data
 
         public class Customer
         {
-            [PrimaryKey] public long ID { get; set; }
+            [PrimaryKey, Browsable(false)] public long ID { get; set; }
             [Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;
 
         }
