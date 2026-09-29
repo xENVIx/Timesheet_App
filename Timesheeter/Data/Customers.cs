@@ -17,7 +17,7 @@ namespace Timesheeter.Data
             get
             {
                 
-                return _list.Where(x => x.ID == key).FirstOrDefault();
+                return _list.Unfiltered.Where(x => x.ID == key).FirstOrDefault();
                 
             } 
         }
@@ -38,8 +38,6 @@ namespace Timesheeter.Data
 
         public Customers(SqliteStore dataStore) : base(dataStore) 
         {
-            _list = new BindingList<Customer>();
-
             _dataStore.EnsureTable<Customer>();
 
             foreach (var customer in _dataStore.All<Customer>())
@@ -51,7 +49,7 @@ namespace Timesheeter.Data
         public Customer? GetCustomerByName(String name)
         {
 
-            return _list.Where(cust => string.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault();
+            return _list.Unfiltered.Where(cust => string.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault();
 
         }
 
@@ -62,7 +60,7 @@ namespace Timesheeter.Data
             //return false;
 
             //if (_list.Exists(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)) return true;
-            if (_list.Where(cust => String.Compare(cust.Name, name.Trim(), StringComparison.InvariantCultureIgnoreCase) == 0).Count() > 0) return true;
+            if (_list.Unfiltered.Where(cust => String.Compare(cust.Name, name.Trim(), StringComparison.InvariantCultureIgnoreCase) == 0).Count() > 0) return true;
 
 
             return false;

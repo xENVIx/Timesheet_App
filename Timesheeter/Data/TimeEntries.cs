@@ -48,14 +48,15 @@ namespace Timesheeter.Data
 
         public TimeEntries(SqliteStore dataStore) : base(dataStore)
         {
-            _list = new BindingList<TimeEntry>();
-
             _dataStore.EnsureTable<TimeEntry>();
 
             foreach (var timeEntry in _dataStore.All<TimeEntry>())
             {
                 _list.Add(timeEntry);
             }
+
+            // Entries are always shown in date and start time order.
+            _list.Sort = "Date, TimeStart";
         }
 
 

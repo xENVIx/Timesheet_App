@@ -16,7 +16,7 @@ namespace Timesheeter.Data
             get
             {
                 
-                return _list.Where(x => x.ID == key).FirstOrDefault();
+                return _list.Unfiltered.Where(x => x.ID == key).FirstOrDefault();
                 
             } 
         }
@@ -40,8 +40,6 @@ namespace Timesheeter.Data
 
         public ProjectCodes(SqliteStore dataStore) : base(dataStore)
         {
-            _list = new BindingList<ProjectCode>();
-
             _dataStore.EnsureTable<ProjectCode>();
 
             foreach (var proj in _dataStore.All<ProjectCode>())
@@ -56,7 +54,7 @@ namespace Timesheeter.Data
             //return false;
 
             //if (_list.Exists(cust => String.Compare(cust.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)) return true;
-            if (_list.Where(code => String.Compare(code.Code, projCode, StringComparison.InvariantCultureIgnoreCase) == 0).ToList().Count > 0) return true;
+            if (_list.Unfiltered.Where(code => String.Compare(code.Code, projCode, StringComparison.InvariantCultureIgnoreCase) == 0).ToList().Count > 0) return true;
 
 
             return false;

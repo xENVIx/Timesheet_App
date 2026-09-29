@@ -49,10 +49,17 @@ namespace Timesheeter.Elements
             // The grid has already written the edited value into the bound object.
             if (Rows[e.RowIndex].DataBoundItem is not T item) return;
 
+            // Moving rows inside CellEndEdit makes the grid throw a reentrancy error, so the
+            // reload / re-sort runs just after the edit has finished.
             if (!_data.Update(item))
             {
                 MessageBox.Show("Could not save the change (blank or duplicate value?).");
-                _data.Reload(item);
+                BeginInvoke(() => _data.Reload(item));
+            }
+            else
+            {
+                // The edit may have changed where the row sorts to, or whether it matches the filter.
+                BeginInvoke(() => _data.All.Reposition(item));
             }
         }
 

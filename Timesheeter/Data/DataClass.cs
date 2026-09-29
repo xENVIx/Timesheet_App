@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Timesheeter.Lib;
 using static Timesheeter.Data.ProjectCodes;
 
 namespace Timesheeter.Data
@@ -21,7 +22,7 @@ namespace Timesheeter.Data
         public DataClass(SqliteStore dataStore)
         {
             _dataStore = dataStore;
-            _list = new BindingList<T>();
+            _list = new BindingListView<T>();
         }
 
         /// <summary>
@@ -79,11 +80,15 @@ namespace Timesheeter.Data
 
         
 
-        public BindingList<T> All { get { return _list; } }
+        /// <summary>
+        /// The items, sortable and filterable (e.g. through a BindingSource). A filter hides items
+        /// from everything bound to this list; use All.Unfiltered to look through every item.
+        /// </summary>
+        public BindingListView<T> All { get { return _list; } }
 
         IBindingList IDataClass.All { get { return _list; } }
 
-        protected BindingList<T> _list;
+        protected BindingListView<T> _list;
 
 
 
