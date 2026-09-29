@@ -8,5 +8,11 @@ namespace Timesheeter.Elements
     public class ProjectCodeComboBox : DataComboBox<ProjectCodes.ProjectCode>
     {
 
+        public ProjectCodeComboBox() : base()
+        {
+            base.DisplayMember = "Code";
+        }
+
+
     }
 }
