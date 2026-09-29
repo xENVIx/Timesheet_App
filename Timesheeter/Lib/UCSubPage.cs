@@ -23,7 +23,7 @@ namespace Timesheeter.Lib
 
         protected virtual void PostInit()
         {
-
+            throw new NotImplementedException($"PostInit must be implemented");
         }
 
         public void PostInit(IFactory factory)

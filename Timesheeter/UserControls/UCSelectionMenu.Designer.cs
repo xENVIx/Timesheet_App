@@ -75,9 +75,9 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(_ucCustomers);
-            Controls.Add(_btnCustomers);
             Controls.Add(_ucNewProjectCode);
             Controls.Add(_btnCodes);
+            Controls.Add(_btnCustomers);
             Name = "UCSelectionMenu";
             Size = new Size(608, 477);
             ResumeLayout(false);

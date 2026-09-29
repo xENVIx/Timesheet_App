@@ -30,16 +30,16 @@
         {
             _btnSave = new Button();
             label1 = new Label();
-            textBox1 = new TextBox();
-            customersDataGridView1 = new Timesheeter.Elements.CustomersDataGridView();
+            _tbCustName = new TextBox();
+            _custDgv = new Timesheeter.Elements.CustomersDataGridView();
             _pnlElements.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)customersDataGridView1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)_custDgv).BeginInit();
             SuspendLayout();
             // 
             // _pnlElements
             // 
-            _pnlElements.Controls.Add(customersDataGridView1);
-            _pnlElements.Controls.Add(textBox1);
+            _pnlElements.Controls.Add(_custDgv);
+            _pnlElements.Controls.Add(_tbCustName);
             _pnlElements.Controls.Add(label1);
             _pnlElements.Controls.Add(_btnSave);
             _pnlElements.Size = new Size(779, 370);
@@ -52,6 +52,7 @@
             _btnSave.TabIndex = 3;
             _btnSave.Text = "Add";
             _btnSave.UseVisualStyleBackColor = true;
+            _btnSave.Click += _btnSave_Click;
             // 
             // label1
             // 
@@ -64,19 +65,19 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(28, 35);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(149, 23);
-            textBox1.TabIndex = 5;
+            _tbCustName.Location = new Point(28, 35);
+            _tbCustName.Name = "textBox1";
+            _tbCustName.Size = new Size(149, 23);
+            _tbCustName.TabIndex = 5;
             // 
-            // customersDataGridView1
+            // _custDgv
             // 
-            customersDataGridView1.AllowUserToAddRows = false;
-            customersDataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            customersDataGridView1.Location = new Point(183, 35);
-            customersDataGridView1.Name = "customersDataGridView1";
-            customersDataGridView1.Size = new Size(567, 294);
-            customersDataGridView1.TabIndex = 6;
+            _custDgv.AllowUserToAddRows = false;
+            _custDgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _custDgv.Location = new Point(183, 35);
+            _custDgv.Name = "_custDgv";
+            _custDgv.Size = new Size(567, 294);
+            _custDgv.TabIndex = 6;
             // 
             // UCCustomers
             // 
@@ -86,15 +87,15 @@
             Size = new Size(779, 403);
             _pnlElements.ResumeLayout(false);
             _pnlElements.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)customersDataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)_custDgv).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private TextBox textBox1;
+        private TextBox _tbCustName;
         private Label label1;
         private Button _btnSave;
-        private Elements.CustomersDataGridView customersDataGridView1;
+        private Elements.CustomersDataGridView _custDgv;
     }
 }
