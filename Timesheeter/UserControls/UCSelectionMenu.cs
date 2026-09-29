@@ -26,6 +26,10 @@ namespace Timesheeter.UserControls
             _ucTimeEntries.Dock = DockStyle.Fill;
             _ucTimeEntries.Visible = false;
             _ucTimeEntries.Enabled = false;
+
+            _ucTimesheet.Dock = DockStyle.Fill;
+            _ucTimesheet.Visible = false;
+            _ucTimesheet.Enabled = false;
         }
 
         public void PostInit(IFactory factory)
@@ -33,6 +37,7 @@ namespace Timesheeter.UserControls
             _ucNewProjectCode.PostInit(factory);
             _ucCustomers.PostInit(factory);
             _ucTimeEntries.PostInit(factory);
+            _ucTimesheet.PostInit(factory);
         }
 
         private void _btnCodes_Click(object sender, EventArgs e)
@@ -51,6 +56,12 @@ namespace Timesheeter.UserControls
         {
             _ucTimeEntries.Enabled = true;
             _ucTimeEntries.Visible = true;
+        }
+
+        private void _btnTimeSheet_Click(object sender, EventArgs e)
+        {
+            _ucTimesheet.Enabled = true;
+            _ucTimesheet.Visible = true;
         }
     }
 }

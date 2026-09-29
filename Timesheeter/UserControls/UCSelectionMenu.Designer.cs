@@ -34,6 +34,8 @@
             _ucCustomers = new UCCustomers();
             _btnTimeEntries = new Button();
             _ucTimeEntries = new UCTimeEntries();
+            _btnTimeSheet = new Button();
+            _ucTimesheet = new UCTimesheet();
             SuspendLayout();
             // 
             // _btnCodes
@@ -90,16 +92,36 @@
             _ucTimeEntries.TabIndex = 5;
             _ucTimeEntries.Visible = false;
             // 
+            // _btnTimeSheet
+            // 
+            _btnTimeSheet.Location = new Point(31, 183);
+            _btnTimeSheet.Name = "_btnTimeSheet";
+            _btnTimeSheet.Size = new Size(93, 43);
+            _btnTimeSheet.TabIndex = 6;
+            _btnTimeSheet.Text = "View Timesheet";
+            _btnTimeSheet.UseVisualStyleBackColor = true;
+            _btnTimeSheet.Click += _btnTimeSheet_Click;
+            // 
+            // _ucTimesheet
+            // 
+            _ucTimesheet.Location = new Point(618, 495);
+            _ucTimesheet.Name = "_ucTimesheet";
+            _ucTimesheet.Size = new Size(871, 539);
+            _ucTimesheet.TabIndex = 7;
+            _ucTimesheet.Visible = false;
+            // 
             // UCSelectionMenu
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(_ucTimesheet);
             Controls.Add(_ucTimeEntries);
             Controls.Add(_ucCustomers);
             Controls.Add(_ucNewProjectCode);
             Controls.Add(_btnCodes);
             Controls.Add(_btnCustomers);
             Controls.Add(_btnTimeEntries);
+            Controls.Add(_btnTimeSheet);
             Name = "UCSelectionMenu";
             Size = new Size(608, 477);
             ResumeLayout(false);
@@ -113,5 +135,7 @@
         private UCCustomers _ucCustomers;
         private Button _btnTimeEntries;
         private UCTimeEntries _ucTimeEntries;
+        private Button _btnTimeSheet;
+        private UCTimesheet _ucTimesheet;
     }
 }

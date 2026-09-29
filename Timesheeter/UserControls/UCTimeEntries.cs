@@ -23,9 +23,11 @@ namespace Timesheeter.UserControls
                 throw new ArgumentNullException(nameof(_factory));
             }
 
-            projectCodeComboBox1.PostInit(_factory.GetData<ProjectCodes>());
+            _cbProjCodes.PostInit(_factory.GetData<ProjectCodes>());
+            _dgvTimeEntries.PostInit(_factory.GetData<TimeEntries>(), _factory);
 
             // Default to a one hour entry starting now.
+
             _tpEnd.Time = _tpStart.Time.AddHours(1);
 
         }
@@ -42,7 +44,7 @@ namespace Timesheeter.UserControls
                 Date = _dtpDate.Date,
                 TimeStart = _tpStart.Time,
                 TimeEnd = _tpEnd.Time,
-                ProjectCodeID = projectCodeComboBox1.SelectedValue is long id ? id : 0,
+                ProjectCodeID = _cbProjCodes.SelectedValue is long id ? id : 0,
             };
 
             var errors = timeEntries.GetValidationErrors(entry);

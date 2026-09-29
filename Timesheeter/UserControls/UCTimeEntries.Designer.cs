@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             label1 = new Label();
-            projectCodeComboBox1 = new Timesheeter.Elements.ProjectCodeComboBox();
+            _cbProjCodes = new Timesheeter.Elements.ProjectCodeComboBox();
             _dtpDate = new Timesheeter.Lib.DatePicker();
             label2 = new Label();
             label3 = new Label();
@@ -37,11 +37,14 @@
             label4 = new Label();
             _tpEnd = new Timesheeter.Lib.TimePicker();
             _btnAdd = new Button();
+            _dgvTimeEntries = new Timesheeter.Elements.TimeEntriesDataGridView();
             _pnlElements.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)_dgvTimeEntries).BeginInit();
             SuspendLayout();
             // 
             // _pnlElements
             // 
+            _pnlElements.Controls.Add(_dgvTimeEntries);
             _pnlElements.Controls.Add(_btnAdd);
             _pnlElements.Controls.Add(_tpEnd);
             _pnlElements.Controls.Add(label4);
@@ -49,7 +52,7 @@
             _pnlElements.Controls.Add(label3);
             _pnlElements.Controls.Add(label2);
             _pnlElements.Controls.Add(_dtpDate);
-            _pnlElements.Controls.Add(projectCodeComboBox1);
+            _pnlElements.Controls.Add(_cbProjCodes);
             _pnlElements.Controls.Add(label1);
             // 
             // label1
@@ -63,13 +66,13 @@
             // 
             // projectCodeComboBox1
             // 
-            projectCodeComboBox1.DisplayMember = "Code";
-            projectCodeComboBox1.FormattingEnabled = true;
-            projectCodeComboBox1.Location = new Point(16, 37);
-            projectCodeComboBox1.Name = "projectCodeComboBox1";
-            projectCodeComboBox1.Size = new Size(200, 23);
-            projectCodeComboBox1.TabIndex = 1;
-            projectCodeComboBox1.ValueMember = "ID";
+            _cbProjCodes.DisplayMember = "Code";
+            _cbProjCodes.FormattingEnabled = true;
+            _cbProjCodes.Location = new Point(16, 37);
+            _cbProjCodes.Name = "projectCodeComboBox1";
+            _cbProjCodes.Size = new Size(200, 23);
+            _cbProjCodes.TabIndex = 1;
+            _cbProjCodes.ValueMember = "ID";
             // 
             // _dtpDate
             // 
@@ -132,11 +135,20 @@
             // 
             _btnAdd.Location = new Point(16, 178);
             _btnAdd.Name = "_btnAdd";
-            _btnAdd.Size = new Size(121, 23);
+            _btnAdd.Size = new Size(90, 23);
             _btnAdd.TabIndex = 8;
             _btnAdd.Text = "Add Entry";
             _btnAdd.UseVisualStyleBackColor = true;
             _btnAdd.Click += _btnAdd_Click;
+            // 
+            // timeEntriesDataGridView1
+            // 
+            _dgvTimeEntries.AllowUserToAddRows = false;
+            _dgvTimeEntries.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _dgvTimeEntries.Location = new Point(232, 37);
+            _dgvTimeEntries.Name = "timeEntriesDataGridView1";
+            _dgvTimeEntries.Size = new Size(676, 399);
+            _dgvTimeEntries.TabIndex = 9;
             // 
             // UCTimeEntries
             // 
@@ -145,12 +157,13 @@
             Name = "UCTimeEntries";
             _pnlElements.ResumeLayout(false);
             _pnlElements.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)_dgvTimeEntries).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Elements.ProjectCodeComboBox projectCodeComboBox1;
+        private Elements.ProjectCodeComboBox _cbProjCodes;
         private Label label1;
         private Label label2;
         private Timesheeter.Lib.DatePicker _dtpDate;
@@ -159,5 +172,6 @@
         private Label label4;
         private Timesheeter.Lib.TimePicker _tpEnd;
         private Button _btnAdd;
+        private Elements.TimeEntriesDataGridView _dgvTimeEntries;
     }
 }
