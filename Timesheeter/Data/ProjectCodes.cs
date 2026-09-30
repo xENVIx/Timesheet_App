@@ -35,8 +35,6 @@ namespace Timesheeter.Data
             // used to allow compatability with the DataComboBox impl...
             [Ignore, GridHidden] public String Name { get { return Code; } set {  Code = value; } }
 
-            // bweiss TODO I want to make the value in the ComboBox show: <CustomerName>-<ProjectCode>-<Location>
-
         }
 
 

@@ -23,7 +23,7 @@ namespace Timesheeter.UserControls
                 throw new ArgumentNullException(nameof(_factory));
             }
 
-            _cbProjCodes.PostInit(_factory.GetData<ProjectCodes>());
+            _cbProjCodes.PostInit(_factory.GetData<ProjectCodes>(), _factory.GetData<Customers>());
             _dgvTimeEntries.PostInit(_factory.GetData<TimeEntries>(), _factory);
 
             // Default to a one hour entry starting now.
