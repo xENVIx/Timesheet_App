@@ -10,7 +10,8 @@ namespace Timesheeter.Elements
 {
     /// <summary>
     /// A week of hours: one row per project code, one column per day (Monday first), built from
-    /// the time entries. Read-only; it rebuilds itself when time entries change.
+    /// the time entries, with a Total column per project and a Total row per day.
+    /// Read-only; it rebuilds itself when time entries change.
     /// </summary>
     public class TimesheetDataGridView : DataGridView
     {
@@ -22,10 +23,14 @@ namespace Timesheeter.Elements
         private ProjectCodes? _projectCodesFactory;
         private List<TimeEntries.TimeEntry> _timeEntries = new List<TimeEntries.TimeEntry>();
         private int _dateRow = -1;
+        private int _totalRow = -1;
+
+        private const int FirstDayColumn = 1;
+        private const int TotalColumn = 8;
 
         private volatile bool _postInitOccured = false;
         private bool _populated = false;
-        private Font? _dateRowFont;
+        private Font? _boldFont;
 
         public TimesheetDataGridView() : base()
         {
@@ -103,26 +108,56 @@ namespace Timesheeter.Elements
                 })
                 .OrderBy(p => p.ProjectCode, StringComparer.OrdinalIgnoreCase);
 
+            // Summed from the hours themselves, not the displayed (rounded) text.
+            var dayTotals = new double[7];
+
             foreach (var project in byProjectCode)
             {
                 int newEntryRow = Rows.Add();
                 Rows[newEntryRow].Cells[0].Value = project.ProjectCode;
 
-                for (int i = 1; i < 8; i++)
+                double projectTotal = 0;
+                for (int i = FirstDayColumn; i < TotalColumn; i++)
                 {
                     if (Columns[i].Tag is DateOnly day && project.HoursByDate.TryGetValue(day, out double hours))
                     {
-                        Rows[newEntryRow].Cells[i].Value = hours.ToString("0.##");
+                        Rows[newEntryRow].Cells[i].Value = FormatHours(hours);
+                        dayTotals[i - FirstDayColumn] += hours;
+                        projectTotal += hours;
                     }
                 }
+
+                Rows[newEntryRow].Cells[TotalColumn].Value = FormatHours(projectTotal);
             }
+
+            CreateTotalRow(dayTotals);
         }
+
+        private void CreateTotalRow(double[] dayTotals)
+        {
+            _totalRow = Rows.Add();
+            Rows[_totalRow].DefaultCellStyle.Font = _boldFont;
+            Rows[_totalRow].Cells[0].Value = "Total";
+
+            for (int i = FirstDayColumn; i < TotalColumn; i++)
+            {
+                double total = dayTotals[i - FirstDayColumn];
+                if (total > 0) Rows[_totalRow].Cells[i].Value = FormatHours(total);
+            }
+
+            // Always shown, so an empty week reads as 0 rather than blank.
+            Rows[_totalRow].Cells[TotalColumn].Value = FormatHours(dayTotals.Sum());
+        }
+
+        private static string FormatHours(double hours) => hours.ToString("0.##");
 
         private void CreateBaseHeading()
         {
 
-            // ProjCode | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
-            // **       | Date   | Date    | Date      | Date     | Date   | Date     | Date
+            // ProjCode | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday | Total
+            // **       | Date   | Date    | Date      | Date     | Date   | Date     | Date   |
+            // <code>   | hours  | ...                                                | row total
+            // Total    | day totals ...                                              | week total
 
             // Built once; later weeks only change the dates.
             if (Columns.Count == 0)
@@ -143,6 +178,15 @@ namespace Timesheeter.Elements
                     });
                 }
 
+                _boldFont ??= new Font(Font, FontStyle.Bold);
+
+                Columns.Add(new DataGridViewTextBoxColumn()
+                {
+                    Name = "_colTotal",
+                    HeaderText = "Total",
+                    DefaultCellStyle = { Font = _boldFont },
+                });
+
                 // Sorting would move the date row away from the top.
                 foreach (DataGridViewColumn column in Columns)
                 {
@@ -152,12 +196,11 @@ namespace Timesheeter.Elements
 
             _dateRow = Rows.Add();
             Rows[_dateRow].Frozen = true; // stays at the top when scrolling
-            _dateRowFont ??= new Font(Font, FontStyle.Bold);
-            Rows[_dateRow].DefaultCellStyle.Font = _dateRowFont;
+            Rows[_dateRow].DefaultCellStyle.Font = _boldFont;
 
-            for (int i = 1; i < 8; i++)
+            for (int i = FirstDayColumn; i < TotalColumn; i++)
             {
-                DateOnly date = _dateSelected.AddDays(i - 1);
+                DateOnly date = _dateSelected.AddDays(i - FirstDayColumn);
 
                 // The column's Tag is what hours are matched against; the date row is just for display.
                 Columns[i].Tag = date;
@@ -167,7 +210,7 @@ namespace Timesheeter.Elements
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) _dateRowFont?.Dispose();
+            if (disposing) _boldFont?.Dispose();
             base.Dispose(disposing);
         }
 
