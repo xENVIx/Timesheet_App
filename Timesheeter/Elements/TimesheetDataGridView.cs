@@ -96,15 +96,15 @@ namespace Timesheeter.Elements
 
             CreateBaseHeading();
 
-            // One row per project code, with that code's hours summed per day.
+            // One row per project code, with that code's entries per day (in start time order).
             var byProjectCode = _timeEntries
                 .GroupBy(t => t.ProjectCodeID)
                 .Select(g => new
                 {
                     ProjectCode = _projectCodesFactory![g.Key]?.Code ?? $"(unknown {g.Key})",
-                    HoursByDate = g
+                    EntriesByDate = g
                         .GroupBy(t => t.Date)
-                        .ToDictionary(d => d.Key, d => d.Sum(x => (x.TimeEnd - x.TimeStart).TotalHours)),
+                        .ToDictionary(d => d.Key, d => d.OrderBy(x => x.TimeStart).ToList()),
                 })
                 .OrderBy(p => p.ProjectCode, StringComparer.OrdinalIgnoreCase);
 
@@ -119,9 +119,11 @@ namespace Timesheeter.Elements
                 double projectTotal = 0;
                 for (int i = FirstDayColumn; i < TotalColumn; i++)
                 {
-                    if (Columns[i].Tag is DateOnly day && project.HoursByDate.TryGetValue(day, out double hours))
+                    if (Columns[i].Tag is DateOnly day && project.EntriesByDate.TryGetValue(day, out var entries))
                     {
+                        double hours = entries.Sum(x => x.Hours);
                         Rows[newEntryRow].Cells[i].Value = FormatHours(hours);
+                        Rows[newEntryRow].Cells[i].ToolTipText = EntriesToolTip(entries);
                         dayTotals[i - FirstDayColumn] += hours;
                         projectTotal += hours;
                     }
@@ -150,6 +152,15 @@ namespace Timesheeter.Elements
         }
 
         private static string FormatHours(double hours) => hours.ToString("0.##");
+
+        /// <summary>One line per time entry, e.g. "hours: 1.5, comment: Site visit".</summary>
+        private static string EntriesToolTip(IEnumerable<TimeEntries.TimeEntry> entries)
+        {
+            return string.Join(Environment.NewLine, entries.Select(entry =>
+                string.IsNullOrWhiteSpace(entry.Comment)
+                    ? $"hours: {FormatHours(entry.Hours)}"
+                    : $"hours: {FormatHours(entry.Hours)}, comment: {entry.Comment.Trim()}"));
+        }
 
         private void CreateBaseHeading()
         {
