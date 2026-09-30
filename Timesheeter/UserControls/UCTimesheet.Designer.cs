@@ -55,10 +55,11 @@
             // _datePicker
             // 
             _datePicker.Format = DateTimePickerFormat.Short;
-            _datePicker.Location = new Point(28, 39);
+            _datePicker.Location = new Point(3, 21);
             _datePicker.Name = "_datePicker";
             _datePicker.Size = new Size(115, 23);
-            _datePicker.TabIndex = 2;
+            _datePicker.TabIndex = 1;
+            _datePicker.ValueChanged += _datePickerChanged;
             // 
             // _dgvTimesheet
             // 
@@ -71,12 +72,12 @@
             _dgvTimesheet.ReadOnly = true;
             _dgvTimesheet.RowHeadersVisible = false;
             _dgvTimesheet.Size = new Size(573, 506);
-            _dgvTimesheet.TabIndex = 4;
+            _dgvTimesheet.TabIndex = 2;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(28, 21);
+            label1.Location = new Point(3, 3);
             label1.Name = "label1";
             label1.Size = new Size(63, 15);
             label1.TabIndex = 3;

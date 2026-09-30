@@ -29,6 +29,8 @@ namespace Timesheeter.Data
             [Required, DisplayName("Entry Start Time")] public TimeOnly TimeStart { get; set; }
             [Required, DisplayName("Entry End Time")] public TimeOnly TimeEnd { get; set; }
             [Required, DisplayName("Project Code"), GridLookup(typeof(ProjectCodes), "Code")] public long ProjectCodeID { get; set; }
+            [DisplayName("Comment")] public String Comment { get; set; } = String.Empty;
+
 
             [Ignore, DisplayName("Hours")] public Double Hours
             {

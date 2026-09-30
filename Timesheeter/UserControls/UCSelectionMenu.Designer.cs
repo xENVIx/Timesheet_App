@@ -36,21 +36,25 @@
             _ucTimeEntries = new UCTimeEntries();
             _btnTimeSheet = new Button();
             _ucTimesheet = new UCTimesheet();
+            panel1 = new Panel();
+            _pnlControls = new Panel();
+            panel1.SuspendLayout();
+            _pnlControls.SuspendLayout();
             SuspendLayout();
             // 
             // _btnCodes
             // 
-            _btnCodes.Location = new Point(31, 85);
+            _btnCodes.Location = new Point(3, 52);
             _btnCodes.Name = "_btnCodes";
             _btnCodes.Size = new Size(93, 43);
-            _btnCodes.TabIndex = 0;
+            _btnCodes.TabIndex = 2;
             _btnCodes.Text = "Project Code Managment";
             _btnCodes.UseVisualStyleBackColor = true;
             _btnCodes.Click += _btnCodes_Click;
             // 
             // _ucNewProjectCode
             // 
-            _ucNewProjectCode.Location = new Point(625, 501);
+            _ucNewProjectCode.Location = new Point(387, 536);
             _ucNewProjectCode.Name = "_ucNewProjectCode";
             _ucNewProjectCode.Size = new Size(577, 413);
             _ucNewProjectCode.TabIndex = 1;
@@ -58,17 +62,17 @@
             // 
             // _btnCustomers
             // 
-            _btnCustomers.Location = new Point(31, 36);
+            _btnCustomers.Location = new Point(3, 3);
             _btnCustomers.Name = "_btnCustomers";
             _btnCustomers.Size = new Size(93, 43);
-            _btnCustomers.TabIndex = 2;
+            _btnCustomers.TabIndex = 1;
             _btnCustomers.Text = "Customer Managment";
             _btnCustomers.UseVisualStyleBackColor = true;
             _btnCustomers.Click += _btnCustomers_Click;
             // 
             // _ucCustomers
             // 
-            _ucCustomers.Location = new Point(628, 457);
+            _ucCustomers.Location = new Point(460, 542);
             _ucCustomers.Name = "_ucCustomers";
             _ucCustomers.Size = new Size(779, 403);
             _ucCustomers.TabIndex = 3;
@@ -76,17 +80,17 @@
             // 
             // _btnTimeEntries
             // 
-            _btnTimeEntries.Location = new Point(31, 134);
+            _btnTimeEntries.Location = new Point(3, 101);
             _btnTimeEntries.Name = "_btnTimeEntries";
             _btnTimeEntries.Size = new Size(93, 43);
-            _btnTimeEntries.TabIndex = 4;
+            _btnTimeEntries.TabIndex = 3;
             _btnTimeEntries.Text = "Time Entry Managment";
             _btnTimeEntries.UseVisualStyleBackColor = true;
             _btnTimeEntries.Click += _btnTimeEntries_Click;
             // 
             // _ucTimeEntries
             // 
-            _ucTimeEntries.Location = new Point(627, 495);
+            _ucTimeEntries.Location = new Point(454, 543);
             _ucTimeEntries.Name = "_ucTimeEntries";
             _ucTimeEntries.Size = new Size(628, 480);
             _ucTimeEntries.TabIndex = 5;
@@ -94,36 +98,56 @@
             // 
             // _btnTimeSheet
             // 
-            _btnTimeSheet.Location = new Point(31, 183);
+            _btnTimeSheet.Location = new Point(3, 150);
             _btnTimeSheet.Name = "_btnTimeSheet";
             _btnTimeSheet.Size = new Size(93, 43);
-            _btnTimeSheet.TabIndex = 6;
+            _btnTimeSheet.TabIndex = 4;
             _btnTimeSheet.Text = "View Timesheet";
             _btnTimeSheet.UseVisualStyleBackColor = true;
             _btnTimeSheet.Click += _btnTimeSheet_Click;
             // 
             // _ucTimesheet
             // 
-            _ucTimesheet.Location = new Point(618, 495);
+            _ucTimesheet.Location = new Point(471, 538);
             _ucTimesheet.Name = "_ucTimesheet";
             _ucTimesheet.Size = new Size(871, 539);
             _ucTimesheet.TabIndex = 7;
             _ucTimesheet.Visible = false;
             // 
+            // panel1
+            // 
+            panel1.Controls.Add(_btnCustomers);
+            panel1.Controls.Add(_btnTimeSheet);
+            panel1.Controls.Add(_btnTimeEntries);
+            panel1.Controls.Add(_btnCodes);
+            panel1.Dock = DockStyle.Left;
+            panel1.Location = new Point(0, 0);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(104, 477);
+            panel1.TabIndex = 8;
+            // 
+            // _pnlControls
+            // 
+            _pnlControls.Controls.Add(_ucCustomers);
+            _pnlControls.Controls.Add(_ucNewProjectCode);
+            _pnlControls.Controls.Add(_ucTimesheet);
+            _pnlControls.Controls.Add(_ucTimeEntries);
+            _pnlControls.Dock = DockStyle.Fill;
+            _pnlControls.Location = new Point(104, 0);
+            _pnlControls.Name = "_pnlControls";
+            _pnlControls.Size = new Size(504, 477);
+            _pnlControls.TabIndex = 9;
+            // 
             // UCSelectionMenu
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(_ucTimesheet);
-            Controls.Add(_ucTimeEntries);
-            Controls.Add(_ucCustomers);
-            Controls.Add(_ucNewProjectCode);
-            Controls.Add(_btnCodes);
-            Controls.Add(_btnCustomers);
-            Controls.Add(_btnTimeEntries);
-            Controls.Add(_btnTimeSheet);
+            Controls.Add(_pnlControls);
+            Controls.Add(panel1);
             Name = "UCSelectionMenu";
             Size = new Size(608, 477);
+            panel1.ResumeLayout(false);
+            _pnlControls.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -137,5 +161,7 @@
         private UCTimeEntries _ucTimeEntries;
         private Button _btnTimeSheet;
         private UCTimesheet _ucTimesheet;
+        private Panel panel1;
+        private Panel _pnlControls;
     }
 }

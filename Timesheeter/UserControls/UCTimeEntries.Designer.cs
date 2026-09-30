@@ -38,6 +38,8 @@
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
+            _tbComment = new TextBox();
+            label5 = new Label();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
@@ -46,6 +48,8 @@
             // 
             // _pnlSideBar
             // 
+            _pnlSideBar.Controls.Add(label5);
+            _pnlSideBar.Controls.Add(_tbComment);
             _pnlSideBar.Controls.Add(label4);
             _pnlSideBar.Controls.Add(label3);
             _pnlSideBar.Controls.Add(label2);
@@ -62,21 +66,22 @@
             // 
             // _btnAdd
             // 
-            _btnAdd.Location = new Point(3, 200);
+            _btnAdd.Location = new Point(3, 182);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(90, 23);
-            _btnAdd.TabIndex = 9;
+            _btnAdd.TabIndex = 6;
             _btnAdd.Text = "Add Entry";
             _btnAdd.UseVisualStyleBackColor = true;
+            _btnAdd.Click += _btnAdd_Click;
             // 
             // _cbProjCodes
             // 
             _cbProjCodes.DisplayMember = "Code";
             _cbProjCodes.FormattingEnabled = true;
-            _cbProjCodes.Location = new Point(3, 44);
+            _cbProjCodes.Location = new Point(3, 21);
             _cbProjCodes.Name = "_cbProjCodes";
-            _cbProjCodes.Size = new Size(200, 23);
-            _cbProjCodes.TabIndex = 10;
+            _cbProjCodes.Size = new Size(289, 23);
+            _cbProjCodes.TabIndex = 1;
             _cbProjCodes.ValueMember = "ID";
             // 
             // _dgvTimeEntries
@@ -87,42 +92,42 @@
             _dgvTimeEntries.Location = new Point(0, 0);
             _dgvTimeEntries.Name = "_dgvTimeEntries";
             _dgvTimeEntries.Size = new Size(672, 616);
-            _dgvTimeEntries.TabIndex = 10;
+            _dgvTimeEntries.TabIndex = 7;
             // 
             // _dtpDate
             // 
             _dtpDate.Format = DateTimePickerFormat.Short;
-            _dtpDate.Location = new Point(3, 88);
+            _dtpDate.Location = new Point(3, 65);
             _dtpDate.MaxDate = new DateTime(3000, 12, 31, 0, 0, 0, 0);
             _dtpDate.MinDate = new DateTime(2000, 1, 1, 0, 0, 0, 0);
             _dtpDate.Name = "_dtpDate";
-            _dtpDate.Size = new Size(200, 23);
-            _dtpDate.TabIndex = 11;
+            _dtpDate.Size = new Size(289, 23);
+            _dtpDate.TabIndex = 2;
             // 
             // _tpEnd
             // 
             _tpEnd.CustomFormat = "HH:mm";
             _tpEnd.Format = DateTimePickerFormat.Custom;
-            _tpEnd.Location = new Point(113, 139);
+            _tpEnd.Location = new Point(160, 109);
             _tpEnd.Name = "_tpEnd";
             _tpEnd.ShowUpDown = true;
-            _tpEnd.Size = new Size(90, 23);
-            _tpEnd.TabIndex = 12;
+            _tpEnd.Size = new Size(132, 23);
+            _tpEnd.TabIndex = 4;
             // 
             // _tpStart
             // 
             _tpStart.CustomFormat = "HH:mm";
             _tpStart.Format = DateTimePickerFormat.Custom;
-            _tpStart.Location = new Point(3, 139);
+            _tpStart.Location = new Point(3, 109);
             _tpStart.Name = "_tpStart";
             _tpStart.ShowUpDown = true;
-            _tpStart.Size = new Size(90, 23);
-            _tpStart.TabIndex = 13;
+            _tpStart.Size = new Size(132, 23);
+            _tpStart.TabIndex = 3;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(3, 26);
+            label1.Location = new Point(3, 3);
             label1.Name = "label1";
             label1.Size = new Size(75, 15);
             label1.TabIndex = 14;
@@ -131,7 +136,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(3, 70);
+            label2.Location = new Point(3, 47);
             label2.Name = "label2";
             label2.Size = new Size(31, 15);
             label2.TabIndex = 15;
@@ -140,7 +145,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(3, 121);
+            label3.Location = new Point(3, 91);
             label3.Name = "label3";
             label3.Size = new Size(31, 15);
             label3.TabIndex = 16;
@@ -149,11 +154,27 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(113, 121);
+            label4.Location = new Point(160, 91);
             label4.Name = "label4";
             label4.Size = new Size(27, 15);
             label4.TabIndex = 17;
             label4.Text = "End";
+            // 
+            // _tbComment
+            // 
+            _tbComment.Location = new Point(3, 153);
+            _tbComment.Name = "_tbComment";
+            _tbComment.Size = new Size(289, 23);
+            _tbComment.TabIndex = 5;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(3, 135);
+            label5.Name = "label5";
+            label5.Size = new Size(61, 15);
+            label5.TabIndex = 19;
+            label5.Text = "Comment";
             // 
             // UCTimeEntries
             // 
@@ -179,5 +200,7 @@
         private Label label1;
         private Label label3;
         private Label label4;
+        private Label label5;
+        private TextBox _tbComment;
     }
 }

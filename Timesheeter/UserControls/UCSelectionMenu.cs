@@ -28,8 +28,8 @@ namespace Timesheeter.UserControls
             _ucTimeEntries.Enabled = false;
 
             _ucTimesheet.Dock = DockStyle.Fill;
-            _ucTimesheet.Visible = false;
-            _ucTimesheet.Enabled = false;
+            _ucTimesheet.Visible = true;
+            _ucTimesheet.Enabled = true;
         }
 
         public void PostInit(IFactory factory)
@@ -40,28 +40,67 @@ namespace Timesheeter.UserControls
             _ucTimesheet.PostInit(factory);
         }
 
+        private void ToggleScreen<T>()
+        {
+            foreach (var control in _pnlControls.Controls)
+            {
+
+                if (control is UCSubPage page)
+                {
+
+                    if (typeof(T) != page.GetType())
+                    {
+                        page.Visible = false;
+                        page.Enabled = false;
+                    }
+                    else
+                    {
+                        page.Visible = true;
+                        page.Enabled = true;
+                    }
+
+
+                }
+
+
+            }
+
+
+
+        }
+
         private void _btnCodes_Click(object sender, EventArgs e)
         {
-            _ucNewProjectCode.Enabled = true;
-            _ucNewProjectCode.Visible = true;
+            this.ToggleScreen<UCNewProjectCode>();
+
+
+
+
+
+            //_ucNewProjectCode.Enabled = true;
+            //_ucNewProjectCode.Visible = true;
         }
 
         private void _btnCustomers_Click(object sender, EventArgs e)
         {
-            _ucCustomers.Enabled = true;
-            _ucCustomers.Visible = true;
+
+            this.ToggleScreen<UCCustomers>();
+            //_ucCustomers.Enabled = true;
+            //_ucCustomers.Visible = true;
         }
 
         private void _btnTimeEntries_Click(object sender, EventArgs e)
         {
-            _ucTimeEntries.Enabled = true;
-            _ucTimeEntries.Visible = true;
+            this.ToggleScreen<UCTimeEntries>();
+            //_ucTimeEntries.Enabled = true;
+            //_ucTimeEntries.Visible = true;
         }
 
         private void _btnTimeSheet_Click(object sender, EventArgs e)
         {
-            _ucTimesheet.Enabled = true;
-            _ucTimesheet.Visible = true;
+            this.ToggleScreen<UCTimesheet>();
+            //_ucTimesheet.Enabled = true;
+            //_ucTimesheet.Visible = true;
         }
     }
 }

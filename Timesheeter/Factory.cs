@@ -21,7 +21,16 @@ namespace Timesheeter
         {
 
 
-            String dbFile = Path.Combine(AppContext.BaseDirectory, "Timesheeter.db");
+            String documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            String timeSheeterPath = Path.Combine(documentsPath, "Timersheeter");
+
+            if (!Directory.Exists(timeSheeterPath))
+            {
+                Directory.CreateDirectory(timeSheeterPath);
+            }
+
+
+            String dbFile = Path.Combine(timeSheeterPath, "Timesheeter.db");
             _store = new LibSqlLite.SqliteStore(dbFile);
             _customers = new Data.Customers(_store);
             _projectCodes = new ProjectCodes(_store);

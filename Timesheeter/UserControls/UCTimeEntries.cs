@@ -45,6 +45,7 @@ namespace Timesheeter.UserControls
                 TimeStart = _tpStart.Time,
                 TimeEnd = _tpEnd.Time,
                 ProjectCodeID = _cbProjCodes.SelectedValue is long id ? id : 0,
+                Comment = _tbComment.Text,
             };
 
             var errors = timeEntries.GetValidationErrors(entry);

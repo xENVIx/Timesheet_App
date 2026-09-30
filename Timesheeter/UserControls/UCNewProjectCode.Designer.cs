@@ -68,21 +68,22 @@
             // 
             // _btnAdd
             // 
-            _btnAdd.Location = new Point(3, 207);
+            _btnAdd.Location = new Point(3, 182);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(121, 23);
-            _btnAdd.TabIndex = 12;
+            _btnAdd.TabIndex = 5;
             _btnAdd.Text = "Add Code";
             _btnAdd.UseVisualStyleBackColor = true;
+            _btnAdd.Click += _btnAdd_Click;
             // 
             // _cbCustomer
             // 
             _cbCustomer.DisplayMember = "Name";
             _cbCustomer.FormattingEnabled = true;
-            _cbCustomer.Location = new Point(3, 80);
+            _cbCustomer.Location = new Point(3, 65);
             _cbCustomer.Name = "_cbCustomer";
-            _cbCustomer.Size = new Size(244, 23);
-            _cbCustomer.TabIndex = 13;
+            _cbCustomer.Size = new Size(289, 23);
+            _cbCustomer.TabIndex = 2;
             _cbCustomer.ValueMember = "ID";
             // 
             // _projCodesDgv
@@ -93,33 +94,33 @@
             _projCodesDgv.Location = new Point(0, 0);
             _projCodesDgv.Name = "_projCodesDgv";
             _projCodesDgv.Size = new Size(633, 506);
-            _projCodesDgv.TabIndex = 13;
+            _projCodesDgv.TabIndex = 6;
             // 
             // _tbDescription
             // 
-            _tbDescription.Location = new Point(3, 124);
+            _tbDescription.Location = new Point(3, 109);
             _tbDescription.Name = "_tbDescription";
-            _tbDescription.Size = new Size(244, 23);
-            _tbDescription.TabIndex = 14;
+            _tbDescription.Size = new Size(289, 23);
+            _tbDescription.TabIndex = 3;
             // 
             // _tbLocation
             // 
-            _tbLocation.Location = new Point(3, 168);
+            _tbLocation.Location = new Point(3, 153);
             _tbLocation.Name = "_tbLocation";
-            _tbLocation.Size = new Size(244, 23);
-            _tbLocation.TabIndex = 15;
+            _tbLocation.Size = new Size(289, 23);
+            _tbLocation.TabIndex = 4;
             // 
             // _tbProjectCode
             // 
-            _tbProjectCode.Location = new Point(3, 36);
+            _tbProjectCode.Location = new Point(3, 21);
             _tbProjectCode.Name = "_tbProjectCode";
-            _tbProjectCode.Size = new Size(244, 23);
-            _tbProjectCode.TabIndex = 16;
+            _tbProjectCode.Size = new Size(289, 23);
+            _tbProjectCode.TabIndex = 1;
             // 
             // _lblCustomer
             // 
             _lblCustomer.AutoSize = true;
-            _lblCustomer.Location = new Point(3, 62);
+            _lblCustomer.Location = new Point(3, 47);
             _lblCustomer.Name = "_lblCustomer";
             _lblCustomer.Size = new Size(59, 15);
             _lblCustomer.TabIndex = 17;
@@ -128,7 +129,7 @@
             // _lblLocation
             // 
             _lblLocation.AutoSize = true;
-            _lblLocation.Location = new Point(3, 150);
+            _lblLocation.Location = new Point(3, 135);
             _lblLocation.Name = "_lblLocation";
             _lblLocation.Size = new Size(53, 15);
             _lblLocation.TabIndex = 18;
@@ -137,7 +138,7 @@
             // _lblProjCode
             // 
             _lblProjCode.AutoSize = true;
-            _lblProjCode.Location = new Point(3, 18);
+            _lblProjCode.Location = new Point(3, 3);
             _lblProjCode.Name = "_lblProjCode";
             _lblProjCode.Size = new Size(75, 15);
             _lblProjCode.TabIndex = 19;
@@ -146,7 +147,7 @@
             // _lblDescription
             // 
             _lblDescription.AutoSize = true;
-            _lblDescription.Location = new Point(3, 106);
+            _lblDescription.Location = new Point(3, 91);
             _lblDescription.Name = "_lblDescription";
             _lblDescription.Size = new Size(67, 15);
             _lblDescription.TabIndex = 20;

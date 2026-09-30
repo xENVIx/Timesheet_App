@@ -48,6 +48,7 @@
             _pnlSideBar.Controls.Add(_tbCustName);
             _pnlSideBar.Controls.Add(_btnSave);
             _pnlSideBar.Size = new Size(298, 370);
+            _pnlSideBar.TabIndex = 99;
             // 
             // _pnlGrid
             // 
@@ -56,12 +57,13 @@
             // 
             // _btnSave
             // 
-            _btnSave.Location = new Point(3, 53);
+            _btnSave.Location = new Point(3, 50);
             _btnSave.Name = "_btnSave";
             _btnSave.Size = new Size(75, 23);
-            _btnSave.TabIndex = 4;
+            _btnSave.TabIndex = 1;
             _btnSave.Text = "Add";
             _btnSave.UseVisualStyleBackColor = true;
+            _btnSave.Click += _btnSave_Click;
             // 
             // _custDgv
             // 
@@ -71,19 +73,19 @@
             _custDgv.Location = new Point(0, 0);
             _custDgv.Name = "_custDgv";
             _custDgv.Size = new Size(481, 370);
-            _custDgv.TabIndex = 7;
+            _custDgv.TabIndex = 3;
             // 
             // _tbCustName
             // 
-            _tbCustName.Location = new Point(3, 24);
+            _tbCustName.Location = new Point(3, 21);
             _tbCustName.Name = "_tbCustName";
             _tbCustName.Size = new Size(149, 23);
-            _tbCustName.TabIndex = 6;
+            _tbCustName.TabIndex = 0;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(3, 6);
+            label1.Location = new Point(3, 3);
             label1.Name = "label1";
             label1.Size = new Size(94, 15);
             label1.TabIndex = 7;
