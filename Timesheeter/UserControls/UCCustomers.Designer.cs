@@ -29,55 +29,65 @@
         private void InitializeComponent()
         {
             _btnSave = new Button();
-            label1 = new Label();
-            _tbCustName = new TextBox();
             _custDgv = new Timesheeter.Elements.CustomersDataGridView();
+            _tbCustName = new TextBox();
+            label1 = new Label();
             _pnlElements.SuspendLayout();
+            _pnlSideBar.SuspendLayout();
+            _pnlGrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_custDgv).BeginInit();
             SuspendLayout();
             // 
             // _pnlElements
             // 
-            _pnlElements.Controls.Add(_custDgv);
-            _pnlElements.Controls.Add(_tbCustName);
-            _pnlElements.Controls.Add(label1);
-            _pnlElements.Controls.Add(_btnSave);
             _pnlElements.Size = new Size(779, 370);
+            // 
+            // _pnlSideBar
+            // 
+            _pnlSideBar.Controls.Add(label1);
+            _pnlSideBar.Controls.Add(_tbCustName);
+            _pnlSideBar.Controls.Add(_btnSave);
+            _pnlSideBar.Size = new Size(298, 370);
+            // 
+            // _pnlGrid
+            // 
+            _pnlGrid.Controls.Add(_custDgv);
+            _pnlGrid.Size = new Size(481, 370);
             // 
             // _btnSave
             // 
-            _btnSave.Location = new Point(28, 64);
+            _btnSave.Location = new Point(3, 53);
             _btnSave.Name = "_btnSave";
             _btnSave.Size = new Size(75, 23);
-            _btnSave.TabIndex = 3;
+            _btnSave.TabIndex = 4;
             _btnSave.Text = "Add";
             _btnSave.UseVisualStyleBackColor = true;
-            _btnSave.Click += _btnSave_Click;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(28, 17);
-            label1.Name = "label1";
-            label1.Size = new Size(94, 15);
-            label1.TabIndex = 4;
-            label1.Text = "Customer Name";
-            // 
-            // textBox1
-            // 
-            _tbCustName.Location = new Point(28, 35);
-            _tbCustName.Name = "textBox1";
-            _tbCustName.Size = new Size(149, 23);
-            _tbCustName.TabIndex = 5;
             // 
             // _custDgv
             // 
             _custDgv.AllowUserToAddRows = false;
             _custDgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            _custDgv.Location = new Point(183, 35);
+            _custDgv.Dock = DockStyle.Fill;
+            _custDgv.Location = new Point(0, 0);
             _custDgv.Name = "_custDgv";
-            _custDgv.Size = new Size(567, 294);
-            _custDgv.TabIndex = 6;
+            _custDgv.Size = new Size(481, 370);
+            _custDgv.TabIndex = 7;
+            // 
+            // _tbCustName
+            // 
+            _tbCustName.Location = new Point(3, 24);
+            _tbCustName.Name = "_tbCustName";
+            _tbCustName.Size = new Size(149, 23);
+            _tbCustName.TabIndex = 6;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(3, 6);
+            label1.Name = "label1";
+            label1.Size = new Size(94, 15);
+            label1.TabIndex = 7;
+            label1.Text = "Customer Name";
             // 
             // UCCustomers
             // 
@@ -86,16 +96,17 @@
             Name = "UCCustomers";
             Size = new Size(779, 403);
             _pnlElements.ResumeLayout(false);
-            _pnlElements.PerformLayout();
+            _pnlSideBar.ResumeLayout(false);
+            _pnlSideBar.PerformLayout();
+            _pnlGrid.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_custDgv).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
-
-        private TextBox _tbCustName;
-        private Label label1;
         private Button _btnSave;
         private Elements.CustomersDataGridView _custDgv;
+        private Label label1;
+        private TextBox _tbCustName;
     }
 }

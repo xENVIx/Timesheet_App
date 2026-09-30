@@ -30,6 +30,16 @@ namespace Timesheeter.Data
             [Required, DisplayName("Entry End Time")] public TimeOnly TimeEnd { get; set; }
             [Required, DisplayName("Project Code"), GridLookup(typeof(ProjectCodes), "Code")] public long ProjectCodeID { get; set; }
 
+            [Ignore, DisplayName("Hours")] public Double Hours
+            {
+                get
+                {
+                    if (TimeEnd < TimeStart) return 0;
+
+                    return (TimeEnd - TimeStart).TotalHours;
+                }
+            }
+
             // [Required] can't catch these: value types always have a value, so check them here.
             // DataClass.IsValid runs this on every Save and Update.
             public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
