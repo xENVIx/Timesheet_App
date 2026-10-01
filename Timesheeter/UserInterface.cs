@@ -12,6 +12,11 @@ namespace Timesheeter
             InitializeComponent();
             _factory = factory;
 
+            using (var iconStream = typeof(UserInterface).Assembly.GetManifestResourceStream("Timesheeter.ico"))
+            {
+                if (iconStream != null) Icon = new Icon(iconStream);
+            }
+
 
             this.Load += UserInterface_Load;
         }

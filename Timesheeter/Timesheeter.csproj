@@ -6,7 +6,14 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Icon of the .exe in Explorer and the taskbar. -->
+    <ApplicationIcon>Resources\Timesheeter.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Embedded too, so the main window can use every size (the title bar wants 16/20/24px). -->
+    <EmbeddedResource Include="Resources\Timesheeter.ico" LogicalName="Timesheeter.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LibSqlLite\LibSqlLite.csproj" />
