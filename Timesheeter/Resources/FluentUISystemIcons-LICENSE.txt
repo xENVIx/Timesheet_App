@@ -1,4 +1,5 @@
-Timesheeter.ico is the "Calendar Clock" icon (color style) from Fluent UI System Icons:
+Timesheeter.ico is the "Calendar Clock" icon (color style) from Fluent UI System Icons,
+recolored (light pink calendar, light cyan clock, dark teal hands):
 https://github.com/microsoft/fluentui-system-icons
 
 MIT License
