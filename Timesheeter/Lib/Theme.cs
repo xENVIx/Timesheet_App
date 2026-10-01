@@ -290,6 +290,10 @@ namespace Timesheeter.Lib
             // New rows use the template; rows that already exist are resized here.
             grid.RowTemplate.Height = GridRowHeight;
             foreach (DataGridViewRow row in grid.Rows) row.Height = GridRowHeight;
+
+            // Every column as wide as its widest value or header, so nothing is cut off with "...".
+            // Re-measured whenever the data changes; a grid wider than its space gets a scrollbar.
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
         #endregion
