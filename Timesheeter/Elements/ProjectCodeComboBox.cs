@@ -27,6 +27,25 @@ namespace Timesheeter.Elements
             _customers = customers ?? throw new ArgumentNullException(nameof(customers));
 
             base.PostInit(projectCodes);
+
+            // The text shown includes the customer's name, so redraw when a customer is renamed.
+            _customers.All.ListChanged += (s, e) => RefreshDisplayText();
+        }
+
+        private void RefreshDisplayText()
+        {
+            // RefreshItems re-selects the bound position, which would pick the first code
+            // when nothing has been chosen yet; keep an empty selection empty.
+            int selectedIndex = SelectedIndex;
+            string text = Text;
+
+            RefreshItems();
+
+            if (selectedIndex < 0)
+            {
+                SelectedIndex = -1;
+                Text = text;
+            }
         }
 
         // Called for each item's display text; the underlying value (ID) is unchanged.

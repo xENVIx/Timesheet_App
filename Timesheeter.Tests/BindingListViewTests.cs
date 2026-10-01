@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Timesheeter.Lib;
 
 namespace Timesheeter.Tests;
@@ -292,6 +292,36 @@ public class BindingListViewTests
         first.Date = new DateOnly(2026, 9, 1);
         list.Reposition(first);
         Assert.Equal([1, 2, 3], Ids(list));
+    }
+
+    [Fact]
+    public void Reposition_InPlace_RaisesItemChanged()
+    {
+        var list = ListOf(E(1, 1, 9, note: "old"), E(2, 2, 9));
+        list.Sort = "Date";
+        var events = new List<(ListChangedType Type, int Index)>();
+        list.ListChanged += (_, e) => events.Add((e.ListChangedType, e.NewIndex));
+
+        list[0].Note = "renamed"; // doesn't affect sort or filter
+        list.Reposition(list[0]);
+
+        Assert.Equal([(ListChangedType.ItemChanged, 0)], events);
+        Assert.Equal([1, 2], Ids(list));
+    }
+
+    [Fact]
+    public void Reposition_Moved_RaisesListChanged()
+    {
+        var list = ListOf(E(1, 1, 9), E(2, 2, 9));
+        list.Sort = "Date";
+        var events = new List<ListChangedType>();
+        list.ListChanged += (_, e) => events.Add(e.ListChangedType);
+
+        list[0].Date = new DateOnly(2026, 9, 5);
+        list.Reposition(list[0]);
+
+        Assert.NotEmpty(events);
+        Assert.Equal([2, 1], Ids(list));
     }
 
     [Fact]

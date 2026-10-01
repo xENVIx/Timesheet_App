@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -123,8 +123,9 @@ namespace Timesheeter.Lib
         #endregion
 
         /// <summary>
-        /// Moves an item to where the current sort and filter put it after its values changed:
-        /// a new position, out of the list if it no longer matches the filter, or back in if it now does.
+        /// Call after an item's values changed: moves it to where the current sort and filter put it
+        /// (a new position, out of the list if it no longer matches the filter, or back in if it now
+        /// does), and always raises ListChanged so everything bound to the list sees the edit.
         /// </summary>
         public void Reposition(T item)
         {
@@ -135,7 +136,13 @@ namespace Timesheeter.Lib
 
             if (current >= 0)
             {
-                if (visible && IsInPlace(current)) return;
+                if (visible && IsInPlace(current))
+                {
+                    // Plain objects don't report property changes themselves, so announce it here;
+                    // otherwise e.g. a renamed project code never reaches the timesheet.
+                    ResetItem(current);
+                    return;
+                }
 
                 _rebuilding = true;
                 try { base.RemoveItem(current); }
