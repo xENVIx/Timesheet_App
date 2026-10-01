@@ -57,6 +57,9 @@ namespace Timesheeter.Elements
             _timeEntriesFactory.All.ListChanged += (s, e) => Rebuild();
             _projectCodesFactory.All.ListChanged += (s, e) => Rebuild();
 
+            // Special row colours come from the theme, so rebuild when it changes.
+            Theme.Changed += (s, e) => Rebuild();
+
             _postInitOccured = true;
         }
 
@@ -139,6 +142,7 @@ namespace Timesheeter.Elements
         {
             _totalRow = Rows.Add();
             Rows[_totalRow].DefaultCellStyle.Font = _boldFont;
+            Rows[_totalRow].DefaultCellStyle.BackColor = Theme.Current.GridHighlight;
             Rows[_totalRow].Cells[0].Value = "Total";
 
             for (int i = FirstDayColumn; i < TotalColumn; i++)
@@ -208,6 +212,7 @@ namespace Timesheeter.Elements
             _dateRow = Rows.Add();
             Rows[_dateRow].Frozen = true; // stays at the top when scrolling
             Rows[_dateRow].DefaultCellStyle.Font = _boldFont;
+            Rows[_dateRow].DefaultCellStyle.BackColor = Theme.Current.GridHighlight;
 
             for (int i = FirstDayColumn; i < TotalColumn; i++)
             {

@@ -14,6 +14,7 @@ namespace Timesheeter
         private Data.Customers _customers;
         private Data.ProjectCodes _projectCodes;
         private TimeEntries _timeEntries;
+        private AppSettings _settings;
         private readonly System.Windows.Forms.Timer _timer;
 
 
@@ -35,6 +36,10 @@ namespace Timesheeter
             _customers = new Data.Customers(_store);
             _projectCodes = new ProjectCodes(_store);
             _timeEntries = new TimeEntries(_store);
+            _settings = new AppSettings(_store);
+
+            // Before any window exists, so the first paint already uses the saved look.
+            Lib.Theme.Set(_settings.ThemeMode, _settings.Accent);
 
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 10000;
@@ -57,6 +62,7 @@ namespace Timesheeter
             if (typeof(T) == typeof(Customers)) return (T)(object)_customers;
             else if (typeof(T) == typeof(ProjectCodes)) return (T)(object)_projectCodes;
             else if (typeof(T) == typeof(TimeEntries)) return (T)(object)_timeEntries;
+            else if (typeof(T) == typeof(AppSettings)) return (T)(object)_settings;
             return default(T);
 
         }
@@ -68,6 +74,7 @@ namespace Timesheeter
             if (dataType == typeof(Customers)) return _customers;
             else if (dataType == typeof(ProjectCodes)) return _projectCodes;
             else if (dataType == typeof(TimeEntries)) return _timeEntries;
+            else if (dataType == typeof(AppSettings)) return _settings;
             else return null;
 
         }
@@ -79,7 +86,8 @@ namespace Timesheeter
             {
                 nameof(Customers),
                 nameof(ProjectCodes),
-                nameof(TimeEntries)
+                nameof(TimeEntries),
+                nameof(AppSettings)
             }.ToArray();
 
 

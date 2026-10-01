@@ -36,6 +36,8 @@
             _ucTimeEntries = new UCTimeEntries();
             _btnTimeSheet = new Button();
             _ucTimesheet = new UCTimesheet();
+            _btnSettings = new Button();
+            _ucSettings = new UCSettings();
             panel1 = new Panel();
             _pnlControls = new Panel();
             panel1.SuspendLayout();
@@ -114,8 +116,27 @@
             _ucTimesheet.TabIndex = 7;
             _ucTimesheet.Visible = false;
             // 
+            // _btnSettings
+            // 
+            _btnSettings.Location = new Point(3, 199);
+            _btnSettings.Name = "_btnSettings";
+            _btnSettings.Size = new Size(93, 43);
+            _btnSettings.TabIndex = 5;
+            _btnSettings.Text = "Settings";
+            _btnSettings.UseVisualStyleBackColor = true;
+            _btnSettings.Click += _btnSettings_Click;
+            // 
+            // _ucSettings
+            // 
+            _ucSettings.Location = new Point(471, 538);
+            _ucSettings.Name = "_ucSettings";
+            _ucSettings.Size = new Size(871, 539);
+            _ucSettings.TabIndex = 8;
+            _ucSettings.Visible = false;
+            // 
             // panel1
             // 
+            panel1.Controls.Add(_btnSettings);
             panel1.Controls.Add(_btnCustomers);
             panel1.Controls.Add(_btnTimeSheet);
             panel1.Controls.Add(_btnTimeEntries);
@@ -128,6 +149,7 @@
             // 
             // _pnlControls
             // 
+            _pnlControls.Controls.Add(_ucSettings);
             _pnlControls.Controls.Add(_ucCustomers);
             _pnlControls.Controls.Add(_ucNewProjectCode);
             _pnlControls.Controls.Add(_ucTimesheet);
@@ -161,6 +183,8 @@
         private UCTimeEntries _ucTimeEntries;
         private Button _btnTimeSheet;
         private UCTimesheet _ucTimesheet;
+        private Button _btnSettings;
+        private UCSettings _ucSettings;
         private Panel panel1;
         private Panel _pnlControls;
     }

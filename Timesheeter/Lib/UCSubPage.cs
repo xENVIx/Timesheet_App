@@ -17,6 +17,8 @@ namespace Timesheeter.Lib
         {
             InitializeComponent();
 
+            Theme.SetRole(_pnlSideBar, ThemeRole.Sidebar);
+
             this.Visible = true;
 
         }

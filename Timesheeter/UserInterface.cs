@@ -1,4 +1,4 @@
-using Timesheeter.Lib;
+﻿using Timesheeter.Lib;
 
 namespace Timesheeter
 {
@@ -19,6 +19,9 @@ namespace Timesheeter
         private void UserInterface_Load(object? sender, EventArgs e)
         {
             _ucMain.PostInit(_factory);
+
+            // Styles every control now, and any added later.
+            Theme.Apply(this);
         }
     }
 }

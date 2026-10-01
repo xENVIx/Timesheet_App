@@ -30,6 +30,13 @@ namespace Timesheeter.UserControls
             _ucTimesheet.Dock = DockStyle.Fill;
             _ucTimesheet.Visible = true;
             _ucTimesheet.Enabled = true;
+
+            _ucSettings.Dock = DockStyle.Fill;
+            _ucSettings.Visible = false;
+            _ucSettings.Enabled = false;
+
+            Theme.SetRole(panel1, ThemeRole.Navigation);
+            Theme.SetActiveNavigationButton(_btnTimeSheet);
         }
 
         public void PostInit(IFactory factory)
@@ -38,6 +45,7 @@ namespace Timesheeter.UserControls
             _ucCustomers.PostInit(factory);
             _ucTimeEntries.PostInit(factory);
             _ucTimesheet.PostInit(factory);
+            _ucSettings.PostInit(factory);
         }
 
         private void ToggleScreen<T>()
@@ -72,6 +80,7 @@ namespace Timesheeter.UserControls
         private void _btnCodes_Click(object sender, EventArgs e)
         {
             this.ToggleScreen<UCNewProjectCode>();
+            Theme.SetActiveNavigationButton(_btnCodes);
 
 
 
@@ -85,6 +94,7 @@ namespace Timesheeter.UserControls
         {
 
             this.ToggleScreen<UCCustomers>();
+            Theme.SetActiveNavigationButton(_btnCustomers);
             //_ucCustomers.Enabled = true;
             //_ucCustomers.Visible = true;
         }
@@ -92,13 +102,21 @@ namespace Timesheeter.UserControls
         private void _btnTimeEntries_Click(object sender, EventArgs e)
         {
             this.ToggleScreen<UCTimeEntries>();
+            Theme.SetActiveNavigationButton(_btnTimeEntries);
             //_ucTimeEntries.Enabled = true;
             //_ucTimeEntries.Visible = true;
+        }
+
+        private void _btnSettings_Click(object sender, EventArgs e)
+        {
+            this.ToggleScreen<UCSettings>();
+            Theme.SetActiveNavigationButton(_btnSettings);
         }
 
         private void _btnTimeSheet_Click(object sender, EventArgs e)
         {
             this.ToggleScreen<UCTimesheet>();
+            Theme.SetActiveNavigationButton(_btnTimeSheet);
             //_ucTimesheet.Enabled = true;
             //_ucTimesheet.Visible = true;
         }
