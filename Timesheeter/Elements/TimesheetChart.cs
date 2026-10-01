@@ -28,10 +28,16 @@ namespace Timesheeter.Elements
 
         private IReadOnlyList<ProjectHours> _totals = [];
 
+        // Created once: every ShowLegend(Edge) call adds another legend panel, which Plot.Clear()
+        // doesn't remove, so redrawing per week stacked legends until the pie was squeezed out.
+        private readonly ScottPlot.Panels.LegendPanel _legendPanel;
+
         public TimesheetChart() : base()
         {
             // A summary to read, not a plot to pan or zoom.
             UserInputProcessor.Disable();
+
+            _legendPanel = Plot.ShowLegend(Edge.Bottom);
 
             Theme.Changed += (s, e) => Redraw();
             Redraw();
@@ -58,17 +64,19 @@ namespace Timesheeter.Elements
 
             var slices = BuildSlices(palette.IsDark ? DarkSeries : LightSeries);
 
+            _legendPanel.IsVisible = slices.Count > 0;
+
             if (slices.Count == 0)
             {
-                Plot.HideLegend();
                 Plot.Title("No hours this week");
+                Plot.Title(true);
                 Plot.Axes.Title.Label.ForeColor = ScottPlot.Color.FromColor(palette.MutedText);
                 Plot.Axes.Title.Label.FontSize = 13;
                 Plot.Axes.Title.Label.FontName = "Segoe UI";
             }
             else
             {
-                Plot.Title(string.Empty);
+                Plot.Title(false);
 
                 var pie = Plot.Add.Pie(slices);
                 pie.ExplodeFraction = 0;
@@ -79,7 +87,6 @@ namespace Timesheeter.Elements
 
                 // Legend below the pie, blending into the sidebar (no box or shadow), kept compact
                 // so the pie gets most of the height.
-                Plot.ShowLegend(Edge.Bottom);
                 Plot.Legend.FontName = "Segoe UI";
                 Plot.Legend.FontColor = text;
                 Plot.Legend.FontSize = 12;
@@ -88,6 +95,10 @@ namespace Timesheeter.Elements
                 Plot.Legend.ShadowColor = Colors.Transparent;
                 Plot.Legend.Padding = new PixelPadding(4);
                 Plot.Legend.InterItemPadding = new PixelPadding(2);
+
+                // Fit the view to the pie: after an empty week the axes keep a default range,
+                // which drew the next pie smaller.
+                Plot.Axes.AutoScale();
             }
 
             Refresh();
