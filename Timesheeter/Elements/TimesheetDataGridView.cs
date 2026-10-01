@@ -214,6 +214,14 @@ namespace Timesheeter.Elements
             Rows[_dateRow].DefaultCellStyle.Font = _boldFont;
             Rows[_dateRow].DefaultCellStyle.BackColor = Theme.Current.GridHighlight;
 
+            // The empty cells under "Project Code" and "Total" are solid black in every theme.
+            foreach (int column in new[] { 0, TotalColumn })
+            {
+                var style = Rows[_dateRow].Cells[column].Style;
+                style.BackColor = Color.Black;
+                style.SelectionBackColor = Color.Black;
+            }
+
             for (int i = FirstDayColumn; i < TotalColumn; i++)
             {
                 DateOnly date = _dateSelected.AddDays(i - FirstDayColumn);
