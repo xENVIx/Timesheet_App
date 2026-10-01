@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -118,7 +118,8 @@ namespace Timesheeter.Lib
         /// <summary>Styles a control and its children, now and whenever children are added later.</summary>
         public static void Apply(Control control)
         {
-            if (RoleOf(control) == ThemeRole.Ignore) return;
+            // Ignore covers the children too, including ones added after the role was set.
+            if (IsInside(control, ThemeRole.Ignore)) return;
 
             Style(control);
 
