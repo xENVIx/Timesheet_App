@@ -31,6 +31,7 @@
             _datePicker = new Timesheeter.Lib.DatePicker();
             _dgvTimesheet = new Timesheeter.Elements.TimesheetDataGridView();
             label1 = new Label();
+            timesheetChart1 = new Timesheeter.Elements.TimesheetChart();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
@@ -39,21 +40,23 @@
             // 
             // _pnlElements
             // 
-            _pnlElements.Size = new Size(871, 506);
+            _pnlElements.Size = new Size(871, 539);
             // 
             // _pnlSideBar
             // 
+            _pnlSideBar.Controls.Add(timesheetChart1);
             _pnlSideBar.Controls.Add(label1);
             _pnlSideBar.Controls.Add(_datePicker);
-            _pnlSideBar.Size = new Size(298, 506);
+            _pnlSideBar.Size = new Size(298, 539);
             // 
             // _pnlGrid
             // 
             _pnlGrid.Controls.Add(_dgvTimesheet);
-            _pnlGrid.Size = new Size(573, 506);
+            _pnlGrid.Size = new Size(573, 539);
             // 
             // _datePicker
             // 
+            _datePicker.CalendarMonthBackground = Color.White;
             _datePicker.Format = DateTimePickerFormat.Short;
             _datePicker.Location = new Point(3, 21);
             _datePicker.Name = "_datePicker";
@@ -71,7 +74,7 @@
             _dgvTimesheet.Name = "_dgvTimesheet";
             _dgvTimesheet.ReadOnly = true;
             _dgvTimesheet.RowHeadersVisible = false;
-            _dgvTimesheet.Size = new Size(573, 506);
+            _dgvTimesheet.Size = new Size(573, 539);
             _dgvTimesheet.TabIndex = 2;
             // 
             // label1
@@ -82,6 +85,14 @@
             label1.Size = new Size(63, 15);
             label1.TabIndex = 3;
             label1.Text = "Week Start";
+            // 
+            // timesheetChart1
+            // 
+            timesheetChart1.Dock = DockStyle.Bottom;
+            timesheetChart1.Location = new Point(0, 286);
+            timesheetChart1.Name = "timesheetChart1";
+            timesheetChart1.Size = new Size(298, 253);
+            timesheetChart1.TabIndex = 4;
             // 
             // UCTimesheet
             // 
@@ -101,5 +112,6 @@
         private Lib.DatePicker _datePicker;
         private Elements.TimesheetDataGridView _dgvTimesheet;
         private Label label1;
+        private Elements.TimesheetChart timesheetChart1;
     }
 }
