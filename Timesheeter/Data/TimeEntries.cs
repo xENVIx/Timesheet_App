@@ -38,7 +38,7 @@ namespace Timesheeter.Data
                 {
                     if (TimeEnd < TimeStart) return 0;
 
-                    return (TimeEnd - TimeStart).TotalHours;
+                    return Math.Round((TimeEnd - TimeStart).TotalHours, 2);
                 }
             }
 
@@ -68,7 +68,7 @@ namespace Timesheeter.Data
             }
 
             // Entries are always shown in date and start time order.
-            _list.Sort = "Date, TimeStart";
+            _list.Sort = "Date desc, TimeStart desc";
         }
 
 
