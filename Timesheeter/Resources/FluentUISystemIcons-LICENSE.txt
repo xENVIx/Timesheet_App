@@ -1,5 +1,5 @@
 Timesheeter.ico is the "Calendar Clock" icon (color style) from Fluent UI System Icons,
-recolored (light pink calendar, light cyan clock, dark teal hands):
+recolored (light cyan calendar, light pink clock, deep pink hands):
 https://github.com/microsoft/fluentui-system-icons
 
 MIT License
