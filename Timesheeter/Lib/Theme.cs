@@ -20,24 +20,29 @@ namespace Timesheeter.Lib
         None,
         /// <summary>The navigation column; buttons inside it are styled as navigation items.</summary>
         Navigation,
-        /// <summary>A form/side panel, slightly set apart from the main content.</summary>
+        /// <summary>A form/side panel, set apart from the main content by a separator line.</summary>
         Sidebar,
-        /// <summary>Left exactly as designed, including its children (e.g. color swatches).</summary>
+        /// <summary>Left exactly as designed, including everything inside it (e.g. color swatches).</summary>
         Ignore,
     }
 
     /// <summary>The colors for one mode and accent. Built by <see cref="Theme"/>; read-only.</summary>
     public sealed class ThemePalette
     {
+        /// <summary>Main content background.</summary>
         public required Color Window { get; init; }
+        /// <summary>Form/side panel background.</summary>
         public required Color Sidebar { get; init; }
         public required Color Text { get; init; }
         public required Color MutedText { get; init; }
+        /// <summary>Separator lines between areas.</summary>
         public required Color Border { get; init; }
 
         public required Color Navigation { get; init; }
         public required Color NavigationText { get; init; }
         public required Color NavigationHover { get; init; }
+        public required Color NavigationActive { get; init; }
+        public required Color NavigationActiveText { get; init; }
 
         public required Color InputBack { get; init; }
         public required Color InputText { get; init; }
@@ -45,6 +50,8 @@ namespace Timesheeter.Lib
         public required Color GridBack { get; init; }
         public required Color GridAlternateRow { get; init; }
         public required Color GridLines { get; init; }
+        public required Color GridHeaderBack { get; init; }
+        public required Color GridHeaderText { get; init; }
         /// <summary>Background for special grid rows such as dates and totals.</summary>
         public required Color GridHighlight { get; init; }
         public required Color GridSelection { get; init; }
@@ -60,19 +67,24 @@ namespace Timesheeter.Lib
     /// <summary>
     /// App-wide look. Call <see cref="Set"/> to choose the mode and accent color, and
     /// <see cref="Apply"/> on a form to style it and everything added to it later.
-    /// Layout is never changed, only colors and flat styles, so designer files stay as they are.
+    /// Layouts are never moved or resized, so designer files stay as they are.
     /// </summary>
+    /// <remarks>
+    /// All three modes use one neutral grey scale, so any accent color sits on it cleanly.
+    /// The accent is used sparingly: main buttons, the current navigation item, selection.
+    /// </remarks>
     public static class Theme
     {
-        /// <summary>Accent presets offered in Settings. Any other color works too.</summary>
+        /// <summary>Accent presets offered in Settings: deep enough for white text. Any other color works too.</summary>
         public static readonly IReadOnlyList<(string Name, Color Color)> AccentPresets =
         [
             ("Blue", Color.FromArgb(37, 99, 235)),
-            ("Teal", Color.FromArgb(13, 148, 136)),
-            ("Green", Color.FromArgb(22, 163, 74)),
-            ("Purple", Color.FromArgb(124, 58, 237)),
-            ("Orange", Color.FromArgb(234, 88, 12)),
-            ("Rose", Color.FromArgb(225, 29, 72)),
+            ("Indigo", Color.FromArgb(79, 70, 229)),
+            ("Violet", Color.FromArgb(124, 58, 237)),
+            ("Teal", Color.FromArgb(15, 118, 110)),
+            ("Green", Color.FromArgb(21, 128, 61)),
+            ("Amber", Color.FromArgb(180, 83, 9)),
+            ("Rose", Color.FromArgb(190, 18, 60)),
             ("Slate", Color.FromArgb(71, 85, 105)),
         ];
 
@@ -83,8 +95,15 @@ namespace Timesheeter.Lib
         /// <summary>Raised after the mode or accent changes and open forms have been restyled.</summary>
         public static event EventHandler? Changed;
 
+        // Spacing: roomier grids are most of what makes the app feel less cramped.
+        private const int GridRowHeight = 30;
+        private const int GridHeaderHeight = 34;
+        private static readonly Padding GridCellPadding = new Padding(8, 0, 8, 0);
+        private const int ActiveNavigationBarWidth = 3;
+
         private static readonly ConditionalWeakTable<Control, StrongBox<ThemeRole>> _roles = new();
         private static readonly ConditionalWeakTable<Control, object> _watched = new();
+        private static readonly ConditionalWeakTable<Control, object> _painted = new();
         private static WeakReference<Button>? _activeNavigationButton;
 
         public static void Set(ThemeMode mode, Color accent)
@@ -122,6 +141,7 @@ namespace Timesheeter.Lib
             if (IsInside(control, ThemeRole.Ignore)) return;
 
             Style(control);
+            control.Invalidate();
 
             if (!_watched.TryGetValue(control, out _))
             {
@@ -137,7 +157,6 @@ namespace Timesheeter.Lib
         private static void Style(Control control)
         {
             var p = Current;
-            bool inNavigation = IsInside(control, ThemeRole.Navigation);
 
             switch (control)
             {
@@ -152,7 +171,7 @@ namespace Timesheeter.Lib
                     break;
 
                 case Button button:
-                    if (inNavigation) StyleNavigationButton(button, p);
+                    if (IsInside(button, ThemeRole.Navigation)) StyleNavigationButton(button, p);
                     else StyleButton(button, p);
                     break;
 
@@ -197,11 +216,13 @@ namespace Timesheeter.Lib
                 case ThemeRole.Navigation:
                     control.BackColor = p.Navigation;
                     control.ForeColor = p.NavigationText;
+                    PaintOnce(control, DrawRightSeparator);
                     break;
 
                 case ThemeRole.Sidebar:
                     control.BackColor = p.Sidebar;
                     control.ForeColor = p.Text;
+                    PaintOnce(control, DrawRightSeparator);
                     break;
 
                 default:
@@ -226,102 +247,161 @@ namespace Timesheeter.Lib
 
         private static void StyleNavigationButton(Button button, ThemePalette p)
         {
-            Button? active = null;
-            _activeNavigationButton?.TryGetTarget(out active);
-            bool isActive = button == active;
+            bool isActive = IsActiveNavigationButton(button);
 
+            // The current page gets a tinted background, accent-colored text and a bar on the left,
+            // rather than a solid accent block.
             button.FlatStyle = FlatStyle.Flat;
             button.UseVisualStyleBackColor = false;
-            button.BackColor = isActive ? p.Accent : p.Navigation;
-            button.ForeColor = isActive ? p.AccentText : p.NavigationText;
+            button.BackColor = isActive ? p.NavigationActive : p.Navigation;
+            button.ForeColor = isActive ? p.NavigationActiveText : p.NavigationText;
             button.FlatAppearance.BorderSize = 0;
-            button.FlatAppearance.MouseOverBackColor = isActive ? p.AccentHover : p.NavigationHover;
-            button.FlatAppearance.MouseDownBackColor = isActive ? p.AccentPressed : p.NavigationHover;
+            button.FlatAppearance.MouseOverBackColor = isActive ? p.NavigationActive : p.NavigationHover;
+            button.FlatAppearance.MouseDownBackColor = isActive ? p.NavigationActive : p.NavigationHover;
             button.Cursor = Cursors.Hand;
+            PaintOnce(button, DrawActiveNavigationBar);
         }
 
         private static void StyleGrid(DataGridView grid, ThemePalette p)
         {
             grid.EnableHeadersVisualStyles = false; // otherwise Windows ignores the header colors
-            grid.BackgroundColor = p.Window;
+            grid.BackgroundColor = p.GridBack;
             grid.BorderStyle = BorderStyle.None;
             grid.GridColor = p.GridLines;
             grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            grid.RowHeadersVisible = false; // the grey row-selector column
 
             grid.DefaultCellStyle.BackColor = p.GridBack;
             grid.DefaultCellStyle.ForeColor = p.Text;
             grid.DefaultCellStyle.SelectionBackColor = p.GridSelection;
             grid.DefaultCellStyle.SelectionForeColor = p.Text;
+            grid.DefaultCellStyle.Padding = GridCellPadding;
             grid.AlternatingRowsDefaultCellStyle.BackColor = p.GridAlternateRow;
 
-            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            grid.ColumnHeadersDefaultCellStyle.BackColor = p.Accent;
-            grid.ColumnHeadersDefaultCellStyle.ForeColor = p.AccentText;
-            grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = p.Accent;
-            grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = p.AccentText;
-            grid.ColumnHeadersDefaultCellStyle.Padding = new Padding(4, 0, 4, 0);
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            grid.ColumnHeadersDefaultCellStyle.BackColor = p.GridHeaderBack;
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = p.GridHeaderText;
+            grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = p.GridHeaderBack;
+            grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = p.GridHeaderText;
+            grid.ColumnHeadersDefaultCellStyle.Padding = GridCellPadding;
+            grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            grid.ColumnHeadersHeight = GridHeaderHeight;
 
-            grid.RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            grid.RowHeadersDefaultCellStyle.BackColor = p.GridBack;
-            grid.RowHeadersDefaultCellStyle.SelectionBackColor = p.GridSelection;
+            // New rows use the template; rows that already exist are resized here.
+            grid.RowTemplate.Height = GridRowHeight;
+            foreach (DataGridViewRow row in grid.Rows) row.Height = GridRowHeight;
+        }
+
+        #endregion
+
+        #region Custom painting
+
+        /// <summary>Adds a paint step to a control once; it reads <see cref="Current"/> each time.</summary>
+        private static void PaintOnce(Control control, Action<Control, PaintEventArgs> paint)
+        {
+            if (_painted.TryGetValue(control, out _)) return;
+            _painted.Add(control, new object());
+            control.Paint += (s, e) => paint(control, e);
+        }
+
+        private static void DrawRightSeparator(Control control, PaintEventArgs e)
+        {
+            using var pen = new Pen(Current.Border);
+            e.Graphics.DrawLine(pen, control.Width - 1, 0, control.Width - 1, control.Height);
+        }
+
+        private static void DrawActiveNavigationBar(Control control, PaintEventArgs e)
+        {
+            if (control is not Button button || !IsActiveNavigationButton(button)) return;
+
+            using var brush = new SolidBrush(Current.Accent);
+            e.Graphics.FillRectangle(brush, 0, 0, ActiveNavigationBarWidth, button.Height);
         }
 
         #endregion
 
         #region Palettes
 
+        // One neutral grey scale (zinc) shared by every mode, lightest to darkest.
+        private static readonly Color Grey50 = Color.FromArgb(250, 250, 250);
+        private static readonly Color Grey100 = Color.FromArgb(244, 244, 245);
+        private static readonly Color Grey200 = Color.FromArgb(228, 228, 231);
+        private static readonly Color Grey300 = Color.FromArgb(212, 212, 216);
+        private static readonly Color Grey400 = Color.FromArgb(161, 161, 170);
+        private static readonly Color Grey500 = Color.FromArgb(113, 113, 122);
+        private static readonly Color Grey600 = Color.FromArgb(82, 82, 91);
+        private static readonly Color Grey800 = Color.FromArgb(39, 39, 42);
+        private static readonly Color Grey850 = Color.FromArgb(31, 31, 35);
+        private static readonly Color Grey900 = Color.FromArgb(24, 24, 27);
+        private static readonly Color Grey950 = Color.FromArgb(17, 17, 19);
+
         private static ThemePalette BuildPalette(ThemeMode mode, Color accent)
         {
-            Color accentText = Luminance(accent) > 0.55 ? Color.FromArgb(17, 24, 39) : Color.White;
+            Color accentText = Luminance(accent) > 0.45 ? Grey900 : Color.White;
 
             if (mode == ThemeMode.Dark)
             {
-                Color gridBack = Color.FromArgb(43, 45, 49);
                 return new ThemePalette
                 {
                     IsDark = true,
-                    Window = Color.FromArgb(30, 31, 34),
-                    Sidebar = Color.FromArgb(37, 39, 43),
-                    Text = Color.FromArgb(227, 229, 232),
-                    MutedText = Color.FromArgb(160, 164, 171),
-                    Border = Color.FromArgb(58, 61, 68),
-                    Navigation = Color.FromArgb(24, 25, 28),
-                    NavigationText = Color.FromArgb(220, 221, 222),
-                    NavigationHover = Color.FromArgb(44, 46, 51),
-                    InputBack = Color.FromArgb(49, 51, 56),
-                    InputText = Color.FromArgb(227, 229, 232),
-                    GridBack = gridBack,
-                    GridAlternateRow = Color.FromArgb(49, 51, 56),
-                    GridLines = Color.FromArgb(58, 61, 68),
-                    GridHighlight = Blend(gridBack, accent, 0.18),
-                    GridSelection = Blend(gridBack, accent, 0.40),
+                    Window = Grey900,
+                    Sidebar = Grey850,
+                    Text = Grey200,
+                    MutedText = Grey400,
+                    Border = Grey800,
+
+                    Navigation = Grey950,
+                    NavigationText = Grey400,
+                    NavigationHover = Grey850,
+                    NavigationActive = Blend(Grey950, accent, 0.22),
+                    NavigationActiveText = Color.White,
+
+                    InputBack = Grey800,
+                    InputText = Grey100,
+
+                    GridBack = Grey900,
+                    GridAlternateRow = Blend(Grey900, Grey850, 0.6),
+                    GridLines = Grey800,
+                    GridHeaderBack = Grey850,
+                    GridHeaderText = Grey400,
+                    GridHighlight = Grey850,
+                    GridSelection = Blend(Grey900, accent, 0.35),
+
                     Accent = accent,
                     AccentText = accentText,
-                    AccentHover = Blend(accent, Color.White, 0.15),
-                    AccentPressed = Blend(accent, Color.Black, 0.15),
+                    // Darker on hover, not lighter: lightening drops white text below readable contrast.
+                    AccentHover = Blend(accent, Color.Black, 0.10),
+                    AccentPressed = Blend(accent, Color.Black, 0.20),
                 };
             }
 
             bool darkNavigation = mode == ThemeMode.LightWithDarkNavigation;
-            Color lightGrid = Color.White;
             return new ThemePalette
             {
                 IsDark = false,
-                Window = Color.FromArgb(245, 246, 248),
+                Window = Grey100,
                 Sidebar = Color.White,
-                Text = Color.FromArgb(31, 41, 55),
-                MutedText = Color.FromArgb(107, 114, 128),
-                Border = Color.FromArgb(217, 221, 227),
-                Navigation = darkNavigation ? Color.FromArgb(31, 36, 48) : Color.FromArgb(234, 236, 240),
-                NavigationText = darkNavigation ? Color.FromArgb(230, 232, 236) : Color.FromArgb(31, 41, 55),
-                NavigationHover = darkNavigation ? Color.FromArgb(44, 50, 64) : Color.FromArgb(220, 223, 229),
+                Text = Grey900,
+                MutedText = Grey500,
+                Border = Grey200,
+
+                Navigation = darkNavigation ? Grey900 : Grey50,
+                NavigationText = darkNavigation ? Grey300 : Grey600,
+                NavigationHover = darkNavigation ? Grey800 : Grey100,
+                NavigationActive = darkNavigation ? Blend(Grey900, accent, 0.25) : Blend(Color.White, accent, 0.12),
+                NavigationActiveText = darkNavigation ? Color.White : Blend(accent, Color.Black, 0.2),
+
                 InputBack = Color.White,
-                InputText = Color.FromArgb(31, 41, 55),
-                GridBack = lightGrid,
-                GridAlternateRow = Color.FromArgb(248, 249, 251),
-                GridLines = Color.FromArgb(229, 231, 235),
-                GridHighlight = Blend(lightGrid, accent, 0.10),
-                GridSelection = Blend(lightGrid, accent, 0.22),
+                InputText = Grey900,
+
+                GridBack = Color.White,
+                GridAlternateRow = Grey50,
+                GridLines = Grey100,
+                GridHeaderBack = Grey100,
+                GridHeaderText = Grey600,
+                GridHighlight = Grey100,
+                GridSelection = Blend(Color.White, accent, 0.14),
+
                 Accent = accent,
                 AccentText = accentText,
                 AccentHover = Blend(accent, Color.Black, 0.10),
@@ -363,6 +443,13 @@ namespace Timesheeter.Lib
             return false;
         }
 
+        private static bool IsActiveNavigationButton(Button button)
+        {
+            Button? active = null;
+            _activeNavigationButton?.TryGetTarget(out active);
+            return button == active;
+        }
+
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 
@@ -383,7 +470,7 @@ namespace Timesheeter.Lib
             }
 
             if (form.IsHandleCreated) Set();
-            else form.HandleCreated += (s, e) => Set();
+            else if (!_watched.TryGetValue(form, out _)) form.HandleCreated += (s, e) => SetDarkTitleBar(form, Current.IsDark);
         }
 
         #endregion
