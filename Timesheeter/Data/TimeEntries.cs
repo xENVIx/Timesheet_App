@@ -38,7 +38,9 @@ namespace Timesheeter.Data
                 {
                     if (TimeEnd < TimeStart) return 0;
 
-                    return Math.Round((TimeEnd - TimeStart).TotalHours, 2);
+                    // Not rounded here: rounding each entry before summing makes totals drift
+                    // (three 20 minute entries would total 0.99). Grids round for display only.
+                    return (TimeEnd - TimeStart).TotalHours;
                 }
             }
 
@@ -67,7 +69,7 @@ namespace Timesheeter.Data
                 _list.Add(timeEntry);
             }
 
-            // Entries are always shown in date and start time order.
+            // Entries are always shown newest first, by date then start time.
             _list.Sort = "Date desc, TimeStart desc";
         }
 

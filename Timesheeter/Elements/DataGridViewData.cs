@@ -72,6 +72,13 @@ namespace Timesheeter.Elements
                 e.Column.Visible = false;
             }
 
+            // Show decimals to at most 2 places (e.g. hours 1.3333 as 1.33) without rounding the data.
+            var type = prop == null ? null : Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            if (type == typeof(double) || type == typeof(float) || type == typeof(decimal))
+            {
+                e.Column.DefaultCellStyle.Format = "0.##";
+            }
+
             base.OnColumnAdded(e);
         }
 
