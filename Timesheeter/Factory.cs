@@ -58,13 +58,34 @@ namespace Timesheeter
         public T? GetData<T>()
         {
 
+            switch (typeof(T))
+            { 
+                case Type t when t == typeof(Customers):
+                    return (T)(object)_customers;
+                case Type t when t == typeof(ProjectCodes):
+                    return (T)(object)_projectCodes;
+                case Type t when t == typeof(TimeEntries):
+                    return (T)(object)_timeEntries;
+                case Type t when t == typeof(AppSettings):
+                    return (T)(object)_settings;
+                // just some easter eggs for fun, not really needed
+                case Type t when t == typeof(float):
+                    return (T)(object)8008135f;
+                case Type t when t == typeof(string):
+                    return (T)(object)"8======D";
+                // end easter eggs
+                default: return default(T);
 
+                 
+            }
+            
+            /*
             if (typeof(T) == typeof(Customers)) return (T)(object)_customers;
             else if (typeof(T) == typeof(ProjectCodes)) return (T)(object)_projectCodes;
             else if (typeof(T) == typeof(TimeEntries)) return (T)(object)_timeEntries;
             else if (typeof(T) == typeof(AppSettings)) return (T)(object)_settings;
             return default(T);
-
+            */
         }
 
 

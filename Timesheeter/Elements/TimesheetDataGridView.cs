@@ -62,6 +62,7 @@ namespace Timesheeter.Elements
             _projectCodesFactory = _factory.GetData<ProjectCodes>();
             if (_projectCodesFactory == null) throw new ArgumentNullException(nameof(_projectCodesFactory));
 
+
             // Keep the week up to date when entries are added or edited on the time entries page.
             _timeEntriesFactory.All.ListChanged += (s, e) => Rebuild();
             _projectCodesFactory.All.ListChanged += (s, e) => Rebuild();

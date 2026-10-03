@@ -50,7 +50,17 @@ namespace Timesheeter.Elements
             Redraw();
         }
 
+        // Deferred a tick: rendering synchronously (e.g. from the constructor, before the control
+        // has gone through its first real paint) left a stray ghost of the legend's last row behind
+        // that only a later rebuild (e.g. switching weeks) would clear. Posting the render after the
+        // current message runs gives WinForms time to finish laying the control out first.
         private void Redraw()
+        {
+            if (IsHandleCreated) BeginInvoke(RedrawCore);
+            else RedrawCore();
+        }
+
+        private void RedrawCore()
         {
             var palette = Theme.Current;
             var surface = ScottPlot.Color.FromColor(palette.Sidebar);
