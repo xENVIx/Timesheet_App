@@ -15,6 +15,15 @@ namespace Timesheeter.Elements
     /// </summary>
     public class TimesheetDataGridView : DataGridView
     {
+        /// <summary>A project code's total hours for the week shown.</summary>
+        public record ProjectHours(string ProjectCode, double Hours);
+
+        /// <summary>
+        /// Raised after every rebuild with each project code's total for the week, in row order
+        /// (the same numbers as the Total column), e.g. for a chart.
+        /// </summary>
+        public event EventHandler<IReadOnlyList<ProjectHours>>? WeekTotalsChanged;
+
 
         IFactory? _factory;
         private DateOnly _dateSelected;
@@ -52,6 +61,7 @@ namespace Timesheeter.Elements
 
             _projectCodesFactory = _factory.GetData<ProjectCodes>();
             if (_projectCodesFactory == null) throw new ArgumentNullException(nameof(_projectCodesFactory));
+
 
             // Keep the week up to date when entries are added or edited on the time entries page.
             _timeEntriesFactory.All.ListChanged += (s, e) => Rebuild();
@@ -113,6 +123,7 @@ namespace Timesheeter.Elements
 
             // Summed from the hours themselves, not the displayed (rounded) text.
             var dayTotals = new double[7];
+            var projectTotals = new List<ProjectHours>();
 
             foreach (var project in byProjectCode)
             {
@@ -133,9 +144,12 @@ namespace Timesheeter.Elements
                 }
 
                 Rows[newEntryRow].Cells[TotalColumn].Value = FormatHours(projectTotal);
+                projectTotals.Add(new ProjectHours(project.ProjectCode, projectTotal));
             }
 
             CreateTotalRow(dayTotals);
+
+            WeekTotalsChanged?.Invoke(this, projectTotals);
         }
 
         private void CreateTotalRow(double[] dayTotals)
