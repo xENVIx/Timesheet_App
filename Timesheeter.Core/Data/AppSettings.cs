@@ -5,7 +5,7 @@ using System.Text;
 using LibSqlLite;
 using Timesheeter.Lib;
 
-namespace Timesheeter.Data
+namespace Timesheeter.Core.Data
 {
     /// <summary>
     /// User preferences, saved in the app's database as a single row.
