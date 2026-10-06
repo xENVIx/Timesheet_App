@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibSqlLite\LibSqlLite.csproj" />
-    <ProjectReference Include="..\Timesheeter.Core\Timesheeter.Core.csproj" />
   </ItemGroup>
 
 </Project>

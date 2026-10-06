@@ -1,5 +1,4 @@
 <Solution>
   <Project Path="../LibSqlLite/LibSqlLite.csproj" />
-  <Project Path="../Timesheeter.Core/Timesheeter.Core.csproj" />
   <Project Path="Timesheeter.csproj" />
 </Solution>
