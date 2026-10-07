@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Timesheeter.Data;
+using Timesheeter.Forms;
 using Timesheeter.Lib;
 
 namespace Timesheeter.UserControls
@@ -150,6 +151,42 @@ namespace Timesheeter.UserControls
             if (_weekEntries.Count <= 0) return;
 
 
+
+            String code = "";
+
+            int selInd = _cbProjects.SelectedIndex;
+
+            var item = _cbProjects.Items[selInd];
+
+            if (item is Data.ProjectCodes.ProjectCode projCode)
+            {
+                code = projCode.Code;
+            }
+            else
+            {
+                // could not find project code...
+                MessageBox.Show($"Error Validating Project Code");
+                return;
+            }
+
+            var ret = FrmTimesheetUserInfo.ShowAndReturnUserInfo(this);
+            if (ret == null)
+            {
+                MessageBox.Show(this, $"User Information Could Not Be Collected");
+                return;
+            }
+
+            var retValue = ret.Value;
+
+            if (!Classes.ReportGenerator.Generate(
+                this, 
+                retValue.firstName, 
+                retValue.lastName, 
+                code, 
+                _weekEntries))
+            {
+                MessageBox.Show(this, $"Could Not Generate Report");
+            }
 
         }
     }

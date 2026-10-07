@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using Timesheeter.Data;
 
@@ -53,8 +54,11 @@ namespace Timesheeter
             _timer.Tick += _timer_Tick;
             
             _timer.Start();
-                        
-        }
+
+            
+
+            String getAssembly = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.Contains("Timesheet.xlsx")).First() ?? "";
+            if (getAssembly.Length <= 0) throw new Exception($"Error Pulling Template Timesheet from Assembly - Project Report Creation Impossible");       }
 
         private void _timer_Tick(object? sender, EventArgs e)
         {
