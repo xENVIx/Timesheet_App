@@ -38,6 +38,7 @@ namespace Timesheeter.UserControls
             _dgvTimesheet.PostInit(_factory);
             _dgvTimesheet.SetStartDate(DateOnly.FromDateTime(_datePicker.Value));
 
+            
         }
 
         
