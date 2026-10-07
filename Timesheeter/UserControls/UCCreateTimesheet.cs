@@ -153,6 +153,7 @@ namespace Timesheeter.UserControls
 
 
             String code = "";
+            String customerName = "";
 
             int selInd = _cbProjects.SelectedIndex;
 
@@ -161,6 +162,7 @@ namespace Timesheeter.UserControls
             if (item is Data.ProjectCodes.ProjectCode projCode)
             {
                 code = projCode.Code;
+                customerName = _factory?.GetData<Customers>()?[projCode.CustomerID]?.Name ?? "";
             }
             else
             {
@@ -183,6 +185,7 @@ namespace Timesheeter.UserControls
                 retValue.firstName, 
                 retValue.lastName, 
                 code, 
+                customerName,
                 _weekEntries))
             {
                 MessageBox.Show(this, $"Could Not Generate Report");

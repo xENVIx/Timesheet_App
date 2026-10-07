@@ -21,6 +21,7 @@ namespace Timesheeter.Classes
             String firstName,
             String lastName,
             String projectCode, 
+            String customerName,
             IReadOnlyList<TimeEntries.TimeEntry> _reportEntries
         )
         {
@@ -46,6 +47,7 @@ namespace Timesheeter.Classes
             var ws = workbook.Worksheet("CW");
 
             ws.GetNamedRangeCell("Engineer").Value = $"{firstName} {lastName}";
+            ws.GetNamedRangeCell("Customer").Value = customerName;
 
 
 
