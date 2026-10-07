@@ -75,6 +75,22 @@ namespace Timesheeter.Lib
     /// </remarks>
     public static class Theme
     {
+        // One neutral grey scale (zinc) shared by every mode, lightest to darkest.
+        // Declared before Current: static fields initialise in file order, and Current's palette
+        // reads these. Below it they were still Color.Empty when the palette was built, which the
+        // designer (where Theme.Set never runs) passed on to DateTimePicker and it threw.
+        private static readonly Color Grey50 = Color.FromArgb(250, 250, 250);
+        private static readonly Color Grey100 = Color.FromArgb(244, 244, 245);
+        private static readonly Color Grey200 = Color.FromArgb(228, 228, 231);
+        private static readonly Color Grey300 = Color.FromArgb(212, 212, 216);
+        private static readonly Color Grey400 = Color.FromArgb(161, 161, 170);
+        private static readonly Color Grey500 = Color.FromArgb(113, 113, 122);
+        private static readonly Color Grey600 = Color.FromArgb(82, 82, 91);
+        private static readonly Color Grey800 = Color.FromArgb(39, 39, 42);
+        private static readonly Color Grey850 = Color.FromArgb(31, 31, 35);
+        private static readonly Color Grey900 = Color.FromArgb(24, 24, 27);
+        private static readonly Color Grey950 = Color.FromArgb(17, 17, 19);
+
         /// <summary>Accent presets offered in Settings: deep enough for white text. Any other color works too.</summary>
         public static readonly IReadOnlyList<(string Name, Color Color)> AccentPresets =
         [
@@ -326,18 +342,6 @@ namespace Timesheeter.Lib
 
         #region Palettes
 
-        // One neutral grey scale (zinc) shared by every mode, lightest to darkest.
-        private static readonly Color Grey50 = Color.FromArgb(250, 250, 250);
-        private static readonly Color Grey100 = Color.FromArgb(244, 244, 245);
-        private static readonly Color Grey200 = Color.FromArgb(228, 228, 231);
-        private static readonly Color Grey300 = Color.FromArgb(212, 212, 216);
-        private static readonly Color Grey400 = Color.FromArgb(161, 161, 170);
-        private static readonly Color Grey500 = Color.FromArgb(113, 113, 122);
-        private static readonly Color Grey600 = Color.FromArgb(82, 82, 91);
-        private static readonly Color Grey800 = Color.FromArgb(39, 39, 42);
-        private static readonly Color Grey850 = Color.FromArgb(31, 31, 35);
-        private static readonly Color Grey900 = Color.FromArgb(24, 24, 27);
-        private static readonly Color Grey950 = Color.FromArgb(17, 17, 19);
 
         private static ThemePalette BuildPalette(ThemeMode mode, Color accent)
         {
