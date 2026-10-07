@@ -37,11 +37,15 @@ namespace Timesheeter.UserControls
             
             _timeEntries = _factory.GetData<TimeEntries>();
 
-            _cbProjects.PostInit(_factory.GetData<ProjectCodes>());
+            // Its own binding context: controls bound to the same list in one window otherwise share a
+            // "current item", so another page's project selection would move this one (and undo -1).
+            _cbProjects.BindingContext = new BindingContext();
+            _cbProjects.PostInit(_factory.GetData<ProjectCodes>(), _factory.GetData<Customers>());
             _cbProjects.SelectedIndex = -1;
 
             _dgvTimeEntries.PostInit(_timeEntries, _factory);
-            _dgvTimeEntries.DataSource = _timeEntries;
+            // Show only this page's filtered list (empty until a project is picked).
+            _dgvTimeEntries.DataSource = _weekEntries;
 
             _weekEntries.Sort = "Date, TimeStart";
 
