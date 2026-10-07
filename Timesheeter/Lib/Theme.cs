@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -136,7 +137,7 @@ namespace Timesheeter.Lib
         public static void SetRole(Control control, ThemeRole role)
         {
             _roles.AddOrUpdate(control, new StrongBox<ThemeRole>(role));
-            if (control.Parent != null) Apply(control);
+            if (control.Parent != null && !IsDesignTime(control)) Apply(control);
         }
 
         /// <summary>Highlights the navigation button for the page being shown.</summary>
@@ -153,6 +154,10 @@ namespace Timesheeter.Lib
         /// <summary>Styles a control and its children, now and whenever children are added later.</summary>
         public static void Apply(Control control)
         {
+            // The designer shows controls as designed; styling there also got saved into
+            // .Designer.cs files, and runtime-only state (e.g. the palette) made it throw.
+            if (IsDesignTime(control)) return;
+
             // Ignore covers the children too, including ones added after the role was set.
             if (IsInside(control, ThemeRole.Ignore)) return;
 
@@ -438,6 +443,19 @@ namespace Timesheeter.Lib
         #endregion
 
         #region Helpers
+
+        /// <summary>True when the control is being shown in the Visual Studio designer.</summary>
+        internal static bool IsDesignTime(Control control)
+        {
+            // UsageMode covers constructors (no Site yet); Site.DesignMode covers controls already placed.
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return true;
+
+            for (Control? c = control; c != null; c = c.Parent)
+            {
+                if (c.Site?.DesignMode == true) return true;
+            }
+            return false;
+        }
 
         private static ThemeRole RoleOf(Control control) =>
             _roles.TryGetValue(control, out var box) ? box.Value : ThemeRole.None;

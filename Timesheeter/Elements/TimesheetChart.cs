@@ -30,10 +30,14 @@ namespace Timesheeter.Elements
 
         // Created once: every ShowLegend(Edge) call adds another legend panel, which Plot.Clear()
         // doesn't remove, so redrawing per week stacked legends until the pie was squeezed out.
-        private readonly ScottPlot.Panels.LegendPanel _legendPanel;
+        // Null in the designer, where the chart isn't set up.
+        private readonly ScottPlot.Panels.LegendPanel? _legendPanel;
 
         public TimesheetChart() : base()
         {
+            // In the designer, just show an empty plot: no data, theme or event wiring.
+            if (Theme.IsDesignTime(this)) return;
+
             // A summary to read, not a plot to pan or zoom.
             UserInputProcessor.Disable();
 
@@ -62,6 +66,8 @@ namespace Timesheeter.Elements
 
         private void RedrawCore()
         {
+            if (_legendPanel == null) return; // designer: not set up
+
             var palette = Theme.Current;
             var surface = ScottPlot.Color.FromColor(palette.Sidebar);
             var text = ScottPlot.Color.FromColor(palette.Text);
