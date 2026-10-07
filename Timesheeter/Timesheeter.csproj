@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Timesheet_Template_Excel\Timesheet.xlsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Embedded too, so the main window can use every size (the title bar wants 16/20/24px). -->
     <EmbeddedResource Include="Resources\Timesheeter.ico" LogicalName="Timesheeter.ico" />
     <EmbeddedResource Include="Timesheet_Template_Excel\Timesheet.xlsx">

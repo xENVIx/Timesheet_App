@@ -1,13 +1,15 @@
-﻿using ScottPlot;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using ScottPlot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Timesheeter.Data;
-using System.Reflection;
-using ClosedXML.Excel;
+using Timesheeter.Extensions;
 
 namespace Timesheeter.Classes
 {
@@ -43,20 +45,60 @@ namespace Timesheeter.Classes
 
             var ws = workbook.Worksheet("CW");
 
-            var ranges = ws.DefinedName("Engineer");
-            if (ranges == null)
-                throw new Exception($"Named Range \'Engineer\' Does Not Exist");
+            ws.GetNamedRangeCell("Engineer").Value = $"{firstName} {lastName}";
 
-            var range = ranges.Ranges.First();
 
-            var engCell = range.Cells().First();
-            engCell.Value = $"{firstName} {lastName}";
+
+            // get any random date from the list...?
+            DateOnly randomDate = _reportEntries.First().Date;
+
+            DateOnly monday = randomDate.AddDays(-(((int)randomDate.DayOfWeek + 6) % 7));
+
+            String dateFormat = "{0:00}/{1:00}/{2:0000}";
+            String fileDateFormat = "{0:0000}{1:00}{2:00}";
+            String date = String.Format(dateFormat, monday.Month, monday.Day, monday.Year);
+
+            ws.GetNamedRangeCell("Start_Date").Value = date;
+
+
+            var totalsByDate = _reportEntries.GroupBy(x => x.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    TotalHours = g.Sum(x => Math.Round(x.Hours, 2)),
+                    Comments = String.Join(", ",
+                    g.Select(x => x.Comment)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct())
+
+                })
+                .OrderBy(x => x.Date)
+                .ToList();
+
+            foreach (var record in totalsByDate)
+            {
+
+                const String hoursRangeFormat = "Hours{0}";
+                const String commentsRangeFormat = "DailyActivityDescription{0}";
+
+                ws.GetNamedRangeCell(String.Format(hoursRangeFormat, record.Date.DayOfWeek.ToString()))
+                    .Value = record.TotalHours;
+                
+                ws.GetNamedRangeCell(String.Format(commentsRangeFormat, record.Date.DayOfWeek.ToString()))
+                    .Value = record.Comments;
+
+
+            }
+
 
             using SaveFileDialog dlg = new SaveFileDialog();
             dlg.Filter = "Excel Workbook (*.xlsx)|*.xlsx";
             dlg.DefaultExt = "xlsx";
             dlg.AddExtension = true;
-            dlg.FileName = $"{projectCode}_Timesheet_{firstName}_{lastName}.xlsx";
+            dlg.FileName = $"{String.Format(fileDateFormat, monday.Year, monday.Month, monday.Day)}_{projectCode}_Timesheet_{firstName}_{lastName}.xlsx";
+
+
+
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
