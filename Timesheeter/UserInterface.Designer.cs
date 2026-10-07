@@ -28,24 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            _ucMain = new Timesheeter.UserControls.UCMain();
             SuspendLayout();
-            // 
-            // _ucMain
-            // 
-            _ucMain.Dock = DockStyle.Fill;
-            _ucMain.Location = new Point(0, 0);
-            _ucMain.Name = "_ucMain";
-            _ucMain.Size = new Size(1511, 782);
-            _ucMain.TabIndex = 0;
             // 
             // UserInterface
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1511, 782);
-            Controls.Add(_ucMain);
-            FormBorderStyle = FormBorderStyle.Fixed3D;
             MaximizeBox = false;
             Name = "UserInterface";
             Text = "Timesheeter";
