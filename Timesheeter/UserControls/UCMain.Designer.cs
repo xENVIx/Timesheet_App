@@ -28,22 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            _ucSelectionMenu = new UCSelectionMenu();
             SuspendLayout();
-            // 
-            // _ucSelectionMenu
-            // 
-            _ucSelectionMenu.Dock = DockStyle.Fill;
-            _ucSelectionMenu.Location = new Point(0, 0);
-            _ucSelectionMenu.Name = "_ucSelectionMenu";
-            _ucSelectionMenu.Size = new Size(630, 418);
-            _ucSelectionMenu.TabIndex = 0;
             // 
             // UCMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(_ucSelectionMenu);
             Name = "UCMain";
             Size = new Size(630, 418);
             ResumeLayout(false);

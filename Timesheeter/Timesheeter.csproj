@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Embedded too, so the main window can use every size (the title bar wants 16/20/24px). -->
-    <EmbeddedResource Include="Resources\Timesheeter.ico" LogicalName="Timesheeter.ico" />
+    <Compile Remove="Elements\TimesheetChart.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ScottPlot.WinForms" Version="5.1.59" />
+    <!-- Embedded too, so the main window can use every size (the title bar wants 16/20/24px). -->
+    <EmbeddedResource Include="Resources\Timesheeter.ico" LogicalName="Timesheeter.ico" />
   </ItemGroup>
 
   <ItemGroup>

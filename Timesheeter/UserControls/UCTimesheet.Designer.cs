@@ -31,7 +31,6 @@
             _datePicker = new Timesheeter.Lib.DatePicker();
             _dgvTimesheet = new Timesheeter.Elements.TimesheetDataGridView();
             label1 = new Label();
-            timesheetChart1 = new Timesheeter.Elements.TimesheetChart();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
@@ -44,7 +43,6 @@
             // 
             // _pnlSideBar
             // 
-            _pnlSideBar.Controls.Add(timesheetChart1);
             _pnlSideBar.Controls.Add(label1);
             _pnlSideBar.Controls.Add(_datePicker);
             _pnlSideBar.Size = new Size(298, 539);
@@ -86,14 +84,6 @@
             label1.TabIndex = 3;
             label1.Text = "Week Start";
             // 
-            // timesheetChart1
-            // 
-            timesheetChart1.Dock = DockStyle.Bottom;
-            timesheetChart1.Location = new Point(0, 286);
-            timesheetChart1.Name = "timesheetChart1";
-            timesheetChart1.Size = new Size(298, 253);
-            timesheetChart1.TabIndex = 4;
-            // 
             // UCTimesheet
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -112,6 +102,5 @@
         private Lib.DatePicker _datePicker;
         private Elements.TimesheetDataGridView _dgvTimesheet;
         private Label label1;
-        private Elements.TimesheetChart timesheetChart1;
     }
 }
