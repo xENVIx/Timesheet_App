@@ -19,7 +19,14 @@ namespace Timesheeter.UserControls
     {
 
         private TimeEntries? _timeEntries;
+        private ProjectCodes? _projectCodes;
         private readonly BindingListView<TimeEntries.TimeEntry> _weekEntries = new();
+
+        // The combo box's list: only the project codes with entries in the selected week.
+        private readonly BindingListView<ProjectCodes.ProjectCode> _weekProjects = new();
+
+        // True while the combo box's list is rebuilt, so its selection changes don't each refilter.
+        private bool _refreshingProjects;
 
         public UCCreateTimesheet()
         {
@@ -36,12 +43,15 @@ namespace Timesheeter.UserControls
 
 
             _timeEntries = _factory.GetData<TimeEntries>();
+            _projectCodes = _factory.GetData<ProjectCodes>();
 
             // Its own binding context: controls bound to the same list in one window otherwise share a
             // "current item", so another page's project selection would move this one (and undo -1).
             _cbProjects.BindingContext = new BindingContext();
-            _cbProjects.PostInit(_factory.GetData<ProjectCodes>(), _factory.GetData<Customers>());
-            _cbProjects.SelectedIndex = -1;
+            _cbProjects.PostInit(_projectCodes, _factory.GetData<Customers>());
+            // PostInit binds every project code; show only the selected week's instead.
+            _cbProjects.DataSource = _weekProjects;
+            _weekProjects.Sort = "Code";
 
             _dgvTimeEntries.PostInit(_timeEntries, _factory);
             // Show only this page's filtered list (empty until a project is picked).
@@ -49,8 +59,68 @@ namespace Timesheeter.UserControls
 
             _weekEntries.Sort = "Date, TimeStart";
 
-            _dp.ValueChanged += (s, e) => ShowSelectedWeek();
-            _cbProjects.SelectedIndexChanged += (s, e) => ShowSelectedWeek();
+            _dp.ValueChanged += (s, e) => RefreshWeekProjects();
+            _cbProjects.SelectedIndexChanged += (s, e) =>
+            {
+                if (!_refreshingProjects) ShowSelectedWeek();
+            };
+
+            RefreshWeekProjects();
+        }
+
+        /// <summary>Monday to Sunday of the week containing the picked date.</summary>
+        private (DateOnly Monday, DateOnly Sunday) SelectedWeek()
+        {
+            DateOnly picked = _dp.Date;
+            DateOnly monday = picked.AddDays(-(((int)picked.DayOfWeek + 6) % 7));
+            return (monday, monday.AddDays(6));
+        }
+
+        /// <summary>
+        /// Fills the combo box with the project codes worked in the selected week. Keeps the current
+        /// project selected if it was worked that week too; otherwise nothing is selected.
+        /// </summary>
+        private void RefreshWeekProjects()
+        {
+            if (_timeEntries == null || _projectCodes == null) return;
+
+            var (monday, sunday) = SelectedWeek();
+            long? previous = _cbProjects.SelectedValue is long id ? id : null;
+
+            var workedCodeIds = _timeEntries.All.Unfiltered
+                .Where(entry => entry.Date >= monday && entry.Date <= sunday)
+                .Select(entry => entry.ProjectCodeID)
+                .ToHashSet();
+
+            _refreshingProjects = true;
+            try
+            {
+                _weekProjects.Clear();
+                foreach (var code in _projectCodes.All.Unfiltered)
+                {
+                    if (workedCodeIds.Contains(code.ID)) _weekProjects.Add(code);
+                }
+
+                // Adding items makes the combo box select the first one; select the previous project or none.
+                int index = previous is long keep ? IndexOfProject(keep) : -1;
+                _cbProjects.SelectedIndex = index;
+                if (index < 0) _cbProjects.Text = "";
+            }
+            finally
+            {
+                _refreshingProjects = false;
+            }
+
+            ShowSelectedWeek();
+        }
+
+        private int IndexOfProject(long projectCodeId)
+        {
+            for (int i = 0; i < _weekProjects.Count; i++)
+            {
+                if (_weekProjects[i].ID == projectCodeId) return i;
+            }
+            return -1;
         }
 
         // select week
@@ -62,9 +132,7 @@ namespace Timesheeter.UserControls
 
             if (_timeEntries == null || _cbProjects.SelectedValue is not long projectCodeId) return;
 
-            DateOnly picked = _dp.Date;
-            DateOnly monday = picked.AddDays(-(((int)picked.DayOfWeek + 6) % 7));
-            DateOnly sunday = monday.AddDays(6);
+            var (monday, sunday) = SelectedWeek();
 
             foreach (var entry in _timeEntries.All.Unfiltered)
             {
