@@ -13,7 +13,7 @@ using Timesheeter.Lib;
 namespace Timesheeter.UserControls
 {
 
-    
+
 
     public partial class UCCreateTimesheet : Lib.UCSubPage
     {
@@ -34,7 +34,7 @@ namespace Timesheeter.UserControls
                 throw new ArgumentNullException(nameof(_factory));
             }
 
-            
+
             _timeEntries = _factory.GetData<TimeEntries>();
 
             // Its own binding context: controls bound to the same list in one window otherwise share a
@@ -75,7 +75,14 @@ namespace Timesheeter.UserControls
             }
         }
 
+        private void _btnGenerate_Click(object sender, EventArgs e)
+        {
 
 
+            if (_weekEntries.Count <= 0) return;
+
+
+
+        }
     }
 }
