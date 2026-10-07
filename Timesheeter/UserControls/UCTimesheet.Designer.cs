@@ -31,6 +31,7 @@
             _datePicker = new Timesheeter.Lib.DatePicker();
             _dgvTimesheet = new Timesheeter.Elements.TimesheetDataGridView();
             label1 = new Label();
+            _chartTimesheet = new Timesheeter.Elements.TimesheetChart();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
@@ -43,6 +44,7 @@
             // 
             // _pnlSideBar
             // 
+            _pnlSideBar.Controls.Add(_chartTimesheet);
             _pnlSideBar.Controls.Add(label1);
             _pnlSideBar.Controls.Add(_datePicker);
             _pnlSideBar.Size = new Size(298, 539);
@@ -54,7 +56,11 @@
             // 
             // _datePicker
             // 
+            _datePicker.CalendarForeColor = Color.FromArgb(24, 24, 27);
             _datePicker.CalendarMonthBackground = Color.White;
+            _datePicker.CalendarTitleBackColor = Color.FromArgb(37, 99, 235);
+            _datePicker.CalendarTitleForeColor = Color.White;
+            _datePicker.CalendarTrailingForeColor = Color.FromArgb(113, 113, 122);
             _datePicker.Format = DateTimePickerFormat.Short;
             _datePicker.Location = new Point(3, 21);
             _datePicker.Name = "_datePicker";
@@ -84,6 +90,14 @@
             label1.TabIndex = 3;
             label1.Text = "Week Start";
             // 
+            // timesheetChart1
+            // 
+            _chartTimesheet.Dock = DockStyle.Bottom;
+            _chartTimesheet.Location = new Point(0, 284);
+            _chartTimesheet.Name = "timesheetChart1";
+            _chartTimesheet.Size = new Size(298, 255);
+            _chartTimesheet.TabIndex = 4;
+            // 
             // UCTimesheet
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -102,5 +116,6 @@
         private Lib.DatePicker _datePicker;
         private Elements.TimesheetDataGridView _dgvTimesheet;
         private Label label1;
+        private Elements.TimesheetChart _chartTimesheet;
     }
 }

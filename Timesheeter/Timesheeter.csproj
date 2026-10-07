@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Elements\TimesheetChart.cs" />
+    <!-- Embedded too, so the main window can use every size (the title bar wants 16/20/24px). -->
+    <EmbeddedResource Include="Resources\Timesheeter.ico" LogicalName="Timesheeter.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Embedded too, so the main window can use every size (the title bar wants 16/20/24px). -->
-    <EmbeddedResource Include="Resources\Timesheeter.ico" LogicalName="Timesheeter.ico" />
+    <PackageReference Include="ScottPlot.WinForms" Version="5.1.59" />
   </ItemGroup>
 
   <ItemGroup>

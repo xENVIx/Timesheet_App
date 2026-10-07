@@ -51,7 +51,6 @@ namespace Timesheeter.UserControls
 
             _dgvTimesheet.SetStartDate(DateOnly.FromDateTime(thisMonday));
 
-            
         }
 
 
