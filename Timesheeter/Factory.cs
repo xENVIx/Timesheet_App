@@ -5,16 +5,18 @@ using Timesheeter.Data;
 
 namespace Timesheeter
 {
-    internal class Factory : Lib.IFactory
+    internal class Factory
     {
 
 
 
         private LibSqlLite.SqliteStore _store;
-        private Data.Customers _customers;
-        private Data.ProjectCodes _projectCodes;
-        private TimeEntries _timeEntries;
-        private AppSettings _settings;
+        //private Data.Customers _customers;
+        //private Data.ProjectCodes _projectCodes;
+        //private TimeEntries _timeEntries;
+        //private AppSettings _settings;
+
+        private DataFactory _dataFactory;
         private readonly System.Windows.Forms.Timer _timer;
 
 
@@ -33,13 +35,18 @@ namespace Timesheeter
 
             String dbFile = Path.Combine(timeSheeterPath, "Timesheeter.db");
             _store = new LibSqlLite.SqliteStore(dbFile);
+
+            /*
             _customers = new Data.Customers(_store);
             _projectCodes = new ProjectCodes(_store);
             _timeEntries = new TimeEntries(_store);
             _settings = new AppSettings(_store);
+            */
 
             // Before any window exists, so the first paint already uses the saved look.
-            Lib.Theme.Set(_settings.ThemeMode, _settings.Accent);
+            //Lib.Theme.Set(_settings.ThemeMode, _settings.Accent);
+
+            _dataFactory = new DataFactory(_store);
 
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 10000;
@@ -55,6 +62,7 @@ namespace Timesheeter
         }
 
 
+        /*
         public T? GetData<T>()
         {
 
@@ -79,17 +87,10 @@ namespace Timesheeter
                  
             }
             
-            /*
-            if (typeof(T) == typeof(Customers)) return (T)(object)_customers;
-            else if (typeof(T) == typeof(ProjectCodes)) return (T)(object)_projectCodes;
-            else if (typeof(T) == typeof(TimeEntries)) return (T)(object)_timeEntries;
-            else if (typeof(T) == typeof(AppSettings)) return (T)(object)_settings;
-            return default(T);
-            */
-        }
+        } */
 
 
-        public Object? GetData(Type dataType)
+        /*public Object? GetData(Type dataType)
         {
 
             if (dataType == typeof(Customers)) return _customers;
@@ -98,21 +99,9 @@ namespace Timesheeter
             else if (dataType == typeof(AppSettings)) return _settings;
             else return null;
 
-        }
+        } */
 
-        public String[] AvailableDataTypes()
-        {
-
-            return new List<string>()
-            {
-                nameof(Customers),
-                nameof(ProjectCodes),
-                nameof(TimeEntries),
-                nameof(AppSettings)
-            }.ToArray();
-
-
-        }
+        
         
 
         internal void Run()
@@ -121,7 +110,7 @@ namespace Timesheeter
 
 
 
-            Application.Run(new UserInterface(this));
+            Application.Run(new UserInterface(_dataFactory));
         }
 
 

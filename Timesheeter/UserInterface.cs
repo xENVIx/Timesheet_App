@@ -6,8 +6,8 @@ namespace Timesheeter
     {
 
 
-        private IFactory _factory;
-        public UserInterface(IFactory factory)
+        private IDataFactory _factory;
+        public UserInterface(IDataFactory factory)
         {
             InitializeComponent();
             _factory = factory;

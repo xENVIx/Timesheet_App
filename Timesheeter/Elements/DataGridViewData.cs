@@ -21,7 +21,7 @@ namespace Timesheeter.Elements
         }
 
 
-        public void PostInit(DataClass<T>? data, IFactory factory)
+        public void PostInit(DataClass<T>? data, IDataFactory factory)
         {
 
             
@@ -82,7 +82,7 @@ namespace Timesheeter.Elements
             base.OnColumnAdded(e);
         }
 
-        private void AddLookupColumns(IFactory factory)
+        private void AddLookupColumns(IDataFactory factory)
         {
             foreach (var prop in typeof(T).GetProperties())
             {

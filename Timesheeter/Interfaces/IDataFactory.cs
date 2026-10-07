@@ -4,8 +4,10 @@ using System.Text;
 
 namespace Timesheeter.Lib
 {
-    public interface IFactory
+    public interface IDataFactory
     {
+
+
 
         public T? GetData<T>();
         public Object? GetData(Type dataType);
@@ -14,6 +16,6 @@ namespace Timesheeter.Lib
         /// Will list the available data types you can obtain in "GetData"....
         /// </summary>
         /// <returns></returns>
-        public String[] AvailableDataTypes();
+        //public String[] AvailableDataTypes();
     }
 }

@@ -39,7 +39,7 @@ namespace Timesheeter.UserControls
             Theme.SetActiveNavigationButton(_btnTimeSheet);
         }
 
-        public void PostInit(IFactory factory)
+        public void PostInit(IDataFactory factory)
         {
             _ucNewProjectCode.PostInit(factory);
             _ucCustomers.PostInit(factory);

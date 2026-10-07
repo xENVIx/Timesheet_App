@@ -18,7 +18,7 @@ namespace Timesheeter.UserControls
         }
 
 
-        public void PostInit(IFactory factory)
+        public void PostInit(IDataFactory factory)
         {
             _ucSelectionMenu.PostInit(factory);
         }

@@ -11,7 +11,7 @@ namespace Timesheeter.Lib
     public partial class UCSubPage : UserControl
     {
 
-        protected IFactory? _factory;
+        protected IDataFactory? _factory;
 
         public UCSubPage()
         {
@@ -28,7 +28,7 @@ namespace Timesheeter.Lib
             throw new NotImplementedException($"PostInit must be implemented");
         }
 
-        public void PostInit(IFactory factory)
+        public void PostInit(IDataFactory factory)
         {
             _factory = factory;
             PostInit();

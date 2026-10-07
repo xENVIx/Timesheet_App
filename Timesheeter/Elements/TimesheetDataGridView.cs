@@ -25,7 +25,7 @@ namespace Timesheeter.Elements
         public event EventHandler<IReadOnlyList<ProjectHours>>? WeekTotalsChanged;
 
 
-        IFactory? _factory;
+        IDataFactory? _factory;
         private DateOnly _dateSelected;
 
         private TimeEntries? _timeEntriesFactory;
@@ -52,7 +52,7 @@ namespace Timesheeter.Elements
         }
 
 
-        public void PostInit(IFactory factory)
+        public void PostInit(IDataFactory factory)
         {
             _factory = factory;
 
