@@ -28,35 +28,35 @@
         /// </summary>
         private void InitializeComponent()
         {
-            datePicker1 = new Timesheeter.Lib.DatePicker();
+            _dp = new Timesheeter.Lib.DatePicker();
             label1 = new Label();
-            projectCodeComboBox1 = new Timesheeter.Elements.ProjectCodeComboBox();
+            _cbProjects = new Timesheeter.Elements.ProjectCodeComboBox();
             label2 = new Label();
-            timeEntriesDataGridView1 = new Timesheeter.Elements.TimeEntriesDataGridView();
+            _dgvTimeEntries = new Timesheeter.Elements.TimeEntriesDataGridView();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)timeEntriesDataGridView1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)_dgvTimeEntries).BeginInit();
             SuspendLayout();
             // 
             // _pnlSideBar
             // 
             _pnlSideBar.Controls.Add(label2);
-            _pnlSideBar.Controls.Add(projectCodeComboBox1);
+            _pnlSideBar.Controls.Add(_cbProjects);
             _pnlSideBar.Controls.Add(label1);
-            _pnlSideBar.Controls.Add(datePicker1);
+            _pnlSideBar.Controls.Add(_dp);
             // 
             // _pnlGrid
             // 
-            _pnlGrid.Controls.Add(timeEntriesDataGridView1);
+            _pnlGrid.Controls.Add(_dgvTimeEntries);
             // 
             // datePicker1
             // 
-            datePicker1.Format = DateTimePickerFormat.Short;
-            datePicker1.Location = new Point(3, 18);
-            datePicker1.Name = "datePicker1";
-            datePicker1.Size = new Size(289, 23);
-            datePicker1.TabIndex = 0;
+            _dp.Format = DateTimePickerFormat.Short;
+            _dp.Location = new Point(3, 18);
+            _dp.Name = "datePicker1";
+            _dp.Size = new Size(289, 23);
+            _dp.TabIndex = 0;
             // 
             // label1
             // 
@@ -69,13 +69,13 @@
             // 
             // projectCodeComboBox1
             // 
-            projectCodeComboBox1.DisplayMember = "Code";
-            projectCodeComboBox1.FormattingEnabled = true;
-            projectCodeComboBox1.Location = new Point(3, 72);
-            projectCodeComboBox1.Name = "projectCodeComboBox1";
-            projectCodeComboBox1.Size = new Size(289, 23);
-            projectCodeComboBox1.TabIndex = 2;
-            projectCodeComboBox1.ValueMember = "ID";
+            _cbProjects.DisplayMember = "Code";
+            _cbProjects.FormattingEnabled = true;
+            _cbProjects.Location = new Point(3, 72);
+            _cbProjects.Name = "projectCodeComboBox1";
+            _cbProjects.Size = new Size(289, 23);
+            _cbProjects.TabIndex = 2;
+            _cbProjects.ValueMember = "ID";
             // 
             // label2
             // 
@@ -88,13 +88,13 @@
             // 
             // timeEntriesDataGridView1
             // 
-            timeEntriesDataGridView1.AllowUserToAddRows = false;
-            timeEntriesDataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            timeEntriesDataGridView1.Dock = DockStyle.Fill;
-            timeEntriesDataGridView1.Location = new Point(0, 0);
-            timeEntriesDataGridView1.Name = "timeEntriesDataGridView1";
-            timeEntriesDataGridView1.Size = new Size(672, 649);
-            timeEntriesDataGridView1.TabIndex = 0;
+            _dgvTimeEntries.AllowUserToAddRows = false;
+            _dgvTimeEntries.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _dgvTimeEntries.Dock = DockStyle.Fill;
+            _dgvTimeEntries.Location = new Point(0, 0);
+            _dgvTimeEntries.Name = "timeEntriesDataGridView1";
+            _dgvTimeEntries.Size = new Size(672, 649);
+            _dgvTimeEntries.TabIndex = 0;
             // 
             // UCCreateTimesheet
             // 
@@ -105,16 +105,16 @@
             _pnlSideBar.ResumeLayout(false);
             _pnlSideBar.PerformLayout();
             _pnlGrid.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)timeEntriesDataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)_dgvTimeEntries).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
         private Label label1;
-        private Lib.DatePicker datePicker1;
+        private Lib.DatePicker _dp;
         private Label label2;
-        private Elements.ProjectCodeComboBox projectCodeComboBox1;
-        private Elements.TimeEntriesDataGridView timeEntriesDataGridView1;
+        private Elements.ProjectCodeComboBox _cbProjects;
+        private Elements.TimeEntriesDataGridView _dgvTimeEntries;
     }
 }

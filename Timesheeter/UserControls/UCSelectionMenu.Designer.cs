@@ -39,7 +39,9 @@
             _btnSettings = new Button();
             _ucSettings = new UCSettings();
             panel1 = new Panel();
+            _btnCreateTimesheet = new Button();
             _pnlControls = new Panel();
+            _ucCreateTimesheet = new UCCreateTimesheet();
             panel1.SuspendLayout();
             _pnlControls.SuspendLayout();
             SuspendLayout();
@@ -118,7 +120,7 @@
             // 
             // _btnSettings
             // 
-            _btnSettings.Location = new Point(3, 199);
+            _btnSettings.Location = new Point(3, 248);
             _btnSettings.Name = "_btnSettings";
             _btnSettings.Size = new Size(93, 43);
             _btnSettings.TabIndex = 5;
@@ -136,6 +138,7 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(_btnCreateTimesheet);
             panel1.Controls.Add(_btnSettings);
             panel1.Controls.Add(_btnCustomers);
             panel1.Controls.Add(_btnTimeSheet);
@@ -147,8 +150,19 @@
             panel1.Size = new Size(104, 477);
             panel1.TabIndex = 8;
             // 
+            // _btnCreateTimesheet
+            // 
+            _btnCreateTimesheet.Location = new Point(3, 199);
+            _btnCreateTimesheet.Name = "_btnCreateTimesheet";
+            _btnCreateTimesheet.Size = new Size(93, 43);
+            _btnCreateTimesheet.TabIndex = 6;
+            _btnCreateTimesheet.Text = "Create Project Timesheet";
+            _btnCreateTimesheet.UseVisualStyleBackColor = true;
+            _btnCreateTimesheet.Click += _btnCreateTimesheet_Click;
+            // 
             // _pnlControls
             // 
+            _pnlControls.Controls.Add(_ucCreateTimesheet);
             _pnlControls.Controls.Add(_ucSettings);
             _pnlControls.Controls.Add(_ucCustomers);
             _pnlControls.Controls.Add(_ucNewProjectCode);
@@ -159,6 +173,13 @@
             _pnlControls.Name = "_pnlControls";
             _pnlControls.Size = new Size(504, 477);
             _pnlControls.TabIndex = 9;
+            // 
+            // _ucCreateTimesheet
+            // 
+            _ucCreateTimesheet.Location = new Point(413, 492);
+            _ucCreateTimesheet.Name = "_ucCreateTimesheet";
+            _ucCreateTimesheet.Size = new Size(970, 649);
+            _ucCreateTimesheet.TabIndex = 9;
             // 
             // UCSelectionMenu
             // 
@@ -187,5 +208,7 @@
         private UCSettings _ucSettings;
         private Panel panel1;
         private Panel _pnlControls;
+        private Button _btnCreateTimesheet;
+        private UCCreateTimesheet _ucCreateTimesheet;
     }
 }

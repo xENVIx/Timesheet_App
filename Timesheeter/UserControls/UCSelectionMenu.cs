@@ -35,6 +35,10 @@ namespace Timesheeter.UserControls
             _ucSettings.Visible = false;
             _ucSettings.Enabled = false;
 
+            _ucCreateTimesheet.Dock = DockStyle.Fill;
+            _ucCreateTimesheet.Visible = false;
+            _ucCreateTimesheet.Enabled = false;
+
             Theme.SetRole(panel1, ThemeRole.Navigation);
             Theme.SetActiveNavigationButton(_btnTimeSheet);
         }
@@ -45,6 +49,7 @@ namespace Timesheeter.UserControls
             _ucCustomers.PostInit(factory);
             _ucTimeEntries.PostInit(factory);
             _ucTimesheet.PostInit(factory);
+            _ucCreateTimesheet.PostInit(factory);
             _ucSettings.PostInit(factory);
         }
 
@@ -119,6 +124,12 @@ namespace Timesheeter.UserControls
             Theme.SetActiveNavigationButton(_btnTimeSheet);
             //_ucTimesheet.Enabled = true;
             //_ucTimesheet.Visible = true;
+        }
+
+        private void _btnCreateTimesheet_Click(object sender, EventArgs e)
+        {
+            this.ToggleScreen<UCCreateTimesheet>();
+            Theme.SetActiveNavigationButton(_btnCreateTimesheet);
         }
     }
 }
