@@ -4,15 +4,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Timesheeter.Core.Data;
 
 namespace Timesheeter.Lib
 {
-    public enum ThemeMode
-    {
-        Light,
-        LightWithDarkNavigation,
-        Dark,
-    }
 
     /// <summary>What a container is for, which decides its colors. Set with <see cref="Theme.SetRole"/>.</summary>
     public enum ThemeRole

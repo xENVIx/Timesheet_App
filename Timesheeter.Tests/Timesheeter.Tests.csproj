@@ -23,7 +23,7 @@
     Windows Forms, so their source files are compiled in directly and the tests run anywhere.
   -->
   <ItemGroup>
-    <Compile Include="..\Timesheeter\Lib\BindingListView.cs" Link="Lib\BindingListView.cs" />
+    <Compile Include="..\Timesheeter.Core\Lib\BindingListView.cs" Link="Lib\BindingListView.cs" />
   </ItemGroup>
 
 </Project>

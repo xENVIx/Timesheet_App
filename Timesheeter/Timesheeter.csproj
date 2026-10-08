@@ -11,19 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data\**" />
-    <Compile Remove="Interfaces\**" />
-    <EmbeddedResource Remove="Data\**" />
-    <EmbeddedResource Remove="Interfaces\**" />
-    <None Remove="Data\**" />
-    <None Remove="Interfaces\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Lib\Theme.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Timesheet_Template_Excel\Timesheet.xlsx" />
   </ItemGroup>
 

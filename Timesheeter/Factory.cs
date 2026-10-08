@@ -44,10 +44,12 @@ namespace Timesheeter
             _settings = new AppSettings(_store);
             */
 
-            // Before any window exists, so the first paint already uses the saved look.
-            //Lib.Theme.Set(_settings.ThemeMode, _settings.Accent);
-
             _dataFactory = new DataFactory(_store);
+
+            // Before any window exists, so the first paint already uses the saved look.
+            // Done here rather than in Core's DataFactory: the theme is WinForms-only.
+            var settings = _dataFactory.GetData<AppSettings>();
+            if (settings != null) Lib.Theme.Set(settings.ThemeMode, settings.Accent);
 
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 10000;

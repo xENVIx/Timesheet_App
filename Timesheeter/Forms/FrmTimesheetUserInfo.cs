@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Timesheeter.Core.Data;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;
+using Timesheeter.Lib;
 
 namespace Timesheeter.Forms
 {

@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 using LibSqlLite;
-using Timesheeter.Core.Lib;
+using System.Drawing;
 
 namespace Timesheeter.Core.Data
 {
@@ -19,8 +19,11 @@ namespace Timesheeter.Core.Data
             public String FirstName { get; set; } = "";
             public String LastName { get; set; } = "";
             public ThemeMode ThemeMode { get; set; } = ThemeMode.LightWithDarkNavigation;
-            public int AccentArgb { get; set; } = Theme.AccentPresets[0].Color.ToArgb();
+            public int AccentArgb { get; set; } = DefaultAccentArgb;
         }
+
+        // Theme.AccentPresets[0] ("Blue"); the theme itself lives in the WinForms app.
+        public static readonly int DefaultAccentArgb = Color.FromArgb(37, 99, 235).ToArgb();
 
         // The settings row always has this ID.
         private const int SettingsId = 1;

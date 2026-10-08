@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Timesheeter.Lib;
+using Timesheeter.Core.Lib;
 
 namespace Timesheeter.Tests;
 

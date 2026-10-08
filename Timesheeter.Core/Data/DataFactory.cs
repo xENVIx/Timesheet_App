@@ -29,8 +29,6 @@ namespace Timesheeter.Core.Data
             _projectCodes = new ProjectCodes(_store);
             _timeEntries = new TimeEntries(_store);
             _appSettings = new AppSettings(_store); 
-            
-            Lib.Theme.Set(_appSettings.ThemeMode, _appSettings.Accent);
 
         }
 

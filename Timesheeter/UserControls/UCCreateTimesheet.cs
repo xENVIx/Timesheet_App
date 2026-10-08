@@ -165,7 +165,7 @@ namespace Timesheeter.UserControls
 
             var item = _cbProjects.Items[selInd];
 
-            if (item is Data.ProjectCodes.ProjectCode projCode)
+            if (item is ProjectCodes.ProjectCode projCode)
             {
                 code = projCode.Code;
                 customerName = _factory?.GetData<Customers>()?[projCode.CustomerID]?.Name ?? "";
