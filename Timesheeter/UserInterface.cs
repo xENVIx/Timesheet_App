@@ -1,4 +1,5 @@
 ﻿using Timesheeter.Lib;
+using Timesheeter.Core.Interfaces;
 
 namespace Timesheeter
 {

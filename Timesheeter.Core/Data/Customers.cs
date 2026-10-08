@@ -6,7 +6,7 @@ using System.Text;
 
 using LibSqlLite;
 
-namespace Timesheeter.Data
+namespace Timesheeter.Core.Data
 {
     public class Customers : DataClass<Customers.Customer>
     {

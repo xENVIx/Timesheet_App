@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Timesheeter.Data;
+using Timesheeter.Core.Data;
+using Timesheeter.Core.Interfaces;
+
 using Timesheeter.Lib;
 
 namespace Timesheeter.Elements

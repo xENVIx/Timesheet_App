@@ -5,7 +5,8 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Timesheeter.Data;
+using Timesheeter.Core.Data;
+using Timesheeter.Core.Interfaces;
 
 namespace Timesheeter.UserControls
 {

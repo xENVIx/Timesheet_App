@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Timesheeter.Data
+namespace Timesheeter.Core.Data
 {
     /// <summary>
     /// Shows a foreign key column in a <see cref="Elements.DataGridViewData{T}"/> as the matching

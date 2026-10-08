@@ -6,7 +6,7 @@ using System.Text;
 
 using LibSqlLite;
 
-namespace Timesheeter.Data
+namespace Timesheeter.Core.Data
 {
     public class ProjectCodes : DataClass<ProjectCodes.ProjectCode>
     {
@@ -28,6 +28,7 @@ namespace Timesheeter.Data
             [PrimaryKey, GridHidden] public long ID { get; set; }
             [Required, Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
             [Required, DisplayName("Customer"), GridLookup(typeof(Customers), "Name")] public long CustomerID { get; set; }
+            [DisplayName("Project Name")] public String ProjectName { get; set; } = string.Empty;
             [DisplayName("Description")] public String Description { get; set; } = string.Empty;
             public String Location { get; set; } = String.Empty;
 

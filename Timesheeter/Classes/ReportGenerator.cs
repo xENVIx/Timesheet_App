@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Timesheeter.Data;
+using Timesheeter.Core.Data;
+using Timesheeter.Core.Interfaces;
 using Timesheeter.Extensions;
 
 namespace Timesheeter.Classes

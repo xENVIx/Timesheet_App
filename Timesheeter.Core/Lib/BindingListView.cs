@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace Timesheeter.Lib
+namespace Timesheeter.Core.Lib
 {
     /// <summary>
     /// A <see cref="BindingList{T}"/> that supports sorting and filtering the way a DataView does,

@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Timesheeter.Lib;
+using Timesheeter.Core.Data;
+using Timesheeter.Core.Interfaces;
+using Timesheeter.Core.Lib;
 
 namespace Timesheeter.Forms
 {

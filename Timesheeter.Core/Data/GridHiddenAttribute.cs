@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Timesheeter.Data
+namespace Timesheeter.Core.Data
 {
     /// <summary>
     /// Hides a property's column in a <see cref="Elements.DataGridViewData{T}"/>.

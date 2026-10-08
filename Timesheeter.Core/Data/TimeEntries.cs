@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using static Timesheeter.Data.ProjectCodes;
+using static Timesheeter.Core.Data.ProjectCodes;
 
-namespace Timesheeter.Data
+namespace Timesheeter.Core.Data
 {
     public class TimeEntries : DataClass<TimeEntries.TimeEntry>
     {

@@ -7,8 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Timesheeter.Data;
+using Timesheeter.Core.Data;
+
 using Timesheeter.Forms;
+using Timesheeter.Core.Lib;
 using Timesheeter.Lib;
 
 namespace Timesheeter.UserControls

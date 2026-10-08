@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using Timesheeter.Data;
+using Timesheeter.Core.Data;
 
 namespace Timesheeter
 {
