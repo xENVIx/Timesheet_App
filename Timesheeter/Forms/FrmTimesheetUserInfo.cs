@@ -27,7 +27,7 @@ namespace Timesheeter.Forms
 
 
 
-        public static (String firstName, String lastName)? ShowAndReturnUserInfo(IWin32Window? owner = null)
+        public static (String FirstName, String LastName)? ShowAndReturnUserInfo(IWin32Window? owner = null)
         {
 
             FrmTimesheetUserInfo frm = new FrmTimesheetUserInfo();

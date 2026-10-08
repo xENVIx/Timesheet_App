@@ -20,7 +20,9 @@ namespace Timesheeter.Classes
             IWin32Window? owner,
             String firstName,
             String lastName,
-            String projectCode, 
+            String projectCode,
+            String projectPurpose,
+            String description,
             String customerName,
             IReadOnlyList<TimeEntries.TimeEntry> _reportEntries
         )
@@ -48,6 +50,8 @@ namespace Timesheeter.Classes
 
             ws.GetNamedRangeCell("Engineer").Value = $"{firstName} {lastName}";
             ws.GetNamedRangeCell("Customer").Value = customerName;
+            ws.GetNamedRangeCell("ProjLineName").Value = projectPurpose;
+            ws.GetNamedRangeCell("Purpose").Value = description;
 
 
 
@@ -55,6 +59,9 @@ namespace Timesheeter.Classes
             DateOnly randomDate = _reportEntries.First().Date;
 
             DateOnly monday = randomDate.AddDays(-(((int)randomDate.DayOfWeek + 6) % 7));
+
+
+            
 
             String dateFormat = "{0:00}/{1:00}/{2:0000}";
             String fileDateFormat = "{0:0000}{1:00}{2:00}";
@@ -76,6 +83,8 @@ namespace Timesheeter.Classes
                 })
                 .OrderBy(x => x.Date)
                 .ToList();
+
+
 
             foreach (var record in totalsByDate)
             {

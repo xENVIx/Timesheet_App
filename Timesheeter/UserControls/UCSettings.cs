@@ -43,6 +43,8 @@ namespace Timesheeter.UserControls
                 _flpAccents.Controls.Add(swatch);
             }
 
+            _btnSave.Enabled = false;
+
             Theme.Changed += (s, e) => MarkSelectedSwatch();
         }
 
@@ -66,6 +68,16 @@ namespace Timesheeter.UserControls
             }
 
             MarkSelectedSwatch();
+
+
+            _tbFirstName.Text = _settings.Name.FirstName;
+            _tbLastName.Text = _settings.Name.LastName;
+
+
+            if (_tbFirstName.Text.Length <= 0 || _tbLastName.Text.Length <= 0)
+            {
+                MessageBox.Show(this, $"First Name And / Or Last Name Not Entered - Head Over to the Settings Page to Enter Them!");
+            }
         }
 
         private void _themeMode_CheckedChanged(object? sender, EventArgs e)
@@ -115,6 +127,57 @@ namespace Timesheeter.UserControls
                 swatch.FlatAppearance.BorderSize = selected ? 3 : 0;
                 swatch.FlatAppearance.BorderColor = Theme.Current.Text;
             }
+        }
+
+        private void CheckNamesEnableSave()
+        {
+            if (_settings == null) return;
+            if ((_settings.Name.FirstName != _tbFirstName.Text || _settings.Name.LastName != _tbLastName.Text) && 
+                _tbFirstName.Text.Length > 0 && 
+                _tbLastName.Text.Length > 0)
+            {
+                _btnSave.Enabled = true;
+            }
+            else
+            {
+                _btnSave.Enabled = false;
+            }
+
+
+        }
+
+        private void _tbFirstName_TextChanged(object sender, EventArgs e)
+        {
+            if (_settings == null) return;
+            CheckNamesEnableSave();
+            
+        }
+
+        private void _tbLastName_TextChanged(object sender, EventArgs e)
+        {
+            if (_settings == null) return;
+            CheckNamesEnableSave();
+
+        }
+
+        private void _btnSave_Click(object sender, EventArgs e)
+        {
+
+            if (_settings == null) return;
+
+            _settings.Name = (_tbFirstName.Text, _tbLastName.Text);
+
+
+            if (!_settings.Save())
+            {
+                MessageBox.Show("Could not save the name settings.");
+                return;
+            }
+
+            _btnSave.Enabled = false;
+
+
+
         }
     }
 }

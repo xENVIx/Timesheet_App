@@ -16,6 +16,8 @@ namespace Timesheeter.Data
         public class Setting
         {
             public int Id { get; set; }
+            public String FirstName { get; set; } = "";
+            public String LastName { get; set; } = "";
             public ThemeMode ThemeMode { get; set; } = ThemeMode.LightWithDarkNavigation;
             public int AccentArgb { get; set; } = Theme.AccentPresets[0].Color.ToArgb();
         }
@@ -38,6 +40,21 @@ namespace Timesheeter.Data
             get => Enum.IsDefined(_setting.ThemeMode) ? _setting.ThemeMode : ThemeMode.LightWithDarkNavigation;
             set => _setting.ThemeMode = value;
         }
+
+        public (String FirstName, String LastName) Name 
+        { 
+            get 
+            { 
+                return (_setting.FirstName, _setting.LastName); 
+            }
+            set
+            {
+                _setting.FirstName = value.FirstName;
+                _setting.LastName = value.LastName;
+            }
+        }
+            
+
 
         public Color Accent
         {

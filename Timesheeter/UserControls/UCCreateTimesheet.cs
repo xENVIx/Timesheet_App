@@ -154,6 +154,10 @@ namespace Timesheeter.UserControls
 
             String code = "";
             String customerName = "";
+            String projPurpose = "";
+            String description = "";
+
+
 
             int selInd = _cbProjects.SelectedIndex;
 
@@ -163,6 +167,10 @@ namespace Timesheeter.UserControls
             {
                 code = projCode.Code;
                 customerName = _factory?.GetData<Customers>()?[projCode.CustomerID]?.Name ?? "";
+
+
+                projPurpose = projCode.ProjectName;
+                description = projCode.Description;
             }
             else
             {
@@ -171,20 +179,32 @@ namespace Timesheeter.UserControls
                 return;
             }
 
-            var ret = FrmTimesheetUserInfo.ShowAndReturnUserInfo(this);
-            if (ret == null)
+            var names = _factory?.GetData<AppSettings>()?.Name ?? null;
+
+            if (names == null)
+            {
+
+                var ret = FrmTimesheetUserInfo.ShowAndReturnUserInfo(this);
+                names = ret;
+
+                
+            }
+
+            if (names == null)
             {
                 MessageBox.Show(this, $"User Information Could Not Be Collected");
                 return;
             }
 
-            var retValue = ret.Value;
+            var retValue = names.Value;
 
             if (!Classes.ReportGenerator.Generate(
                 this, 
-                retValue.firstName, 
-                retValue.lastName, 
-                code, 
+                retValue.FirstName, 
+                retValue.LastName, 
+                code,
+                projPurpose,
+                description,
                 customerName,
                 _weekEntries))
             {
