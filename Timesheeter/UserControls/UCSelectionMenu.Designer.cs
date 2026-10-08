@@ -38,12 +38,13 @@
             _ucTimesheet = new UCTimesheet();
             _btnSettings = new Button();
             _ucSettings = new UCSettings();
-            panel1 = new Panel();
             _btnCreateTimesheet = new Button();
             _pnlControls = new Panel();
             _ucCreateTimesheet = new UCCreateTimesheet();
-            panel1.SuspendLayout();
+            _panelNav = new Panel();
+            splitter1 = new Splitter();
             _pnlControls.SuspendLayout();
+            _panelNav.SuspendLayout();
             SuspendLayout();
             // 
             // _btnCodes
@@ -136,20 +137,6 @@
             _ucSettings.TabIndex = 8;
             _ucSettings.Visible = false;
             // 
-            // panel1
-            // 
-            panel1.Controls.Add(_btnCreateTimesheet);
-            panel1.Controls.Add(_btnSettings);
-            panel1.Controls.Add(_btnCustomers);
-            panel1.Controls.Add(_btnTimeSheet);
-            panel1.Controls.Add(_btnTimeEntries);
-            panel1.Controls.Add(_btnCodes);
-            panel1.Dock = DockStyle.Left;
-            panel1.Location = new Point(0, 0);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(104, 477);
-            panel1.TabIndex = 8;
-            // 
             // _btnCreateTimesheet
             // 
             _btnCreateTimesheet.Location = new Point(3, 199);
@@ -181,16 +168,42 @@
             _ucCreateTimesheet.Size = new Size(970, 649);
             _ucCreateTimesheet.TabIndex = 9;
             // 
+            // _panelNav
+            // 
+            _panelNav.Controls.Add(_btnCustomers);
+            _panelNav.Controls.Add(_btnSettings);
+            _panelNav.Controls.Add(_btnCreateTimesheet);
+            _panelNav.Controls.Add(_btnTimeSheet);
+            _panelNav.Controls.Add(_btnTimeEntries);
+            _panelNav.Controls.Add(_btnCodes);
+            _panelNav.Dock = DockStyle.Left;
+            _panelNav.Location = new Point(0, 0);
+            _panelNav.Name = "_panelNav";
+            _panelNav.Size = new Size(101, 477);
+            _panelNav.TabIndex = 10;
+            _panelNav.Resize += _panelNav_Resize;
+            // 
+            // splitter1
+            // 
+            splitter1.Location = new Point(101, 0);
+            splitter1.Name = "splitter1";
+            splitter1.Size = new Size(3, 477);
+            splitter1.TabIndex = 11;
+            splitter1.TabStop = false;
+            splitter1.SplitterMoving += splitter1_SplitterMoving;
+            splitter1.SplitterMoved += splitter1_SplitterMoved;
+            // 
             // UCSelectionMenu
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(_pnlControls);
-            Controls.Add(panel1);
+            Controls.Add(splitter1);
+            Controls.Add(_panelNav);
             Name = "UCSelectionMenu";
             Size = new Size(608, 477);
-            panel1.ResumeLayout(false);
             _pnlControls.ResumeLayout(false);
+            _panelNav.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -206,9 +219,10 @@
         private UCTimesheet _ucTimesheet;
         private Button _btnSettings;
         private UCSettings _ucSettings;
-        private Panel panel1;
         private Panel _pnlControls;
         private Button _btnCreateTimesheet;
         private UCCreateTimesheet _ucCreateTimesheet;
+        private Panel _panelNav;
+        private Splitter splitter1;
     }
 }

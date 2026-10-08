@@ -40,20 +40,20 @@
             // 
             // _pnlElements
             // 
-            _pnlElements.Size = new Size(779, 370);
+            _pnlElements.Size = new Size(779, 403);
             // 
             // _pnlSideBar
             // 
             _pnlSideBar.Controls.Add(label1);
             _pnlSideBar.Controls.Add(_tbCustName);
             _pnlSideBar.Controls.Add(_btnSave);
-            _pnlSideBar.Size = new Size(298, 370);
+            _pnlSideBar.Size = new Size(298, 403);
             _pnlSideBar.TabIndex = 99;
             // 
             // _pnlGrid
             // 
             _pnlGrid.Controls.Add(_custDgv);
-            _pnlGrid.Size = new Size(481, 370);
+            _pnlGrid.Size = new Size(481, 403);
             // 
             // _btnSave
             // 
@@ -72,7 +72,7 @@
             _custDgv.Dock = DockStyle.Fill;
             _custDgv.Location = new Point(0, 0);
             _custDgv.Name = "_custDgv";
-            _custDgv.Size = new Size(481, 370);
+            _custDgv.Size = new Size(481, 403);
             _custDgv.TabIndex = 3;
             // 
             // _tbCustName

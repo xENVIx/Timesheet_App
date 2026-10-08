@@ -15,6 +15,7 @@ namespace Timesheeter.UserControls
         public UCTimeEntries() : base()
         {
             InitializeComponent();
+            base.MinSplitterX = 298;
         }
 
         protected override void PostInit()

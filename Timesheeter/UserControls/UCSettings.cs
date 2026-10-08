@@ -24,6 +24,8 @@ namespace Timesheeter.UserControls
         {
             InitializeComponent();
 
+            base.MinSplitterX = 298;
+
             // The swatches show their own colours, so the theme leaves them alone.
             Theme.SetRole(_flpAccents, ThemeRole.Ignore);
 

@@ -16,13 +16,27 @@ namespace Timesheeter.Lib
 
         protected IDataFactory? _factory;
 
+        protected int MinSplitterX { get; set; } = 250;
         public UCSubPage()
         {
             InitializeComponent();
 
             Theme.SetRole(_pnlSideBar, ThemeRole.Sidebar);
 
+            _pnlSideBar.Resize += _pnlSideBar_Resize;
+
             this.Visible = true;
+
+        }
+
+        protected virtual void SidebarResized()
+        {
+
+        }
+
+        private void _pnlSideBar_Resize(object? sender, EventArgs e)
+        {
+            SidebarResized();
 
         }
 
@@ -35,7 +49,7 @@ namespace Timesheeter.Lib
         {
             _factory = factory;
             PostInit();
-            
+
 
         }
 
@@ -45,6 +59,18 @@ namespace Timesheeter.Lib
 
             this.Visible = false;
 
+        }
+
+
+
+        private void splitter1_SplitterMoving(object sender, SplitterEventArgs e)
+        {
+            if (e.SplitX < MinSplitterX) e.SplitX = MinSplitterX;
+        }
+
+        private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            Theme.Apply(this);
         }
     }
 }

@@ -45,9 +45,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1511, 782);
             Controls.Add(_ucMain);
-            FormBorderStyle = FormBorderStyle.Fixed3D;
-            MaximizeBox = false;
             Name = "UserInterface";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Timesheeter";
             ResumeLayout(false);
         }

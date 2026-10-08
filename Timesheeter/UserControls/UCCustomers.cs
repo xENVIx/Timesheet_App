@@ -15,6 +15,8 @@ namespace Timesheeter.UserControls
         public UCCustomers() : base()
         {
             InitializeComponent();
+
+            base.MinSplitterX = 161;
         }
 
         protected override void PostInit()

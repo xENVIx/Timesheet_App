@@ -8,13 +8,24 @@ using System.Windows.Forms;
 using Timesheeter.Lib;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;
+using System.Drawing.Text;
 
 namespace Timesheeter.UserControls
 {
     public partial class UCSelectionMenu : UserControl
     {
+
+        // also the original width...
+        private const int MIN_NAV_PANEL_WIDTH = 101;
+        private int _navButtonOriginalWidth = -1;
+        private int _btnBuffer = -1;
+
         public UCSelectionMenu()
         {
+
+
+
+
             InitializeComponent();
 
             _ucNewProjectCode.Dock = DockStyle.Fill;
@@ -41,7 +52,11 @@ namespace Timesheeter.UserControls
             _ucCreateTimesheet.Visible = false;
             _ucCreateTimesheet.Enabled = false;
 
-            Theme.SetRole(panel1, ThemeRole.Navigation);
+            // just pick one button...
+            _navButtonOriginalWidth = _btnCodes.Width;
+            _btnBuffer = MIN_NAV_PANEL_WIDTH - _navButtonOriginalWidth;
+
+            Theme.SetRole(_panelNav, ThemeRole.Navigation);
             Theme.SetActiveNavigationButton(_btnTimeSheet);
         }
 
@@ -132,6 +147,56 @@ namespace Timesheeter.UserControls
         {
             this.ToggleScreen<UCCreateTimesheet>();
             Theme.SetActiveNavigationButton(_btnCreateTimesheet);
+        }
+
+        private void _pnlSplitter_MarginChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            Theme.Apply(this);
+
+            if (_panelNav.Width < MIN_NAV_PANEL_WIDTH) _panelNav.Width = MIN_NAV_PANEL_WIDTH;
+        }
+
+        private void splitter1_SplitterMoving(object sender, SplitterEventArgs e)
+        {
+            if (e.SplitX < MIN_NAV_PANEL_WIDTH) e.SplitX = MIN_NAV_PANEL_WIDTH;
+        }
+
+
+        private void ResizePanelButtons()
+        {
+
+
+            int newWidth = _panelNav.Width - _btnBuffer;
+            foreach (var control in _panelNav.Controls)
+            {
+
+                // panelWidth - curWidth = buffer
+                // bufferSize = buffer / 2
+
+
+
+                if (control is Button btn)
+                {
+                    btn.Size = new Size(newWidth, btn.Size.Height);
+                }
+
+            }
+
+
+        }
+
+        private void _panelNav_Resize(object sender, EventArgs e)
+        {
+
+
+            ResizePanelButtons();
+
+
         }
     }
 }

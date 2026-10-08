@@ -47,6 +47,7 @@
             _pnlSideBar.Controls.Add(_cbProjects);
             _pnlSideBar.Controls.Add(label1);
             _pnlSideBar.Controls.Add(_dp);
+            _pnlSideBar.Resize += _pnlSideBar_Resize;
             // 
             // _pnlGrid
             // 

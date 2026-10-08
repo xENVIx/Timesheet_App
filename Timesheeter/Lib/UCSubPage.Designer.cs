@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             _pnlElements = new Panel();
+            splitter1 = new Splitter();
             _pnlGrid = new Panel();
             _pnlSideBar = new Panel();
             _pnlElements.SuspendLayout();
@@ -36,6 +37,7 @@
             // 
             // _pnlElements
             // 
+            _pnlElements.Controls.Add(splitter1);
             _pnlElements.Controls.Add(_pnlGrid);
             _pnlElements.Controls.Add(_pnlSideBar);
             _pnlElements.Dock = DockStyle.Fill;
@@ -43,6 +45,16 @@
             _pnlElements.Name = "_pnlElements";
             _pnlElements.Size = new Size(970, 649);
             _pnlElements.TabIndex = 1;
+            // 
+            // splitter1
+            // 
+            splitter1.Location = new Point(298, 0);
+            splitter1.Name = "splitter1";
+            splitter1.Size = new Size(3, 649);
+            splitter1.TabIndex = 0;
+            splitter1.TabStop = false;
+            splitter1.SplitterMoving += splitter1_SplitterMoving;
+            splitter1.SplitterMoved += splitter1_SplitterMoved;
             // 
             // _pnlGrid
             // 
@@ -75,5 +87,6 @@
         protected Panel _pnlElements;
         protected Panel _pnlSideBar;
         protected Panel _pnlGrid;
+        private Splitter splitter1;
     }
 }

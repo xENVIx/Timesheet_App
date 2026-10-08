@@ -27,7 +27,7 @@ namespace Timesheeter.UserControls
             DateTime thisMonday = today.AddDays(-daysSinceMonday);
             _datePicker.Value = thisMonday;
 
-
+            base.MinSplitterX = 126;
         }
 
 

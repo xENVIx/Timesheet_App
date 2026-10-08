@@ -90,11 +90,11 @@
             label1.TabIndex = 3;
             label1.Text = "Week Start";
             // 
-            // timesheetChart1
+            // _chartTimesheet
             // 
             _chartTimesheet.Dock = DockStyle.Bottom;
             _chartTimesheet.Location = new Point(0, 284);
-            _chartTimesheet.Name = "timesheetChart1";
+            _chartTimesheet.Name = "_chartTimesheet";
             _chartTimesheet.Size = new Size(298, 255);
             _chartTimesheet.TabIndex = 4;
             // 

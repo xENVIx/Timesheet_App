@@ -15,6 +15,7 @@ namespace Timesheeter.UserControls
         public UCNewProjectCode()
         {
             InitializeComponent();
+            base.MinSplitterX = 298;
         }
 
         protected override void PostInit()

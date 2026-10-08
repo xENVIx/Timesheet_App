@@ -34,6 +34,8 @@ namespace Timesheeter.UserControls
         public UCCreateTimesheet()
         {
             InitializeComponent();
+
+            base.MinSplitterX = 298;
         }
 
 
@@ -191,7 +193,7 @@ namespace Timesheeter.UserControls
                 var ret = FrmTimesheetUserInfo.ShowAndReturnUserInfo(this);
                 names = ret;
 
-                
+
             }
 
             if (names == null)
@@ -203,9 +205,9 @@ namespace Timesheeter.UserControls
             var retValue = names.Value;
 
             if (!Classes.ReportGenerator.Generate(
-                this, 
-                retValue.FirstName, 
-                retValue.LastName, 
+                this,
+                retValue.FirstName,
+                retValue.LastName,
                 code,
                 projPurpose,
                 description,
@@ -215,6 +217,11 @@ namespace Timesheeter.UserControls
             {
                 MessageBox.Show(this, $"Could Not Generate Report");
             }
+
+        }
+
+        private void _pnlSideBar_Resize(object sender, EventArgs e)
+        {
 
         }
     }
