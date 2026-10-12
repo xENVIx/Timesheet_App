@@ -68,7 +68,7 @@ namespace Timesheeter.Elements
             _timeEntriesFactory.All.ListChanged += (s, e) => Rebuild();
             _projectCodesFactory.All.ListChanged += (s, e) => Rebuild();
 
-            // Special row colours come from the theme, so rebuild when it changes.
+            // Special row colors come from the theme, so rebuild when it changes.
             Theme.Changed += (s, e) => Rebuild();
 
             _postInitOccured = true;

@@ -14,15 +14,15 @@ namespace Timesheeter.Elements
     public class TimesheetChart : ScottPlot.WinForms.FormsPlot
     {
         // Categorical palettes in a fixed order, one per theme brightness. Checked with the dataviz
-        // palette validator against the sidebar backgrounds (white / #1f1f23): neighbouring colours stay
-        // distinguishable with colour blindness. Some light-mode colours are pale against white, so
+        // palette validator against the sidebar backgrounds (white / #1f1f23): neighboring colors stay
+        // distinguishable with color blindness. Some light-mode colors are pale against white, so
         // every slice is also named with its hours in the legend.
         private static readonly string[] LightSeries =
             ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
         private static readonly string[] DarkSeries =
             ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"];
 
-        // More codes than colours: the smallest fold into one grey "Other" slice rather than reusing colours.
+        // More codes than colors: the smallest fold into one gray "Other" slice rather than reusing colors.
         private const string OtherColor = "#898781";
         private const int MaxSlices = 8;
 
@@ -96,7 +96,7 @@ namespace Timesheeter.Elements
 
                 var pie = Plot.Add.Pie(slices);
                 pie.ExplodeFraction = 0;
-                // A thin gap in the background colour between slices keeps neighbours apart.
+                // A thin gap in the background color between slices keeps neighbors apart.
                 pie.LineColor = surface;
                 pie.LineWidth = 2;
                 pie.Padding = 0.02;
@@ -126,8 +126,8 @@ namespace Timesheeter.Elements
             double weekTotal = worked.Sum(t => t.Hours);
             if (weekTotal <= 0) return [];
 
-            // Keep the largest codes; colours then follow the timesheet's row order, so a code keeps
-            // its colour when another code's hours change.
+            // Keep the largest codes; colors then follow the timesheet's row order, so a code keeps
+            // its color when another code's hours change.
             var shown = worked;
             if (worked.Count > MaxSlices)
             {

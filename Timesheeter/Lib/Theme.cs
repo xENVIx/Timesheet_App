@@ -67,12 +67,12 @@ namespace Timesheeter.Lib
     /// Layouts are never moved or resized, so designer files stay as they are.
     /// </summary>
     /// <remarks>
-    /// All three modes use one neutral grey scale, so any accent color sits on it cleanly.
+    /// All three modes use one neutral gray scale, so any accent color sits on it cleanly.
     /// The accent is used sparingly: main buttons, the current navigation item, selection.
     /// </remarks>
     public static class Theme
     {
-        // One neutral grey scale (zinc) shared by every mode, lightest to darkest.
+        // One neutral gray scale (zinc) shared by every mode, lightest to darkest.
         // Declared before Current: static fields initialize in file order, and Current's palette
         // reads these. Below it they were still Color.Empty when the palette was built, which the
         // designer (where Theme.Set never runs) passed on to DateTimePicker and it threw.
@@ -296,7 +296,7 @@ namespace Timesheeter.Lib
             grid.BorderStyle = BorderStyle.None;
             grid.GridColor = p.GridLines;
             grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            grid.RowHeadersVisible = false; // the grey row-selector column
+            grid.RowHeadersVisible = false; // the gray row-selector column
 
             grid.DefaultCellStyle.BackColor = p.GridBack;
             grid.DefaultCellStyle.ForeColor = p.Text;
