@@ -10,7 +10,7 @@
     must never change: it's how a newer .msi finds and replaces the installed one.
   -->
   <Package Name="Timesheeter"
-           Manufacturer="Timesheeter"
+           Manufacturer="WeissLab"
            Version="!(bind.FileVersion.TimesheeterExe)"
            UpgradeCode="d952c761-f408-4868-98ff-68ebc5f4746a"
            Scope="perUserOrMachine">

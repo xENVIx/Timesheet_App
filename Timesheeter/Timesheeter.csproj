@@ -11,6 +11,9 @@
     <!-- The app's version; the installer (Timesheeter.Installer) takes its version from here too.
          Bump it for each release so a new installer upgrades the installed app. -->
     <Version>1.0.0</Version>
+    <!-- Shown in the exe's Properties > Details. -->
+    <Company>WeissLab</Company>
+    <Product>Timesheeter</Product>
   </PropertyGroup>
 
   <ItemGroup>
