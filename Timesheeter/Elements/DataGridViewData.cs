@@ -179,6 +179,7 @@ namespace Timesheeter.Elements
             if (Rows[rowIndex].Cells[columnIndex] is not DataGridViewComboBoxCell cell) return;
 
             var itemType = ListBindingHelper.GetListItemType(source.All);
+            if (itemType == null) return;
             var valueOf = TypeDescriptor.GetProperties(itemType)[column.ValueMember];
             if (valueOf == null) return;
 

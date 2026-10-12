@@ -1,4 +1,4 @@
-<Project Sdk="WixToolset.Sdk/5.0.2">
+﻿<Project Sdk="WixToolset.Sdk/5.0.2">
   <!--
     Builds TimesheeterSetup.msi: publishes the app (self-contained, so the PC needs nothing else)
     into obj\, then packs that folder. Build on Windows:
@@ -17,8 +17,6 @@
     <AppProject>$(MSBuildThisFileDirectory)..\Timesheeter\Timesheeter.csproj</AppProject>
     <AppPublishDir>$(MSBuildThisFileDirectory)obj\$(Configuration)\app\</AppPublishDir>
 
-    <!-- Lets Package.wxs refer to the published files as !(bindpath.App). -->
-    <BindPaths>App=$(AppPublishDir)</BindPaths>
     <DefineConstants>AppIcon=$(MSBuildThisFileDirectory)..\Timesheeter\Resources\Timesheeter.ico</DefineConstants>
 
     <!--
@@ -27,6 +25,11 @@
     -->
     <SuppressIces>ICE38;ICE43;ICE57;ICE64;ICE91</SuppressIces>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets Package.wxs refer to the published files as !(bindpath.App). -->
+    <BindPath Include="$(AppPublishDir)" BindName="App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
