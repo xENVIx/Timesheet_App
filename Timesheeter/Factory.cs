@@ -75,7 +75,20 @@ namespace Timesheeter
 
 
                 File.Copy(dbFile, backupFile);
-                
+
+                // Keep only the newest backups. The timestamp in the name (yyyyMMddHHmmss) sorts
+                // the same as the time, so newest first is descending by name.
+                const int backupsToKeep = 10;
+                var oldBackups = Directory.GetFiles(backupPath, String.Concat(fileName, fileExt, "_*.bak"))
+                    .OrderByDescending(path => Path.GetFileName(path), StringComparer.OrdinalIgnoreCase)
+                    .Skip(backupsToKeep);
+
+                foreach (var oldBackup in oldBackups)
+                {
+                    // A backup that can't be deleted (e.g. open elsewhere) is retried next launch.
+                    try { File.Delete(oldBackup); }
+                    catch (Exception ex) { Console.WriteLine($"Could not delete old backup '{oldBackup}': {ex.Message}"); }
+                }
 
             }
 
