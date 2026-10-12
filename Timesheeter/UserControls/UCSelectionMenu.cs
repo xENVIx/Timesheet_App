@@ -43,6 +43,7 @@ namespace Timesheeter.UserControls
             _ucTimesheet.Dock = DockStyle.Fill;
             _ucTimesheet.Visible = true;
             _ucTimesheet.Enabled = true;
+            _ucTimesheet.Selected = true;
 
             _ucSettings.Dock = DockStyle.Fill;
             _ucSettings.Visible = false;
@@ -70,29 +71,57 @@ namespace Timesheeter.UserControls
             _ucSettings.PostInit(factory);
         }
 
+        private volatile bool transitioning = false;
+
         private void ToggleScreen<T>()
         {
-            foreach (var control in _pnlControls.Controls)
-            {
-
-                if (control is UCSubPage page)
+            if (!transitioning) {
+                try
                 {
 
-                    if (typeof(T) != page.GetType())
+                    transitioning = true;
+
+                    UCSubPage? selPage = null;
+
+                    foreach (var control in _pnlControls.Controls)
                     {
-                        page.Visible = false;
-                        page.Enabled = false;
-                    }
-                    else
-                    {
-                        page.Visible = true;
-                        page.Enabled = true;
-                    }
+
+                        if (control is UCSubPage page)
+                        {
+
+                            if (typeof(T) != page.GetType())
+                            {
+                                if (page.Selected)
+                                {
+                                    page.Selected = false;
+                                    Lib.Fade.Out(page);
+                                }
+                                page.Visible = false;
+                                page.Enabled = false;
+                            }
+                            else
+                            {
+                                selPage = page;
+                            }
 
 
+                        }
+
+
+                    }
+
+                    if (selPage != null)
+                    {
+                        selPage.Visible = true;
+                        selPage.Enabled = true;
+                        selPage.Selected = true;
+                        Lib.Fade.In(selPage);
+                    }
                 }
-
-
+                finally
+                {
+                    transitioning = false;
+                }
             }
 
 

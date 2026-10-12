@@ -14,6 +14,9 @@ namespace Timesheeter.Lib
     public partial class UCSubPage : UserControl
     {
 
+
+
+        public bool Selected = false;
         protected IDataFactory? _factory;
 
         protected int MinSplitterX { get; set; } = 250;
