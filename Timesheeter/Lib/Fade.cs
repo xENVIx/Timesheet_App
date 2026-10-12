@@ -135,6 +135,9 @@ namespace Timesheeter.Lib
             };
 
             _running.AddOrUpdate(control, new Running { Timer = timer, Themed = themed, FadingOut = fadingOut, Cursor = cursor });
+
+            // The theme's hover aura (painted by the parent) is left out while fading out.
+            if (fadingOut) control.Parent?.Invalidate();
             timer.Start();
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Drawing2D;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -113,9 +114,17 @@ namespace Timesheeter.Lib
         private static readonly Padding GridCellPadding = new Padding(8, 0, 8, 0);
         private const int ActiveNavigationBarWidth = 3;
 
+        // Hover aura around buttons: how far it reaches outside the button, and how much white is
+        // mixed into the accent for it (a little lighter than the button itself).
+        private const int HoverGlowSize = 6;
+        private const double HoverGlowLighten = 0.35;
+
         private static readonly ConditionalWeakTable<Control, StrongBox<ThemeRole>> _roles = new();
         private static readonly ConditionalWeakTable<Control, object> _watched = new();
         private static readonly ConditionalWeakTable<Control, object> _painted = new();
+        private static readonly ConditionalWeakTable<Control, object> _glowWatched = new();
+        private static readonly ConditionalWeakTable<Control, object> _glowParents = new();
+        private static readonly ConditionalWeakTable<Control, object> _hovered = new();
         private static WeakReference<Button>? _activeNavigationButton;
 
         public static void Set(ThemeMode mode, Color accent)
@@ -259,6 +268,7 @@ namespace Timesheeter.Lib
             button.FlatAppearance.MouseOverBackColor = p.AccentHover;
             button.FlatAppearance.MouseDownBackColor = p.AccentPressed;
             button.Cursor = Cursors.Hand;
+            AddHoverGlow(button);
         }
 
         private static void StyleNavigationButton(Button button, ThemePalette p)
@@ -276,6 +286,7 @@ namespace Timesheeter.Lib
             button.FlatAppearance.MouseDownBackColor = isActive ? p.NavigationActive : p.NavigationHover;
             button.Cursor = Cursors.Hand;
             PaintOnce(button, DrawActiveNavigationBar);
+            AddHoverGlow(button);
         }
 
         private static void StyleGrid(DataGridView grid, ThemePalette p)
@@ -322,6 +333,85 @@ namespace Timesheeter.Lib
             if (_painted.TryGetValue(control, out _)) return;
             _painted.Add(control, new object());
             control.Paint += (s, e) => paint(control, e);
+        }
+
+        /// <summary>
+        /// Gives a button a soft aura in a lighter accent colour while the mouse is over it.
+        /// A control can't draw outside its own bounds, so the aura is painted by the button's
+        /// parent, in the space around the button.
+        /// </summary>
+        private static void AddHoverGlow(Button button)
+        {
+            if (_glowWatched.TryGetValue(button, out _)) return;
+            _glowWatched.Add(button, new object());
+
+            void SetHovered(bool hovered)
+            {
+                if (hovered) _hovered.AddOrUpdate(button, new object());
+                else _hovered.Remove(button);
+                InvalidateGlow(button);
+            }
+
+            button.MouseEnter += (s, e) => SetHovered(true);
+            button.MouseLeave += (s, e) => SetHovered(false);
+            button.VisibleChanged += (s, e) => { if (!button.Visible) SetHovered(false); };
+            button.EnabledChanged += (s, e) => InvalidateGlow(button);
+            button.ParentChanged += (s, e) => PaintGlowsOn(button.Parent);
+            PaintGlowsOn(button.Parent);
+        }
+
+        private static void InvalidateGlow(Button button)
+        {
+            int reach = HoverGlowSize + 2;
+            button.Parent?.Invalidate(Rectangle.Inflate(button.Bounds, reach, reach));
+        }
+
+        private static void PaintGlowsOn(Control? parent)
+        {
+            if (parent == null || _glowParents.TryGetValue(parent, out _)) return;
+            _glowParents.Add(parent, new object());
+
+            parent.Paint += (s, e) =>
+            {
+                foreach (Control child in parent.Controls)
+                {
+                    if (child is Button button && button.Visible && button.Enabled &&
+                        _hovered.TryGetValue(button, out _) && !Fade.IsFadingOut(button))
+                    {
+                        DrawHoverGlow(e.Graphics, button.Bounds);
+                    }
+                }
+            };
+        }
+
+        private static void DrawHoverGlow(Graphics g, Rectangle bounds)
+        {
+            Color glow = Blend(Current.Accent, Color.White, HoverGlowLighten);
+            var oldSmoothing = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Faint rings from the outside in; where they overlap near the button they add up,
+            // so the aura is strongest at the button's edge and fades out smoothly.
+            using var brush = new SolidBrush(Color.FromArgb(28, glow));
+            for (int i = HoverGlowSize; i >= 1; i--)
+            {
+                using var path = RoundedRectangle(Rectangle.Inflate(bounds, i, i), i + 2);
+                g.FillPath(brush, path);
+            }
+
+            g.SmoothingMode = oldSmoothing;
+        }
+
+        private static GraphicsPath RoundedRectangle(Rectangle r, int radius)
+        {
+            int d = Math.Min(radius * 2, Math.Min(r.Width, r.Height));
+            var path = new GraphicsPath();
+            path.AddArc(r.X, r.Y, d, d, 180, 90);
+            path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+            path.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
+            path.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
         }
 
         private static void DrawRightSeparator(Control control, PaintEventArgs e)
