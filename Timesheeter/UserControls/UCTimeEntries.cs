@@ -84,7 +84,7 @@ namespace Timesheeter.UserControls
 
             if (_deleteMode)
             {
-                // find records selected...
+                DeleteCheckedEntries();
                 _delCol!.Visible = false;
                 _btnCancel.Visible = false;
                 _deleteMode = false;
@@ -93,9 +93,46 @@ namespace Timesheeter.UserControls
             {
                 _deleteMode = true;
                 _delCol!.Visible = true;
+
+                // The grid generates its data columns when it's first shown, which is after this
+                // column was added, so they end up after it. Move it to the end each time.
+                _delCol.DisplayIndex = _dgvTimeEntries.Columns.Count - 1;
                 _btnCancel.Visible = true;
             }
 
+        }
+
+        private void DeleteCheckedEntries()
+        {
+            var timeEntries = _factory?.GetData<TimeEntries>();
+            if (timeEntries == null || _delCol == null) return;
+
+            // A checkbox that was just clicked is still being edited; commit it first.
+            _dgvTimeEntries.EndEdit();
+
+            var selected = _dgvTimeEntries.Rows
+                .Cast<DataGridViewRow>()
+                .Where(row => row.Cells[_delCol.Index].Value is true)
+                .Select(row => row.DataBoundItem)
+                .OfType<TimeEntries.TimeEntry>()
+                .ToList();
+
+            if (selected.Count == 0) return;
+
+            if (MessageBox.Show(this, $"Delete {selected.Count} time entr{(selected.Count == 1 ? "y" : "ies")}?",
+                    "Delete Records", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            // Collected first: deleting removes rows from the grid.
+            foreach (var entry in selected)
+            {
+                if (!timeEntries.Delete(entry))
+                {
+                    MessageBox.Show(this, "Could not delete one of the entries.");
+                }
+            }
         }
 
         private void _btnCancel_Click(object sender, EventArgs e)
@@ -103,6 +140,10 @@ namespace Timesheeter.UserControls
             _deleteMode = false;
             _delCol!.Visible = false;
             _btnCancel.Visible = false;
+
+            // Start with nothing checked next time.
+            _dgvTimeEntries.CancelEdit();
+            foreach (DataGridViewRow row in _dgvTimeEntries.Rows) row.Cells[_delCol.Index].Value = null;
         }
     }
 }

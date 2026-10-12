@@ -48,6 +48,9 @@ namespace Timesheeter.Elements
         {
             if (e.RowIndex < 0 || _data == null) return;
 
+            // Unbound columns (e.g. the time entries page's delete checkboxes) aren't data to save.
+            if (string.IsNullOrEmpty(Columns[e.ColumnIndex].DataPropertyName)) return;
+
             // The grid has already written the edited value into the bound object.
             if (Rows[e.RowIndex].DataBoundItem is not T item) return;
 
