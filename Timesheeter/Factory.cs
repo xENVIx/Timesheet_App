@@ -38,8 +38,15 @@ namespace Timesheeter
             String dbFile = Path.Combine(timeSheeterPath, String.Concat(fileName, fileExt));
 
 
-            // make a backup if the file already exists...
-            if (File.Exists(dbFile))
+            // Checked before opening: opening creates the file, and a brand new database needs no backup.
+            bool existingDatabase = File.Exists(dbFile);
+
+            _store = new LibSqlLite.SqliteStore(dbFile);
+
+            // make a backup if the file already existed...
+            // Backed up through the open store rather than copying the .db file: changes from the
+            // last session can still be in the -wal file, which a file copy would leave out.
+            if (existingDatabase)
             {
                 
                 DateTime dateNow = DateTime.Now;
@@ -74,7 +81,7 @@ namespace Timesheeter
                     );
 
 
-                File.Copy(dbFile, backupFile);
+                _store.BackupTo(backupFile);
 
                 // Keep only the newest backups. The timestamp in the name (yyyyMMddHHmmss) sorts
                 // the same as the time, so newest first is descending by name.
@@ -91,8 +98,6 @@ namespace Timesheeter
                 }
 
             }
-
-            _store = new LibSqlLite.SqliteStore(dbFile);
 
             /*
             _customers = new Data.Customers(_store);

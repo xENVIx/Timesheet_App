@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Dapper;
 using LibSqlLite.Schema;
 using LibSqlLite.TypeHandlers;
@@ -69,6 +69,31 @@ public sealed class SqliteStore : IDisposable
         using var pragma = _connection.CreateCommand();
         pragma.CommandText = "PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;";
         pragma.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// Writes a complete copy of the database to <paramref name="destinationPath"/>, replacing any
+    /// file already there. Uses SQLite's online backup on this store's open connection, so the copy
+    /// includes changes that are still only in the -wal file, which a plain file copy would miss.
+    /// </summary>
+    public void BackupTo(string destinationPath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationPath);
+
+        var fullPath = Path.GetFullPath(destinationPath);
+        var directory = Path.GetDirectoryName(fullPath);
+        if (!string.IsNullOrEmpty(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        RunInLock(_ =>
+        {
+            // Pooling off, like the store's own connection, so the backup file isn't left open.
+            using var destination = new SqliteConnection($"Data Source={fullPath};Pooling=False");
+            destination.Open();
+            _connection.BackupDatabase(destination);
+        });
     }
 
     /// <summary>Opens a database at %AppData%/{appName}/{fileName}.</summary>
