@@ -20,6 +20,10 @@ namespace Timesheeter.Elements
         public DataGridViewData() : base()
         {
             base.AllowUserToAddRows = false;
+
+            // Paint off-screen and show the result at once: without it, big repaints (e.g. a
+            // column appearing) visibly draw row by row from the top.
+            DoubleBuffered = true;
         }
 
 
@@ -113,6 +117,85 @@ namespace Timesheeter.Elements
                 });
             }
         }
+
+        #region Column slide
+
+        private const int ColumnSlideMs = 400;
+
+        private System.Windows.Forms.Timer? _slideTimer;
+
+        /// <summary>Shows <paramref name="column"/> by growing it from nothing to its full width.</summary>
+        public void SlideColumnIn(DataGridViewColumn column)
+        {
+            int from = column.Visible ? column.Width : column.MinimumWidth;
+            StopColumnSlide();
+
+            column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            int to = column.GetPreferredWidth(DataGridViewAutoSizeColumnMode.AllCells, fixedHeight: true);
+
+            column.Width = from;
+            column.Visible = true;
+
+            SlideColumn(column, from, to, () =>
+            {
+                // Back to sizing with the grid's other columns.
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet;
+            });
+        }
+
+        /// <summary>Hides <paramref name="column"/> by shrinking it down to nothing.</summary>
+        public void SlideColumnOut(DataGridViewColumn column)
+        {
+            StopColumnSlide();
+            if (!column.Visible) return;
+
+            column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+            SlideColumn(column, column.Width, column.MinimumWidth, () =>
+            {
+                column.Visible = false;
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet;
+            });
+        }
+
+        private void SlideColumn(DataGridViewColumn column, int from, int to, Action finish)
+        {
+            if (!IsHandleCreated || !Visible || Theme.IsDesignTime(this))
+            {
+                column.Width = Math.Max(column.MinimumWidth, to);
+                finish();
+                return;
+            }
+
+            long started = Environment.TickCount64;
+
+            _slideTimer = new System.Windows.Forms.Timer { Interval = AnimationFrameMs };
+            _slideTimer.Tick += (s, e) =>
+            {
+                double t = Math.Min(1.0, (Environment.TickCount64 - started) / (double)ColumnSlideMs);
+
+                // Ease out: quick at first, settling gently at the end.
+                double eased = 1 - Math.Pow(1 - t, 3);
+                column.Width = Math.Max(column.MinimumWidth, (int)Math.Round(from + (to - from) * eased));
+
+                if (t >= 1.0)
+                {
+                    StopColumnSlide();
+                    finish();
+                }
+            };
+            _slideTimer.Start();
+        }
+
+        /// <summary>Stops a running slide where it is (the next slide carries on from that width).</summary>
+        private void StopColumnSlide()
+        {
+            _slideTimer?.Stop();
+            _slideTimer?.Dispose();
+            _slideTimer = null;
+        }
+
+        #endregion
 
         #region Row animation
 
@@ -255,7 +338,11 @@ namespace Timesheeter.Elements
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) _animationTimer?.Dispose();
+            if (disposing)
+            {
+                _animationTimer?.Dispose();
+                _slideTimer?.Dispose();
+            }
             base.Dispose(disposing);
         }
 

@@ -85,18 +85,18 @@ namespace Timesheeter.UserControls
             if (_deleteMode)
             {
                 DeleteCheckedEntries();
-                _delCol!.Visible = false;
+                _dgvTimeEntries.SlideColumnOut(_delCol!);
                 Lib.Fade.Out(_btnCancel);
                 _deleteMode = false;
             }
             else
             {
                 _deleteMode = true;
-                _delCol!.Visible = true;
 
                 // The grid generates its data columns when it's first shown, which is after this
                 // column was added, so they end up after it. Move it to the end each time.
-                _delCol.DisplayIndex = _dgvTimeEntries.Columns.Count - 1;
+                _delCol!.DisplayIndex = _dgvTimeEntries.Columns.Count - 1;
+                _dgvTimeEntries.SlideColumnIn(_delCol);
                 Lib.Fade.In(_btnCancel);
             }
 
@@ -141,7 +141,7 @@ namespace Timesheeter.UserControls
             if (Lib.Fade.IsFadingOut(_btnCancel)) return;
 
             _deleteMode = false;
-            _delCol!.Visible = false;
+            _dgvTimeEntries.SlideColumnOut(_delCol!);
             Lib.Fade.Out(_btnCancel);
 
             // Start with nothing checked next time.
