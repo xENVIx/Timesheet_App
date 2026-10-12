@@ -172,13 +172,12 @@ namespace Timesheeter
         
         
 
-        internal void Run()
+        internal void Run(Forms.FrmSplash? splash = null)
         {
+            var ui = new UserInterface(_dataFactory);
+            splash?.CloseWhenShown(ui);
 
-
-
-
-            Application.Run(new UserInterface(_dataFactory));
+            Application.Run(ui);
 
             _store.Dispose();
             Environment.Exit(0);
