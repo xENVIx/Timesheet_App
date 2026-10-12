@@ -183,10 +183,5 @@ namespace Timesheeter.UserControls
 
 
         }
-
-        private void _btnAbout_Click(object sender, EventArgs e)
-        {
-            Forms.FrmAbout.ShowAbout(this);
-        }
     }
 }

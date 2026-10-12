@@ -42,14 +42,12 @@
             label2 = new Label();
             _tbLastName = new TextBox();
             _btnSave = new Button();
-            _btnAbout = new Button();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             SuspendLayout();
             // 
             // _pnlSideBar
             // 
-            _pnlSideBar.Controls.Add(_btnAbout);
             _pnlSideBar.Controls.Add(_btnSave);
             _pnlSideBar.Controls.Add(label2);
             _pnlSideBar.Controls.Add(_tbLastName);
@@ -172,16 +170,6 @@
             _btnSave.UseVisualStyleBackColor = true;
             _btnSave.Click += _btnSave_Click;
             // 
-            // _btnAbout
-            // 
-            _btnAbout.Location = new Point(15, 484);
-            _btnAbout.Name = "_btnAbout";
-            _btnAbout.Size = new Size(130, 28);
-            _btnAbout.TabIndex = 12;
-            _btnAbout.Text = "About Timesheeter";
-            _btnAbout.UseVisualStyleBackColor = true;
-            _btnAbout.Click += _btnAbout_Click;
-            // 
             // UCSettings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -208,6 +196,5 @@
         private Label label2;
         private TextBox _tbLastName;
         private Button _btnSave;
-        private Button _btnAbout;
     }
 }

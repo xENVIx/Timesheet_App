@@ -77,6 +77,14 @@ namespace Timesheeter.UserControls
             Theme.SetRole(_panelNav, ThemeRole.Navigation);
             Theme.SetActiveNavigationButton(_btnTimeSheet);
 
+            // The round "i" for About, pinned to the bottom-left of the nav bar. It isn't a Button,
+            // so ResizePanelButtons and the nav button styling don't stretch or restyle it.
+            var about = new Elements.AboutButton { Name = "_btnAbout" };
+            about.Size = new Size(LogicalToDeviceUnits(28), LogicalToDeviceUnits(28));
+            about.Location = new Point(LogicalToDeviceUnits(10), _panelNav.ClientSize.Height - about.Height - LogicalToDeviceUnits(10));
+            about.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            _panelNav.Controls.Add(about);
+
 
             _actionList = new Dictionary<string, Action>()
             {
