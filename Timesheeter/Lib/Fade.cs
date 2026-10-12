@@ -11,7 +11,7 @@ namespace Timesheeter.Lib
     /// </summary>
     public static class Fade
     {
-        private const int DurationMs = 250;
+        private const int DurationMs = 750;
         private const int FrameMs = 15;
 
         // The running fade per control, so a second call or a hide can stop it.
