@@ -15,6 +15,8 @@ namespace Timesheeter.UserControls
     public partial class UCSelectionMenu : UserControl
     {
 
+        //private delegate void ScreenToggle<T>();
+        private Dictionary<string, Action> _actionList = new();
         // also the original width...
         private const int MIN_NAV_PANEL_WIDTH = 101;
         private int _navButtonOriginalWidth = -1;
@@ -27,6 +29,21 @@ namespace Timesheeter.UserControls
 
 
             InitializeComponent();
+
+            _btnCodes.SelectedPage = _ucNewProjectCode;
+            //_btnCodes.ButtonClickedTarget = "Codes";
+            _btnCreateTimesheet.SelectedPage = _ucCreateTimesheet;
+            //_btnCreateTimesheet.ButtonClickedTarget = "CreateTimesheet";
+            _btnCustomers.SelectedPage = _ucCustomers;
+            //_btnCustomers.ButtonClickedTarget = "Customers";
+            
+            _btnSettings.SelectedPage = _ucSettings;
+            _btnTimeEntries.SelectedPage = _ucTimeEntries;
+            _btnTimeSheet.SelectedPage = _ucTimesheet;
+
+            _btnCustomers.BaseClicked += _navBtn_Clicked;
+            
+
 
             _ucNewProjectCode.Dock = DockStyle.Fill;
             _ucNewProjectCode.Visible = false;
@@ -59,6 +76,33 @@ namespace Timesheeter.UserControls
 
             Theme.SetRole(_panelNav, ThemeRole.Navigation);
             Theme.SetActiveNavigationButton(_btnTimeSheet);
+
+
+            _actionList = new Dictionary<string, Action>()
+            {
+                { _ucSettings.Name, ToggleScreen<UCSettings> },
+                { _ucCreateTimesheet.Name, ToggleScreen<UCCreateTimesheet> },
+                { _ucCustomers.Name, ToggleScreen<UCCustomers> },
+                { _ucNewProjectCode.Name, ToggleScreen<UCNewProjectCode> },
+                { _ucTimeEntries.Name, ToggleScreen<UCTimeEntries> },
+                { _ucTimesheet.Name, ToggleScreen<UCTimesheet> }
+            };
+        }
+
+        private void _navBtn_Clicked(object? sender, Elements.BaseButtonClickedEventArgs e)
+        {
+
+
+            if (_actionList.TryGetValue(e.Name, out Action? action))
+            {
+                action?.Invoke();
+                Theme.SetActiveNavigationButton(e.Button);
+                
+            }
+
+            
+
+
         }
 
         public void PostInit(IDataFactory factory)
@@ -93,60 +137,7 @@ namespace Timesheeter.UserControls
             PageTransition.Switch(_pnlControls, current, next);
         }
 
-        private void _btnCodes_Click(object sender, EventArgs e)
-        {
-            this.ToggleScreen<UCNewProjectCode>();
-            Theme.SetActiveNavigationButton(_btnCodes);
-
-
-
-
-
-            //_ucNewProjectCode.Enabled = true;
-            //_ucNewProjectCode.Visible = true;
-        }
-
-        private void _btnCustomers_Click(object sender, EventArgs e)
-        {
-
-            this.ToggleScreen<UCCustomers>();
-            Theme.SetActiveNavigationButton(_btnCustomers);
-            //_ucCustomers.Enabled = true;
-            //_ucCustomers.Visible = true;
-        }
-
-        private void _btnTimeEntries_Click(object sender, EventArgs e)
-        {
-            this.ToggleScreen<UCTimeEntries>();
-            Theme.SetActiveNavigationButton(_btnTimeEntries);
-            //_ucTimeEntries.Enabled = true;
-            //_ucTimeEntries.Visible = true;
-        }
-
-        private void _btnSettings_Click(object sender, EventArgs e)
-        {
-            this.ToggleScreen<UCSettings>();
-            Theme.SetActiveNavigationButton(_btnSettings);
-        }
-
-        private void _btnTimeSheet_Click(object sender, EventArgs e)
-        {
-            this.ToggleScreen<UCTimesheet>();
-            Theme.SetActiveNavigationButton(_btnTimeSheet);
-            //_ucTimesheet.Enabled = true;
-            //_ucTimesheet.Visible = true;
-        }
-
-        private void _btnCreateTimesheet_Click(object sender, EventArgs e)
-        {
-            this.ToggleScreen<UCCreateTimesheet>();
-            Theme.SetActiveNavigationButton(_btnCreateTimesheet);
-        }
-
-        private void _pnlSplitter_MarginChanged(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
         {

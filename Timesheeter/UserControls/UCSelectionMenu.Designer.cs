@@ -1,4 +1,6 @@
-﻿namespace Timesheeter.UserControls
+﻿using Timesheeter.Elements;
+
+namespace Timesheeter.UserControls
 {
     partial class UCSelectionMenu
     {
@@ -28,17 +30,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            _btnCodes = new Button();
+            _btnCodes = new BaseButton();
             _ucNewProjectCode = new UCNewProjectCode();
-            _btnCustomers = new Button();
+            _btnCustomers = new BaseButton();
             _ucCustomers = new UCCustomers();
-            _btnTimeEntries = new Button();
+            _btnTimeEntries = new BaseButton();
             _ucTimeEntries = new UCTimeEntries();
-            _btnTimeSheet = new Button();
+            _btnTimeSheet = new BaseButton();
             _ucTimesheet = new UCTimesheet();
-            _btnSettings = new Button();
+            _btnSettings = new BaseButton();
             _ucSettings = new UCSettings();
-            _btnCreateTimesheet = new Button();
+            _btnCreateTimesheet = new BaseButton();
             _pnlControls = new Panel();
             _ucCreateTimesheet = new UCCreateTimesheet();
             _panelNav = new Panel();
@@ -51,11 +53,12 @@
             // 
             _btnCodes.Location = new Point(3, 52);
             _btnCodes.Name = "_btnCodes";
+            _btnCodes.SelectedPage = null;
             _btnCodes.Size = new Size(93, 43);
             _btnCodes.TabIndex = 2;
             _btnCodes.Text = "Project Code Managment";
             _btnCodes.UseVisualStyleBackColor = true;
-            _btnCodes.Click += _btnCodes_Click;
+            _btnCodes.BaseClicked += _navBtn_Clicked;
             // 
             // _ucNewProjectCode
             // 
@@ -69,11 +72,12 @@
             // 
             _btnCustomers.Location = new Point(3, 3);
             _btnCustomers.Name = "_btnCustomers";
+            _btnCustomers.SelectedPage = null;
             _btnCustomers.Size = new Size(93, 43);
             _btnCustomers.TabIndex = 1;
             _btnCustomers.Text = "Customer Managment";
             _btnCustomers.UseVisualStyleBackColor = true;
-            _btnCustomers.Click += _btnCustomers_Click;
+            _btnCustomers.BaseClicked += _navBtn_Clicked;
             // 
             // _ucCustomers
             // 
@@ -87,11 +91,12 @@
             // 
             _btnTimeEntries.Location = new Point(3, 101);
             _btnTimeEntries.Name = "_btnTimeEntries";
+            _btnTimeEntries.SelectedPage = null;
             _btnTimeEntries.Size = new Size(93, 43);
             _btnTimeEntries.TabIndex = 3;
             _btnTimeEntries.Text = "Time Entry Managment";
             _btnTimeEntries.UseVisualStyleBackColor = true;
-            _btnTimeEntries.Click += _btnTimeEntries_Click;
+            _btnTimeEntries.BaseClicked += _navBtn_Clicked;
             // 
             // _ucTimeEntries
             // 
@@ -105,11 +110,12 @@
             // 
             _btnTimeSheet.Location = new Point(3, 150);
             _btnTimeSheet.Name = "_btnTimeSheet";
+            _btnTimeSheet.SelectedPage = null;
             _btnTimeSheet.Size = new Size(93, 43);
             _btnTimeSheet.TabIndex = 4;
             _btnTimeSheet.Text = "View Timesheet";
             _btnTimeSheet.UseVisualStyleBackColor = true;
-            _btnTimeSheet.Click += _btnTimeSheet_Click;
+            _btnTimeSheet.BaseClicked += _navBtn_Clicked;
             // 
             // _ucTimesheet
             // 
@@ -123,11 +129,12 @@
             // 
             _btnSettings.Location = new Point(3, 248);
             _btnSettings.Name = "_btnSettings";
+            _btnSettings.SelectedPage = null;
             _btnSettings.Size = new Size(93, 43);
             _btnSettings.TabIndex = 5;
             _btnSettings.Text = "Settings";
             _btnSettings.UseVisualStyleBackColor = true;
-            _btnSettings.Click += _btnSettings_Click;
+            _btnSettings.BaseClicked += _navBtn_Clicked;
             // 
             // _ucSettings
             // 
@@ -141,11 +148,12 @@
             // 
             _btnCreateTimesheet.Location = new Point(3, 199);
             _btnCreateTimesheet.Name = "_btnCreateTimesheet";
+            _btnCreateTimesheet.SelectedPage = null;
             _btnCreateTimesheet.Size = new Size(93, 43);
             _btnCreateTimesheet.TabIndex = 6;
             _btnCreateTimesheet.Text = "Create Project Timesheet";
             _btnCreateTimesheet.UseVisualStyleBackColor = true;
-            _btnCreateTimesheet.Click += _btnCreateTimesheet_Click;
+            _btnCreateTimesheet.BaseClicked += _navBtn_Clicked;
             // 
             // _pnlControls
             // 
@@ -209,18 +217,18 @@
 
         #endregion
 
-        private Button _btnCodes;
+        private BaseButton _btnCodes;
         private UCNewProjectCode _ucNewProjectCode;
-        private Button _btnCustomers;
+        private BaseButton _btnCustomers;
         private UCCustomers _ucCustomers;
-        private Button _btnTimeEntries;
+        private BaseButton _btnTimeEntries;
         private UCTimeEntries _ucTimeEntries;
-        private Button _btnTimeSheet;
+        private BaseButton _btnTimeSheet;
         private UCTimesheet _ucTimesheet;
-        private Button _btnSettings;
+        private BaseButton _btnSettings;
         private UCSettings _ucSettings;
         private Panel _pnlControls;
-        private Button _btnCreateTimesheet;
+        private BaseButton _btnCreateTimesheet;
         private UCCreateTimesheet _ucCreateTimesheet;
         private Panel _panelNav;
         private Splitter splitter1;
