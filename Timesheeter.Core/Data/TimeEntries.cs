@@ -30,6 +30,7 @@ namespace Timesheeter.Core.Data
             [Required, DisplayName("Entry End Time")] public TimeOnly TimeEnd { get; set; }
             [Required, DisplayName("Project Code"), GridLookup(typeof(ProjectCodes), "Code")] public long ProjectCodeID { get; set; }
             [DisplayName("Comment")] public String Comment { get; set; } = String.Empty;
+            [DisplayName("Deleted"), GridHidden] public bool Deleted { get; set; } = false;
 
 
             [Ignore, DisplayName("Hours")] public Double Hours

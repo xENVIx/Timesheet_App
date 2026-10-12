@@ -40,10 +40,14 @@
             label4 = new Label();
             _tbComment = new TextBox();
             label5 = new Label();
+            _btnDelete = new Button();
+            _btnCancel = new Button();
+            panel1 = new Panel();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_dgvTimeEntries).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // _pnlSideBar
@@ -63,6 +67,7 @@
             // _pnlGrid
             // 
             _pnlGrid.Controls.Add(_dgvTimeEntries);
+            _pnlGrid.Controls.Add(panel1);
             // 
             // _btnAdd
             // 
@@ -91,7 +96,7 @@
             _dgvTimeEntries.Dock = DockStyle.Fill;
             _dgvTimeEntries.Location = new Point(0, 0);
             _dgvTimeEntries.Name = "_dgvTimeEntries";
-            _dgvTimeEntries.Size = new Size(672, 616);
+            _dgvTimeEntries.Size = new Size(672, 649);
             _dgvTimeEntries.TabIndex = 7;
             // 
             // _dtpDate
@@ -176,6 +181,37 @@
             label5.TabIndex = 19;
             label5.Text = "Comment";
             // 
+            // _btnDelete
+            // 
+            _btnDelete.Location = new Point(3, 3);
+            _btnDelete.Name = "_btnDelete";
+            _btnDelete.Size = new Size(87, 38);
+            _btnDelete.TabIndex = 8;
+            _btnDelete.Text = "Delete Records";
+            _btnDelete.UseVisualStyleBackColor = true;
+            _btnDelete.Click += _btnDelete_Click;
+            // 
+            // _btnCancel
+            // 
+            _btnCancel.Location = new Point(96, 3);
+            _btnCancel.Name = "_btnCancel";
+            _btnCancel.Size = new Size(87, 38);
+            _btnCancel.TabIndex = 9;
+            _btnCancel.Text = "Cancel";
+            _btnCancel.UseVisualStyleBackColor = true;
+            _btnCancel.Visible = false;
+            _btnCancel.Click += _btnCancel_Click;
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(_btnDelete);
+            panel1.Controls.Add(_btnCancel);
+            panel1.Dock = DockStyle.Top;
+            panel1.Location = new Point(0, 0);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(672, 44);
+            panel1.TabIndex = 10;
+            // 
             // UCTimeEntries
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -186,6 +222,7 @@
             _pnlSideBar.PerformLayout();
             _pnlGrid.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvTimeEntries).EndInit();
+            panel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -202,5 +239,8 @@
         private Label label4;
         private Label label5;
         private TextBox _tbComment;
+        private Button _btnDelete;
+        private Button _btnCancel;
+        private Panel panel1;
     }
 }

@@ -32,9 +32,53 @@ namespace Timesheeter
             {
                 Directory.CreateDirectory(timeSheeterPath);
             }
+            const String fileName = "Timesheeter";
+            const String fileExt = ".db";
+
+            String dbFile = Path.Combine(timeSheeterPath, String.Concat(fileName, fileExt));
 
 
-            String dbFile = Path.Combine(timeSheeterPath, "Timesheeter.db");
+            // make a backup if the file already exists...
+            if (File.Exists(dbFile))
+            {
+                
+                DateTime dateNow = DateTime.Now;
+                String backupPath = Path.Combine(timeSheeterPath, "backups");
+                if (!Directory.Exists(backupPath))
+                {
+                    Directory.CreateDirectory(backupPath);
+                }
+
+                String newBackupFormat = "_{0:0000}{1:00}{2:00}{3:00}{4:00}{5:00}";
+
+                String backupFile =
+                    String.Concat(
+                        Path.Combine(
+                            backupPath,
+                            String.Concat(
+                                fileName,
+                                fileExt,
+                                String.Format(
+                                    newBackupFormat,
+                                    dateNow.Year,
+                                    dateNow.Month,
+                                    dateNow.Day,
+                                    dateNow.Hour,
+                                    dateNow.Minute,
+                                    dateNow.Second
+                                )
+                                
+                            )
+                        ),
+                        ".bak"
+                    );
+
+
+                File.Copy(dbFile, backupFile);
+                
+
+            }
+
             _store = new LibSqlLite.SqliteStore(dbFile);
 
             /*

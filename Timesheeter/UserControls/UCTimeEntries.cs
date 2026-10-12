@@ -12,6 +12,10 @@ namespace Timesheeter.UserControls
 {
     public partial class UCTimeEntries : Lib.UCSubPage
     {
+
+        private bool _deleteMode = false;
+        private DataGridViewCheckBoxColumn? _delCol;
+
         public UCTimeEntries() : base()
         {
             InitializeComponent();
@@ -27,6 +31,13 @@ namespace Timesheeter.UserControls
 
             _cbProjCodes.PostInit(_factory.GetData<ProjectCodes>(), _factory.GetData<Customers>());
             _dgvTimeEntries.PostInit(_factory.GetData<TimeEntries>(), _factory);
+
+            _delCol = new DataGridViewCheckBoxColumn();
+            _delCol.Name = "_colDelete";
+            _delCol.HeaderText = "Select Item(s) for Deletion";
+            _delCol.Visible = false;
+            
+            _dgvTimeEntries.Columns.Add(_delCol);
 
             // Default to a one hour entry starting now.
 
@@ -66,6 +77,32 @@ namespace Timesheeter.UserControls
             // Ready for the next entry: it starts where this one ended.
             _tpStart.Time = entry.TimeEnd;
             _tpEnd.Time = entry.TimeEnd.AddHours(1);
+        }
+
+        private void _btnDelete_Click(object sender, EventArgs e)
+        {
+
+            if (_deleteMode)
+            {
+                // find records selected...
+                _delCol!.Visible = false;
+                _btnCancel.Visible = false;
+                _deleteMode = false;
+            }
+            else
+            {
+                _deleteMode = true;
+                _delCol!.Visible = true;
+                _btnCancel.Visible = true;
+            }
+
+        }
+
+        private void _btnCancel_Click(object sender, EventArgs e)
+        {
+            _deleteMode = false;
+            _delCol!.Visible = false;
+            _btnCancel.Visible = false;
         }
     }
 }
