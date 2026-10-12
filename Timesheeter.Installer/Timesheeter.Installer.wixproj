@@ -14,6 +14,9 @@
     <InstallerPlatform>x64</InstallerPlatform>
     <Platform>x64</Platform>
 
+    <!-- No .wixpdb next to the .msi: it's only debug info for building patches, never shipped. -->
+    <SuppressPdbOutput>true</SuppressPdbOutput>
+
     <AppProject>$(MSBuildThisFileDirectory)..\Timesheeter\Timesheeter.csproj</AppProject>
     <AppPublishDir>$(MSBuildThisFileDirectory)obj\$(Configuration)\app\</AppPublishDir>
 
