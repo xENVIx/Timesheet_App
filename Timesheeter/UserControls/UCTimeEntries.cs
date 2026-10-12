@@ -137,6 +137,9 @@ namespace Timesheeter.UserControls
 
         private void _btnCancel_Click(object sender, EventArgs e)
         {
+            // Clicked again while it's fading out: it's already cancelled.
+            if (Lib.Fade.IsFadingOut(_btnCancel)) return;
+
             _deleteMode = false;
             _delCol!.Visible = false;
             Lib.Fade.Out(_btnCancel);

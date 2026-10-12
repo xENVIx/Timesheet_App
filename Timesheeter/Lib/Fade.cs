@@ -21,6 +21,10 @@ namespace Timesheeter.Lib
         {
             public required System.Windows.Forms.Timer Timer { get; init; }
             public required Colors Themed { get; init; }
+            public bool FadingOut { get; init; }
+
+            // The cursor to put back after a fade-out, which shows the default arrow meanwhile.
+            public Cursor? Cursor { get; init; }
         }
 
         /// <summary>The colours to fade to or from (Theme.Apply styles hidden controls too).</summary>
@@ -29,6 +33,13 @@ namespace Timesheeter.Lib
         /// mouse is over it, e.g. a Cancel button fading out right after it was clicked, so those fade too.
         /// </remarks>
         private readonly record struct Colors(Color Back, Color Fore, Color? Border, Color? MouseOver, Color? MouseDown);
+
+        /// <summary>
+        /// True while <paramref name="control"/> is fading out. It's already on its way out, so click
+        /// handlers should ignore it (e.g. <c>if (Fade.IsFadingOut(button)) return;</c>).
+        /// </summary>
+        public static bool IsFadingOut(Control control) =>
+            _running.TryGetValue(control, out var running) && running.FadingOut;
 
         /// <summary>Makes <paramref name="control"/> visible and fades it in from its parent's background.</summary>
         public static void In(Control control)
@@ -39,7 +50,7 @@ namespace Timesheeter.Lib
             Apply(control, themed, 0);
             control.Visible = true;
 
-            Run(control, themed, t => t, () => Apply(control, themed, 1));
+            Run(control, themed, fadingOut: false, t => t, () => Apply(control, themed, 1));
         }
 
         /// <summary>Fades <paramref name="control"/> into its parent's background, then hides it.</summary>
@@ -53,7 +64,8 @@ namespace Timesheeter.Lib
                 return;
             }
 
-            Run(control, themed, t => 1 - t, () =>
+            // No hand cursor on the way out: it's no longer something to click.
+            Run(control, themed, fadingOut: true, t => 1 - t, () =>
             {
                 control.Visible = false;
                 // Hidden with its normal colours, ready to be shown (or faded in) again.
@@ -90,8 +102,15 @@ namespace Timesheeter.Lib
         }
 
         /// <param name="amountAt">Maps eased progress (0-1) to how far the colours are from the background.</param>
-        private static void Run(Control control, Colors themed, Func<double, double> amountAt, Action finish)
+        private static void Run(Control control, Colors themed, bool fadingOut, Func<double, double> amountAt, Action finish)
         {
+            Cursor? cursor = null;
+            if (fadingOut)
+            {
+                cursor = control.Cursor;
+                control.Cursor = Cursors.Default;
+            }
+
             var timer = new System.Windows.Forms.Timer { Interval = FrameMs };
             long started = Environment.TickCount64;
 
@@ -115,7 +134,7 @@ namespace Timesheeter.Lib
                 Apply(control, themed, amountAt(1 - Math.Pow(1 - t, 3)));
             };
 
-            _running.AddOrUpdate(control, new Running { Timer = timer, Themed = themed });
+            _running.AddOrUpdate(control, new Running { Timer = timer, Themed = themed, FadingOut = fadingOut, Cursor = cursor });
             timer.Start();
         }
 
@@ -127,6 +146,7 @@ namespace Timesheeter.Lib
             running.Timer.Stop();
             running.Timer.Dispose();
             _running.Remove(control);
+            if (running.Cursor != null && !control.IsDisposed) control.Cursor = running.Cursor;
             return running.Themed;
         }
     }
