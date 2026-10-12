@@ -71,61 +71,26 @@ namespace Timesheeter.UserControls
             _ucSettings.PostInit(factory);
         }
 
-        private volatile bool transitioning = false;
-
         private void ToggleScreen<T>()
         {
-            if (!transitioning) {
-                try
-                {
+            UCSubPage? current = null;
+            UCSubPage? next = null;
 
-                    transitioning = true;
+            foreach (var control in _pnlControls.Controls)
+            {
+                if (control is not UCSubPage page) continue;
 
-                    UCSubPage? selPage = null;
-
-                    foreach (var control in _pnlControls.Controls)
-                    {
-
-                        if (control is UCSubPage page)
-                        {
-
-                            if (typeof(T) != page.GetType())
-                            {
-                                if (page.Selected)
-                                {
-                                    page.Selected = false;
-                                    Lib.Fade.Out(page);
-                                }
-                                page.Visible = false;
-                                page.Enabled = false;
-                            }
-                            else
-                            {
-                                selPage = page;
-                            }
-
-
-                        }
-
-
-                    }
-
-                    if (selPage != null)
-                    {
-                        selPage.Visible = true;
-                        selPage.Enabled = true;
-                        selPage.Selected = true;
-                        Lib.Fade.In(selPage);
-                    }
-                }
-                finally
-                {
-                    transitioning = false;
-                }
+                if (page.GetType() == typeof(T)) next = page;
+                else if (page.Selected) current = page;
             }
 
+            if (next == null || next.Selected) return;
 
+            if (current != null) current.Selected = false;
+            next.Selected = true;
 
+            // Fades the current page out and the next one in (and hides/shows them).
+            PageTransition.Switch(_pnlControls, current, next);
         }
 
         private void _btnCodes_Click(object sender, EventArgs e)
