@@ -73,7 +73,7 @@ namespace Timesheeter.Lib
     public static class Theme
     {
         // One neutral grey scale (zinc) shared by every mode, lightest to darkest.
-        // Declared before Current: static fields initialise in file order, and Current's palette
+        // Declared before Current: static fields initialize in file order, and Current's palette
         // reads these. Below it they were still Color.Empty when the palette was built, which the
         // designer (where Theme.Set never runs) passed on to DateTimePicker and it threw.
         private static readonly Color Grey50 = Color.FromArgb(250, 250, 250);
@@ -336,7 +336,7 @@ namespace Timesheeter.Lib
         }
 
         /// <summary>
-        /// Gives a button a soft aura in a lighter accent colour while the mouse is over it.
+        /// Gives a button a soft aura in a lighter accent color while the mouse is over it.
         /// A control can't draw outside its own bounds, so the aura is painted by the button's
         /// parent, in the space around the button.
         /// </summary>

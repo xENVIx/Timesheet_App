@@ -12,7 +12,7 @@ using Timesheeter.Lib;
 
 namespace Timesheeter.UserControls
 {
-    /// <summary>Lets the user pick the theme mode and accent colour; changes apply and save immediately.</summary>
+    /// <summary>Lets the user pick the theme mode and accent color; changes apply and save immediately.</summary>
     public partial class UCSettings : UCSubPage
     {
         private AppSettings? _settings;
@@ -26,7 +26,7 @@ namespace Timesheeter.UserControls
 
             base.MinSplitterX = 298;
 
-            // The swatches show their own colours, so the theme leaves them alone.
+            // The swatches show their own colors, so the theme leaves them alone.
             Theme.SetRole(_flpAccents, ThemeRole.Ignore);
 
             foreach (var (name, color) in Theme.AccentPresets)

@@ -105,9 +105,9 @@
             _lblAccent.AutoSize = true;
             _lblAccent.Location = new Point(15, 322);
             _lblAccent.Name = "_lblAccent";
-            _lblAccent.Size = new Size(81, 15);
+            _lblAccent.Size = new Size(74, 15);
             _lblAccent.TabIndex = 4;
-            _lblAccent.Text = "Accent colour";
+            _lblAccent.Text = "Accent color";
             // 
             // _flpAccents
             // 
@@ -118,11 +118,11 @@
             // 
             // _btnCustomAccent
             // 
-            _btnCustomAccent.Location = new Point(15, 436);
+            _btnCustomAccent.Location = new Point(15, 434);
             _btnCustomAccent.Name = "_btnCustomAccent";
             _btnCustomAccent.Size = new Size(130, 28);
             _btnCustomAccent.TabIndex = 6;
-            _btnCustomAccent.Text = "Custom colour...";
+            _btnCustomAccent.Text = "Custom color...";
             _btnCustomAccent.UseVisualStyleBackColor = true;
             _btnCustomAccent.Click += _btnCustomAccent_Click;
             // 
