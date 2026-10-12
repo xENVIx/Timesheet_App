@@ -179,6 +179,9 @@ namespace Timesheeter
 
 
             Application.Run(new UserInterface(_dataFactory));
+
+            _store.Dispose();
+            Environment.Exit(0);
         }
 
 
