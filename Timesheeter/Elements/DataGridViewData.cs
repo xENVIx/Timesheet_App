@@ -47,8 +47,15 @@ namespace Timesheeter.Elements
 
             // Deleted records leave their own grid (they stay in All for lookups elsewhere).
             this.DataSource = data.Active;
-            CellBeginEdit += (s, e) => LimitLookupChoices(e.RowIndex, e.ColumnIndex);
+            CellBeginEdit += (s, e) =>
+            {
+                // Remembered for the merge warning, which names the value from before the edit.
+                _valueBeforeEdit = e.RowIndex >= 0 ? Rows[e.RowIndex].Cells[e.ColumnIndex].FormattedValue : null;
+                LimitLookupChoices(e.RowIndex, e.ColumnIndex);
+            };
         }
+
+        private object? _valueBeforeEdit;
 
         private void DataGridViewData_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
@@ -70,8 +77,21 @@ namespace Timesheeter.Elements
                 var merge = MergeOntoDeleted(item);
                 if (merge != null)
                 {
+                    string from = $"{_valueBeforeEdit}";
+                    string to = $"{Rows[e.RowIndex].Cells[e.ColumnIndex].FormattedValue}";
+
                     BeginInvoke(() =>
                     {
+                        var answer = MessageBox.Show(this,
+                            $"Renaming '{from}' to '{to}' will merge all data from '{from}' into '{to}'. This operation cannot be undone.",
+                            "Merge", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+
+                        if (answer != DialogResult.OK)
+                        {
+                            _data.Reload(item); // back to its old name
+                            return;
+                        }
+
                         if (merge()) return;
                         MessageBox.Show("Could not save the change.");
                         _data.Reload(item);
