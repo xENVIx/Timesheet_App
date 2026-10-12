@@ -16,6 +16,7 @@ namespace Timesheeter.Elements
         //protected DataClass<T>? _data;
 
         protected DataClass<T>? _data;
+        protected IDataFactory? _factory;
 
         public DataGridViewData() : base()
         {
@@ -37,6 +38,7 @@ namespace Timesheeter.Elements
             }
 
             _data = data;
+            _factory = factory;
             CellEndEdit += DataGridViewData_CellEndEdit;
 
             // Lookup columns must exist before DataSource is set: auto-generation keeps a
@@ -64,6 +66,19 @@ namespace Timesheeter.Elements
             // reload / re-sort runs just after the edit has finished.
             if (!_data.Update(item))
             {
+                // E.g. renamed to a deleted record's name: merge into that record instead.
+                var merge = MergeOntoDeleted(item);
+                if (merge != null)
+                {
+                    BeginInvoke(() =>
+                    {
+                        if (merge()) return;
+                        MessageBox.Show("Could not save the change.");
+                        _data.Reload(item);
+                    });
+                    return;
+                }
+
                 MessageBox.Show("Could not save the change (blank or duplicate value?).");
                 BeginInvoke(() => _data.Reload(item));
             }
@@ -73,6 +88,12 @@ namespace Timesheeter.Elements
                 BeginInvoke(() => _data.Reposition(item));
             }
         }
+
+        /// <summary>
+        /// When an edit can't be saved because it gives <paramref name="item"/> the unique name of a
+        /// deleted record, returns the merge that resolves it (run after the edit ends); otherwise null.
+        /// </summary>
+        protected virtual Func<bool>? MergeOntoDeleted(T item) => null;
 
         protected override void OnColumnAdded(DataGridViewColumnEventArgs e)
         {

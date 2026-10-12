@@ -47,6 +47,23 @@ namespace Timesheeter.Core.Data
             }
         }
 
+        /// <summary>The deleted customer named <paramref name="name"/>, other than <paramref name="except"/>.</summary>
+        public Customer? GetDeletedByName(String name, Customer? except = null)
+        {
+            return _list.Unfiltered.FirstOrDefault(cust => cust != except && cust.Deleted &&
+                string.Compare(cust.Name, name.Trim(), StringComparison.InvariantCultureIgnoreCase) == 0);
+        }
+
+        /// <summary>
+        /// <paramref name="renamed"/> was renamed to a deleted customer's name: that customer comes back,
+        /// project codes move over to it, and <paramref name="renamed"/> is deleted under its old name.
+        /// </summary>
+        public bool MergeRenamedIntoDeleted(Customer renamed, ProjectCodes projectCodes)
+        {
+            var target = GetDeletedByName(renamed.Name, renamed);
+            return target != null && MergeIntoDeleted(renamed, target, projectCodes, nameof(ProjectCodes.ProjectCode.CustomerID));
+        }
+
         public Customer? GetCustomerByName(String name)
         {
 

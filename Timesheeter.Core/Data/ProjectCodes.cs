@@ -50,6 +50,24 @@ namespace Timesheeter.Core.Data
             }
         }
 
+        /// <summary>The deleted project code with this code, other than <paramref name="except"/>.</summary>
+        public ProjectCode? GetDeletedByCode(String projCode, ProjectCode? except = null)
+        {
+            return _list.Unfiltered.FirstOrDefault(code => code != except && code.Deleted &&
+                String.Compare(code.Code, projCode.Trim(), StringComparison.InvariantCultureIgnoreCase) == 0);
+        }
+
+        /// <summary>
+        /// <paramref name="renamed"/> was given a deleted project code's code: that project code comes
+        /// back, time entries (deleted ones too) move over to it, and <paramref name="renamed"/> is
+        /// deleted under its old code.
+        /// </summary>
+        public bool MergeRenamedIntoDeleted(ProjectCode renamed, TimeEntries timeEntries)
+        {
+            var target = GetDeletedByCode(renamed.Code, renamed);
+            return target != null && MergeIntoDeleted(renamed, target, timeEntries, nameof(TimeEntries.TimeEntry.ProjectCodeID));
+        }
+
         /// <summary>The project code with this code (ignoring case), deleted or not.</summary>
         public ProjectCode? GetByCode(String projCode)
         {

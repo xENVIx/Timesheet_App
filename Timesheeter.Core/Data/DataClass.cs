@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Text;
 using Timesheeter.Core.Lib;
 using static Timesheeter.Core.Data.ProjectCodes;
@@ -133,6 +134,65 @@ namespace Timesheeter.Core.Data
                 _list.Remove(item);
                 _active.Remove(item);
             }
+            return true;
+        }
+
+        /// <summary>
+        /// For an item renamed to the name of the deleted item <paramref name="target"/> (which a unique
+        /// name won't allow): brings <paramref name="target"/> back, moves everything referring to the
+        /// renamed item over to it (<paramref name="referenceProperty"/> of <typeparamref name="TRef"/>,
+        /// in the database, deleted rows included, and in memory), and deletes the renamed item with its
+        /// name from before the rename. All or nothing.
+        /// </summary>
+        protected bool MergeIntoDeleted<TRef>(T renamed, T target, DataClass<TRef> references, string referenceProperty)
+            where TRef : class
+        {
+            var idProperty = typeof(T).GetProperty("ID")!;
+            object fromId = idProperty.GetValue(renamed)!;
+            object toId = idProperty.GetValue(target)!;
+
+            // The renamed item as it still is in the database (the rename couldn't be saved).
+            var original = _dataStore.Get<T>(fromId);
+            if (original is not ISoftDeletable originalDeletable || target is not ISoftDeletable targetDeletable) return false;
+
+            var refProperty = typeof(TRef).GetProperty(referenceProperty)!;
+            string refTable = typeof(TRef).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(TRef).Name;
+
+            originalDeletable.Deleted = true;
+            targetDeletable.Deleted = false;
+            try
+            {
+                _dataStore.InTransaction(store =>
+                {
+                    store.Execute($"UPDATE [{refTable}] SET [{referenceProperty}] = @to WHERE [{referenceProperty}] = @from",
+                        new { to = toId, from = fromId });
+
+                    if (!IsValid(target) || !store.Update(target) || !store.Update(original))
+                        throw new InvalidOperationException("Could not save the merge.");
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                targetDeletable.Deleted = true;
+                return false;
+            }
+
+            // Saved; now the same in memory. The renamed item gets its old values back, deleted.
+            foreach (var property in typeof(T).GetProperties().Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0))
+            {
+                property.SetValue(renamed, property.GetValue(original));
+            }
+
+            foreach (var reference in references.All.Unfiltered.ToList())
+            {
+                if (!Equals(refProperty.GetValue(reference), fromId)) continue;
+                refProperty.SetValue(reference, toId);
+                references.Reposition(reference);
+            }
+
+            Reposition(target);
+            Reposition(renamed);
             return true;
         }
 
