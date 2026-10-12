@@ -86,7 +86,7 @@ namespace Timesheeter.UserControls
             {
                 DeleteCheckedEntries();
                 _delCol!.Visible = false;
-                _btnCancel.Visible = false;
+                Lib.Fade.Out(_btnCancel);
                 _deleteMode = false;
             }
             else
@@ -139,7 +139,7 @@ namespace Timesheeter.UserControls
         {
             _deleteMode = false;
             _delCol!.Visible = false;
-            _btnCancel.Visible = false;
+            Lib.Fade.Out(_btnCancel);
 
             // Start with nothing checked next time.
             _dgvTimeEntries.CancelEdit();
