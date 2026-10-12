@@ -84,7 +84,10 @@ namespace Timesheeter.UserControls
 
             if (_deleteMode)
             {
-                DeleteCheckedEntries();
+                if (!DeleteCheckedEntries())
+                    return;
+                
+                _btnDelete.Text = "Delete Records";
                 _dgvTimeEntries.SlideColumnOut(_delCol!);
                 Lib.Fade.Out(_btnCancel);
                 _deleteMode = false;
@@ -92,6 +95,8 @@ namespace Timesheeter.UserControls
             else
             {
                 _deleteMode = true;
+
+                _btnDelete.Text = "Confirm";
 
                 // The grid generates its data columns when it's first shown, which is after this
                 // column was added, so they end up after it. Move it to the end each time.
@@ -102,10 +107,14 @@ namespace Timesheeter.UserControls
 
         }
 
-        private void DeleteCheckedEntries()
+        private bool DeleteCheckedEntries()
         {
             var timeEntries = _factory?.GetData<TimeEntries>();
-            if (timeEntries == null || _delCol == null) return;
+            if (timeEntries == null || _delCol == null)
+            {
+                MessageBox.Show($"Unknown Error Occurred");
+                return false;
+            }
 
             // A checkbox that was just clicked is still being edited; commit it first.
             _dgvTimeEntries.EndEdit();
@@ -117,12 +126,17 @@ namespace Timesheeter.UserControls
                 .OfType<TimeEntries.TimeEntry>()
                 .ToList();
 
-            if (selected.Count == 0) return;
+            if (selected.Count == 0)
+            {
+                MessageBox.Show($"At Least One Record Should Be Selected");
+                return false;
+            }
 
             if (MessageBox.Show(this, $"Delete {selected.Count} time entr{(selected.Count == 1 ? "y" : "ies")}?",
                     "Delete Records", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
             {
-                return;
+                //return true;
+                return false;
             }
 
             // Collected first: deleting removes rows from the grid.
@@ -133,6 +147,8 @@ namespace Timesheeter.UserControls
                     MessageBox.Show(this, "Could not delete one of the entries.");
                 }
             }
+
+            return true;
         }
 
         private void _btnCancel_Click(object sender, EventArgs e)

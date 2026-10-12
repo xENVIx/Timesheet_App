@@ -96,7 +96,7 @@
             _dgvTimeEntries.Dock = DockStyle.Fill;
             _dgvTimeEntries.Location = new Point(0, 0);
             _dgvTimeEntries.Name = "_dgvTimeEntries";
-            _dgvTimeEntries.Size = new Size(672, 649);
+            _dgvTimeEntries.Size = new Size(672, 620);
             _dgvTimeEntries.TabIndex = 7;
             // 
             // _dtpDate
@@ -183,9 +183,9 @@
             // 
             // _btnDelete
             // 
-            _btnDelete.Location = new Point(3, 3);
+            _btnDelete.Location = new Point(6, 3);
             _btnDelete.Name = "_btnDelete";
-            _btnDelete.Size = new Size(87, 38);
+            _btnDelete.Size = new Size(109, 23);
             _btnDelete.TabIndex = 8;
             _btnDelete.Text = "Delete Records";
             _btnDelete.UseVisualStyleBackColor = true;
@@ -193,9 +193,9 @@
             // 
             // _btnCancel
             // 
-            _btnCancel.Location = new Point(96, 3);
+            _btnCancel.Location = new Point(121, 3);
             _btnCancel.Name = "_btnCancel";
-            _btnCancel.Size = new Size(87, 38);
+            _btnCancel.Size = new Size(109, 23);
             _btnCancel.TabIndex = 9;
             _btnCancel.Text = "Cancel";
             _btnCancel.UseVisualStyleBackColor = true;
@@ -204,12 +204,12 @@
             // 
             // panel1
             // 
-            panel1.Controls.Add(_btnDelete);
             panel1.Controls.Add(_btnCancel);
-            panel1.Dock = DockStyle.Top;
-            panel1.Location = new Point(0, 0);
+            panel1.Controls.Add(_btnDelete);
+            panel1.Dock = DockStyle.Bottom;
+            panel1.Location = new Point(0, 620);
             panel1.Name = "panel1";
-            panel1.Size = new Size(672, 44);
+            panel1.Size = new Size(672, 29);
             panel1.TabIndex = 10;
             // 
             // UCTimeEntries
