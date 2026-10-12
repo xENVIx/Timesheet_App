@@ -97,7 +97,7 @@ namespace Timesheeter.UserControls
                 // The grid generates its data columns when it's first shown, which is after this
                 // column was added, so they end up after it. Move it to the end each time.
                 _delCol.DisplayIndex = _dgvTimeEntries.Columns.Count - 1;
-                _btnCancel.Visible = true;
+                Lib.Fade.In(_btnCancel);
             }
 
         }
