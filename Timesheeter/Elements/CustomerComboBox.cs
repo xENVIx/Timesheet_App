@@ -15,6 +15,14 @@ namespace Timesheeter.Elements
 
         }
 
+        /// <summary>Binds to the customers that aren't deleted: a deleted one can't be picked.</summary>
+        internal new void PostInit(Customers? customers)
+        {
+            base.PostInit(customers);
+            DataSource = customers!.Active;
+            Text = "";
+        }
+
 
 
     }

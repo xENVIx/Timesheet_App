@@ -28,6 +28,17 @@ namespace Timesheeter.UserControls
 
             //_cbCustomer.PostInit(_factory.GetData<Customers>());
             _custDgv.PostInit(_factory.GetData<Customers>(), _factory);
+
+            var projectCodes = _factory.GetData<ProjectCodes>();
+            _deleteBar.PostInit(_custDgv, _factory.GetData<Customers>()!, "customer", "customers", customers =>
+            {
+                // Project codes keep showing a deleted customer's name; just say how many there are.
+                var ids = customers.Select(c => c.ID).ToHashSet();
+                int used = projectCodes?.Active.Count(code => ids.Contains(code.CustomerID)) ?? 0;
+                return used == 0 ? null
+                    : $"{used} project code{(used == 1 ? " uses" : "s use")} {(customers.Count == 1 ? "this customer" : "these customers")}. " +
+                      "They will keep showing the customer's name, but it can't be picked for new project codes.";
+            });
         }
 
         private void _btnSave_Click(object sender, EventArgs e)
@@ -46,7 +57,16 @@ namespace Timesheeter.UserControls
 
                 String custNameTrim = _tbCustName.Text.Trim();
 
-                if (customers.CustomerExistsByName(_tbCustName.Text))
+                var existing = customers.GetCustomerByName(custNameTrim);
+                if (existing != null && existing.Deleted)
+                {
+                    // Re-adding a deleted customer's name brings that customer back (same ID, so
+                    // everything that referred to it lines up again).
+                    if (!customers.Restore(existing)) MessageBox.Show($"Error Saving New Customer");
+                    return;
+                }
+
+                if (existing != null)
                 {
                     MessageBox.Show($"Customer Name {custNameTrim} Already Exists");
                     _tbCustName.Text = "";

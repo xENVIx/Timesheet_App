@@ -38,6 +38,7 @@
             _lblLocation = new Label();
             _lblProjCode = new Label();
             _lblDescription = new Label();
+            _deleteBar = new Timesheeter.Elements.DeleteRecordsBar();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
@@ -64,6 +65,7 @@
             // _pnlGrid
             // 
             _pnlGrid.Controls.Add(_projCodesDgv);
+            _pnlGrid.Controls.Add(_deleteBar);
             _pnlGrid.Size = new Size(633, 506);
             // 
             // _btnAdd
@@ -93,7 +95,7 @@
             _projCodesDgv.Dock = DockStyle.Fill;
             _projCodesDgv.Location = new Point(0, 0);
             _projCodesDgv.Name = "_projCodesDgv";
-            _projCodesDgv.Size = new Size(633, 506);
+            _projCodesDgv.Size = new Size(633, 477);
             _projCodesDgv.TabIndex = 6;
             // 
             // _tbDescription
@@ -153,6 +155,14 @@
             _lblDescription.TabIndex = 20;
             _lblDescription.Text = "Description";
             // 
+            // _deleteBar
+            // 
+            _deleteBar.Dock = DockStyle.Bottom;
+            _deleteBar.Location = new Point(0, 477);
+            _deleteBar.Name = "_deleteBar";
+            _deleteBar.Size = new Size(633, 29);
+            _deleteBar.TabIndex = 7;
+            // 
             // UCNewProjectCode
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -178,5 +188,6 @@
         private Label _lblLocation;
         private Label _lblProjCode;
         private Label _lblDescription;
+        private Elements.DeleteRecordsBar _deleteBar;
     }
 }

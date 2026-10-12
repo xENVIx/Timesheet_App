@@ -43,14 +43,16 @@ namespace Timesheeter.Elements
             // column whose DataPropertyName matches a property instead of generating its own.
             AddLookupColumns(factory);
 
-            this.DataSource = data.All;
-
-
+            // Deleted records leave their own grid (they stay in All for lookups elsewhere).
+            this.DataSource = data.Active;
+            CellBeginEdit += (s, e) => LimitLookupChoices(e.RowIndex, e.ColumnIndex);
         }
 
         private void DataGridViewData_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || _data == null) return;
+
+            RestoreLookupChoices(e.RowIndex, e.ColumnIndex);
 
             // Unbound columns (e.g. the time entries page's delete checkboxes) aren't data to save.
             if (string.IsNullOrEmpty(Columns[e.ColumnIndex].DataPropertyName)) return;
@@ -68,7 +70,7 @@ namespace Timesheeter.Elements
             else
             {
                 // The edit may have changed where the row sorts to, or whether it matches the filter.
-                BeginInvoke(() => _data.All.Reposition(item));
+                BeginInvoke(() => _data.Reposition(item));
             }
         }
 
@@ -105,6 +107,9 @@ namespace Timesheeter.Elements
                         $"GridLookup on {typeof(T).Name}.{prop.Name}: the factory has no data class of type {lookup.DataType.Name}.");
                 }
 
+                _lookupSources[prop.Name] = source;
+
+                // All: a row referring to a deleted record still shows its name.
                 Columns.Add(new DataGridViewComboBoxColumn()
                 {
                     Name = prop.Name,
@@ -116,6 +121,44 @@ namespace Timesheeter.Elements
                     DisplayStyle = DataGridViewComboBoxDisplayStyle.Nothing,
                 });
             }
+        }
+
+        // Lookup column name -> the data class it shows names from.
+        private readonly Dictionary<string, IDataClass> _lookupSources = new();
+
+        /// <summary>
+        /// While a lookup cell is being edited, its dropdown offers only records that aren't deleted
+        /// (plus the cell's current one, which may be deleted, so it can still be displayed).
+        /// </summary>
+        private void LimitLookupChoices(int rowIndex, int columnIndex)
+        {
+            if (rowIndex < 0 || Columns[columnIndex] is not DataGridViewComboBoxColumn column) return;
+            if (!_lookupSources.TryGetValue(column.Name, out var source)) return;
+            if (Rows[rowIndex].Cells[columnIndex] is not DataGridViewComboBoxCell cell) return;
+
+            var itemType = ListBindingHelper.GetListItemType(source.All);
+            var valueOf = TypeDescriptor.GetProperties(itemType)[column.ValueMember];
+            if (valueOf == null) return;
+
+            // A typed list, so the dropdown can find the display and value properties.
+            var choices = (System.Collections.IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType))!;
+            foreach (var item in source.Active) choices.Add(item);
+
+            if (cell.Value != null && !choices.Cast<object>().Any(item => Equals(valueOf.GetValue(item), cell.Value)))
+            {
+                var current = source.All.Cast<object>().FirstOrDefault(item => Equals(valueOf.GetValue(item), cell.Value));
+                if (current != null) choices.Add(current);
+            }
+
+            cell.DataSource = choices;
+        }
+
+        /// <summary>After editing, the cell goes back to the column's list of every record.</summary>
+        private void RestoreLookupChoices(int rowIndex, int columnIndex)
+        {
+            if (Columns[columnIndex] is not DataGridViewComboBoxColumn column) return;
+            if (!_lookupSources.ContainsKey(column.Name)) return;
+            if (Rows[rowIndex].Cells[columnIndex] is DataGridViewComboBoxCell cell) cell.DataSource = column.DataSource;
         }
 
         #region Column slide

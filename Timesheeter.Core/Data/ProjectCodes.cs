@@ -23,7 +23,7 @@ namespace Timesheeter.Core.Data
 
 
 
-        public class ProjectCode
+        public class ProjectCode : ISoftDeletable
         {
             [PrimaryKey, GridHidden] public long ID { get; set; }
             [Required, Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
@@ -31,6 +31,7 @@ namespace Timesheeter.Core.Data
             [DisplayName("Project Name")] public String ProjectName { get; set; } = string.Empty;
             [DisplayName("Description")] public String Description { get; set; } = string.Empty;
             public String Location { get; set; } = String.Empty;
+            [DisplayName("Deleted"), GridHidden] public bool Deleted { get; set; } = false;
 
 
             // used to allow compatability with the DataComboBox impl...
@@ -45,8 +46,14 @@ namespace Timesheeter.Core.Data
 
             foreach (var proj in _dataStore.All<ProjectCode>())
             {
-                _list.Add(proj);
+                AddLoaded(proj);
             }
+        }
+
+        /// <summary>The project code with this code (ignoring case), deleted or not.</summary>
+        public ProjectCode? GetByCode(String projCode)
+        {
+            return _list.Unfiltered.FirstOrDefault(code => String.Compare(code.Code, projCode.Trim(), StringComparison.InvariantCultureIgnoreCase) == 0);
         }
 
         public bool ProjectCodeExistsByCode(String projCode)

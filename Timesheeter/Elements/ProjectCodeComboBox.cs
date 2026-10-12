@@ -29,6 +29,11 @@ namespace Timesheeter.Elements
 
             base.PostInit(projectCodes);
 
+            // A deleted project code can't be picked for something new. (A page can still bind its
+            // own list instead, e.g. Create Timesheet's codes worked in a week, deleted or not.)
+            DataSource = projectCodes!.Active;
+            Text = "";
+
             // The text shown includes the customer's name, so redraw when a customer is renamed.
             _customers.All.ListChanged += (s, e) => RefreshDisplayText();
         }

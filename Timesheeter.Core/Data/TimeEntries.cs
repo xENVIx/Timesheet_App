@@ -21,7 +21,10 @@ namespace Timesheeter.Core.Data
             }
         }
 
-        public class TimeEntry : IValidatableObject
+        // Deleted time entries are left out of the app completely, the timesheet included.
+        protected override bool KeepsDeleted => false;
+
+        public class TimeEntry : IValidatableObject, ISoftDeletable
         {
 
             [PrimaryKey, GridHidden] public long ID { get; set; }
@@ -65,37 +68,15 @@ namespace Timesheeter.Core.Data
         {
             _dataStore.EnsureTable<TimeEntry>();
 
-            // Deleted entries stay in the database but are never loaded, so every grid, combo box
-            // and timesheet built from this list leaves them out without filtering for them.
+            // Deleted entries stay in the database but are never loaded (see KeepsDeleted), so every
+            // grid, combo box and timesheet built from these lists leaves them out.
             foreach (var timeEntry in _dataStore.All<TimeEntry>())
             {
-                if (!timeEntry.Deleted) _list.Add(timeEntry);
+                AddLoaded(timeEntry);
             }
 
             // Entries are always shown newest first, by date then start time.
-            _list.Sort = "Date desc, TimeStart desc";
-        }
-
-        /// <summary>
-        /// Marks the entry deleted in the database (the row is kept) and removes it from the list,
-        /// which takes it out of everything in the app.
-        /// </summary>
-        public bool Delete(TimeEntry entry)
-        {
-            entry.Deleted = true;
-
-            bool saved;
-            try { saved = _dataStore.Update(entry); }
-            catch (Exception ex) { Console.WriteLine($"Exception: {ex.Message}"); saved = false; }
-
-            if (!saved)
-            {
-                entry.Deleted = false;
-                return false;
-            }
-
-            _list.Remove(entry);
-            return true;
+            SetSort("Date desc, TimeStart desc");
         }
 
 

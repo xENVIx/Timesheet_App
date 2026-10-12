@@ -28,10 +28,11 @@ namespace Timesheeter.Core.Data
         //private BindingList<Customer> _list = new BindingList<Customer>();
 
 
-        public class Customer
+        public class Customer : ISoftDeletable
         {
             [PrimaryKey, GridHidden] public long ID { get; set; }
             [Required, Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;
+            [DisplayName("Deleted"), GridHidden] public bool Deleted { get; set; } = false;
 
         }
 
@@ -42,7 +43,7 @@ namespace Timesheeter.Core.Data
 
             foreach (var customer in _dataStore.All<Customer>())
             {
-                _list.Add(customer);
+                AddLoaded(customer);
             }
         }
 

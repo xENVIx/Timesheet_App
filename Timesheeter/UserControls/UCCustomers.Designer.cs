@@ -32,6 +32,7 @@
             _custDgv = new Timesheeter.Elements.CustomersDataGridView();
             _tbCustName = new TextBox();
             label1 = new Label();
+            _deleteBar = new Timesheeter.Elements.DeleteRecordsBar();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
@@ -53,6 +54,7 @@
             // _pnlGrid
             // 
             _pnlGrid.Controls.Add(_custDgv);
+            _pnlGrid.Controls.Add(_deleteBar);
             _pnlGrid.Size = new Size(481, 403);
             // 
             // _btnSave
@@ -72,7 +74,7 @@
             _custDgv.Dock = DockStyle.Fill;
             _custDgv.Location = new Point(0, 0);
             _custDgv.Name = "_custDgv";
-            _custDgv.Size = new Size(481, 403);
+            _custDgv.Size = new Size(481, 374);
             _custDgv.TabIndex = 3;
             // 
             // _tbCustName
@@ -90,6 +92,14 @@
             label1.Size = new Size(94, 15);
             label1.TabIndex = 7;
             label1.Text = "Customer Name";
+            // 
+            // _deleteBar
+            // 
+            _deleteBar.Dock = DockStyle.Bottom;
+            _deleteBar.Location = new Point(0, 374);
+            _deleteBar.Name = "_deleteBar";
+            _deleteBar.Size = new Size(481, 29);
+            _deleteBar.TabIndex = 4;
             // 
             // UCCustomers
             // 
@@ -110,5 +120,6 @@
         private Elements.CustomersDataGridView _custDgv;
         private Label label1;
         private TextBox _tbCustName;
+        private Elements.DeleteRecordsBar _deleteBar;
     }
 }
