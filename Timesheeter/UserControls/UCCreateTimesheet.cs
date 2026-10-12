@@ -131,7 +131,10 @@ namespace Timesheeter.UserControls
         // select week
         // select project code
 
-        private void ShowSelectedWeek()
+        // The grid takes its rows away, refills, then brings the new rows in.
+        private void ShowSelectedWeek() => _dgvTimeEntries.AnimateChange(FillWeekEntries);
+
+        private void FillWeekEntries()
         {
             _weekEntries.Clear();
 
