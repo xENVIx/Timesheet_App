@@ -24,7 +24,11 @@ namespace Timesheeter.Lib
         }
 
         /// <summary>The colours to fade to or from (Theme.Apply styles hidden controls too).</summary>
-        private readonly record struct Colors(Color Back, Color Fore, Color? Border);
+        /// <remarks>
+        /// A flat button paints MouseOverBackColor / MouseDownBackColor instead of BackColor while the
+        /// mouse is over it, e.g. a Cancel button fading out right after it was clicked, so those fade too.
+        /// </remarks>
+        private readonly record struct Colors(Color Back, Color Fore, Color? Border, Color? MouseOver, Color? MouseDown);
 
         /// <summary>Makes <paramref name="control"/> visible and fades it in from its parent's background.</summary>
         public static void In(Control control)
@@ -57,8 +61,11 @@ namespace Timesheeter.Lib
             });
         }
 
-        private static Colors Capture(Control control) =>
-            new(control.BackColor, control.ForeColor, (control as ButtonBase)?.FlatAppearance.BorderColor);
+        private static Colors Capture(Control control)
+        {
+            var flat = (control as ButtonBase)?.FlatAppearance;
+            return new(control.BackColor, control.ForeColor, flat?.BorderColor, flat?.MouseOverBackColor, flat?.MouseDownBackColor);
+        }
 
         /// <summary>Sets the colours <paramref name="amount"/> (0-1) of the way from the parent's background to <paramref name="themed"/>.</summary>
         private static void Apply(Control control, Colors themed, double amount)
@@ -68,11 +75,17 @@ namespace Timesheeter.Lib
             control.BackColor = Theme.Blend(from, themed.Back, amount);
             control.ForeColor = Theme.Blend(from, themed.Fore, amount);
 
-            if (control is ButtonBase button && themed.Border is Color border)
+            if (control is ButtonBase button)
             {
-                button.FlatAppearance.BorderColor = border.IsEmpty || amount >= 1
-                    ? border
-                    : Theme.Blend(from, border, amount);
+                // Empty means "use the default", which can't be blended; leave those as they are.
+                Color? Blended(Color? themedColor) => themedColor is Color c && !c.IsEmpty && amount < 1
+                    ? Theme.Blend(from, c, amount)
+                    : themedColor;
+
+                var flat = button.FlatAppearance;
+                if (Blended(themed.Border) is Color border) flat.BorderColor = border;
+                if (Blended(themed.MouseOver) is Color mouseOver) flat.MouseOverBackColor = mouseOver;
+                if (Blended(themed.MouseDown) is Color mouseDown) flat.MouseDownBackColor = mouseDown;
             }
         }
 
