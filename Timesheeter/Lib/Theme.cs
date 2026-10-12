@@ -76,17 +76,17 @@ namespace Timesheeter.Lib
         // Declared before Current: static fields initialize in file order, and Current's palette
         // reads these. Below it they were still Color.Empty when the palette was built, which the
         // designer (where Theme.Set never runs) passed on to DateTimePicker and it threw.
-        private static readonly Color Grey50 = Color.FromArgb(250, 250, 250);
-        private static readonly Color Grey100 = Color.FromArgb(244, 244, 245);
-        private static readonly Color Grey200 = Color.FromArgb(228, 228, 231);
-        private static readonly Color Grey300 = Color.FromArgb(212, 212, 216);
-        private static readonly Color Grey400 = Color.FromArgb(161, 161, 170);
-        private static readonly Color Grey500 = Color.FromArgb(113, 113, 122);
-        private static readonly Color Grey600 = Color.FromArgb(82, 82, 91);
-        private static readonly Color Grey800 = Color.FromArgb(39, 39, 42);
-        private static readonly Color Grey850 = Color.FromArgb(31, 31, 35);
-        private static readonly Color Grey900 = Color.FromArgb(24, 24, 27);
-        private static readonly Color Grey950 = Color.FromArgb(17, 17, 19);
+        private static readonly Color Gray50 = Color.FromArgb(250, 250, 250);
+        private static readonly Color Gray100 = Color.FromArgb(244, 244, 245);
+        private static readonly Color Gray200 = Color.FromArgb(228, 228, 231);
+        private static readonly Color Gray300 = Color.FromArgb(212, 212, 216);
+        private static readonly Color Gray400 = Color.FromArgb(161, 161, 170);
+        private static readonly Color Gray500 = Color.FromArgb(113, 113, 122);
+        private static readonly Color Gray600 = Color.FromArgb(82, 82, 91);
+        private static readonly Color Gray800 = Color.FromArgb(39, 39, 42);
+        private static readonly Color Gray850 = Color.FromArgb(31, 31, 35);
+        private static readonly Color Gray900 = Color.FromArgb(24, 24, 27);
+        private static readonly Color Gray950 = Color.FromArgb(17, 17, 19);
 
         /// <summary>Accent presets offered in Settings: deep enough for white text. Any other color works too.</summary>
         public static readonly IReadOnlyList<(string Name, Color Color)> AccentPresets =
@@ -435,35 +435,35 @@ namespace Timesheeter.Lib
 
         private static ThemePalette BuildPalette(ThemeMode mode, Color accent)
         {
-            Color accentText = Luminance(accent) > 0.45 ? Grey900 : Color.White;
+            Color accentText = Luminance(accent) > 0.45 ? Gray900 : Color.White;
 
             if (mode == ThemeMode.Dark)
             {
                 return new ThemePalette
                 {
                     IsDark = true,
-                    Window = Grey900,
-                    Sidebar = Grey850,
-                    Text = Grey200,
-                    MutedText = Grey400,
-                    Border = Grey800,
+                    Window = Gray900,
+                    Sidebar = Gray850,
+                    Text = Gray200,
+                    MutedText = Gray400,
+                    Border = Gray800,
 
-                    Navigation = Grey950,
-                    NavigationText = Grey400,
-                    NavigationHover = Grey850,
-                    NavigationActive = Blend(Grey950, accent, 0.22),
+                    Navigation = Gray950,
+                    NavigationText = Gray400,
+                    NavigationHover = Gray850,
+                    NavigationActive = Blend(Gray950, accent, 0.22),
                     NavigationActiveText = Color.White,
 
-                    InputBack = Grey800,
-                    InputText = Grey100,
+                    InputBack = Gray800,
+                    InputText = Gray100,
 
-                    GridBack = Grey900,
-                    GridAlternateRow = Blend(Grey900, Grey850, 0.6),
-                    GridLines = Grey800,
-                    GridHeaderBack = Grey850,
-                    GridHeaderText = Grey400,
-                    GridHighlight = Grey850,
-                    GridSelection = Blend(Grey900, accent, 0.35),
+                    GridBack = Gray900,
+                    GridAlternateRow = Blend(Gray900, Gray850, 0.6),
+                    GridLines = Gray800,
+                    GridHeaderBack = Gray850,
+                    GridHeaderText = Gray400,
+                    GridHighlight = Gray850,
+                    GridSelection = Blend(Gray900, accent, 0.35),
 
                     Accent = accent,
                     AccentText = accentText,
@@ -477,27 +477,27 @@ namespace Timesheeter.Lib
             return new ThemePalette
             {
                 IsDark = false,
-                Window = Grey100,
+                Window = Gray100,
                 Sidebar = Color.White,
-                Text = Grey900,
-                MutedText = Grey500,
-                Border = Grey200,
+                Text = Gray900,
+                MutedText = Gray500,
+                Border = Gray200,
 
-                Navigation = darkNavigation ? Grey900 : Grey50,
-                NavigationText = darkNavigation ? Grey300 : Grey600,
-                NavigationHover = darkNavigation ? Grey800 : Grey100,
-                NavigationActive = darkNavigation ? Blend(Grey900, accent, 0.25) : Blend(Color.White, accent, 0.12),
+                Navigation = darkNavigation ? Gray900 : Gray50,
+                NavigationText = darkNavigation ? Gray300 : Gray600,
+                NavigationHover = darkNavigation ? Gray800 : Gray100,
+                NavigationActive = darkNavigation ? Blend(Gray900, accent, 0.25) : Blend(Color.White, accent, 0.12),
                 NavigationActiveText = darkNavigation ? Color.White : Blend(accent, Color.Black, 0.2),
 
                 InputBack = Color.White,
-                InputText = Grey900,
+                InputText = Gray900,
 
                 GridBack = Color.White,
-                GridAlternateRow = Grey50,
-                GridLines = Grey100,
-                GridHeaderBack = Grey100,
-                GridHeaderText = Grey600,
-                GridHighlight = Grey100,
+                GridAlternateRow = Gray50,
+                GridLines = Gray100,
+                GridHeaderBack = Gray100,
+                GridHeaderText = Gray600,
+                GridHighlight = Gray100,
                 GridSelection = Blend(Color.White, accent, 0.14),
 
                 Accent = accent,
