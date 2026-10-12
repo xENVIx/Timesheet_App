@@ -21,12 +21,15 @@ namespace Timesheeter
         private readonly System.Windows.Forms.Timer _timer;
 
 
+        /// <summary>Where the database and its backups live (also shown on the About screen).</summary>
+        internal static readonly String DataFolder =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Timersheeter");
+
         internal Factory()
         {
 
 
-            String documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            String timeSheeterPath = Path.Combine(documentsPath, "Timersheeter");
+            String timeSheeterPath = DataFolder;
 
             if (!Directory.Exists(timeSheeterPath))
             {
