@@ -73,8 +73,8 @@ namespace Timesheeter.Elements
             // reload / re-sort runs just after the edit has finished.
             if (!_data.Update(item))
             {
-                // E.g. renamed to a deleted record's name: merge into that record instead.
-                var merge = MergeOntoDeleted(item);
+                // E.g. renamed to another record's unique name: merge into that record instead.
+                var merge = MergeOnRename(item);
                 if (merge != null)
                 {
                     string from = $"{_valueBeforeEdit}";
@@ -110,10 +110,11 @@ namespace Timesheeter.Elements
         }
 
         /// <summary>
-        /// When an edit can't be saved because it gives <paramref name="item"/> the unique name of a
-        /// deleted record, returns the merge that resolves it (run after the edit ends); otherwise null.
+        /// When an edit can't be saved because it gives <paramref name="item"/> another record's unique
+        /// name (deleted or not), returns the merge that resolves it (asked about, then run after the
+        /// edit ends); otherwise null.
         /// </summary>
-        protected virtual Func<bool>? MergeOntoDeleted(T item) => null;
+        protected virtual Func<bool>? MergeOnRename(T item) => null;
 
         protected override void OnColumnAdded(DataGridViewColumnEventArgs e)
         {

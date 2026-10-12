@@ -50,22 +50,22 @@ namespace Timesheeter.Core.Data
             }
         }
 
-        /// <summary>The deleted project code with this code, other than <paramref name="except"/>.</summary>
-        public ProjectCode? GetDeletedByCode(String projCode, ProjectCode? except = null)
+        /// <summary>The project code with this code (deleted or not), other than <paramref name="except"/>.</summary>
+        public ProjectCode? GetOtherByCode(String projCode, ProjectCode? except)
         {
-            return _list.Unfiltered.FirstOrDefault(code => code != except && code.Deleted &&
+            return _list.Unfiltered.FirstOrDefault(code => code != except &&
                 String.Compare(code.Code, projCode.Trim(), StringComparison.InvariantCultureIgnoreCase) == 0);
         }
 
         /// <summary>
-        /// <paramref name="renamed"/> was given a deleted project code's code: that project code comes
-        /// back, time entries (deleted ones too) move over to it, and <paramref name="renamed"/> is
-        /// deleted under its old code.
+        /// <paramref name="renamed"/> was given another project code's code: that project code is kept
+        /// (brought back if deleted), time entries (deleted ones too) move over to it, and
+        /// <paramref name="renamed"/> is deleted under its old code.
         /// </summary>
-        public bool MergeRenamedIntoDeleted(ProjectCode renamed, TimeEntries timeEntries)
+        public bool MergeRenamed(ProjectCode renamed, TimeEntries timeEntries)
         {
-            var target = GetDeletedByCode(renamed.Code, renamed);
-            return target != null && MergeIntoDeleted(renamed, target, timeEntries, nameof(TimeEntries.TimeEntry.ProjectCodeID));
+            var target = GetOtherByCode(renamed.Code, renamed);
+            return target != null && MergeInto(renamed, target, timeEntries, nameof(TimeEntries.TimeEntry.ProjectCodeID));
         }
 
         /// <summary>The project code with this code (ignoring case), deleted or not.</summary>

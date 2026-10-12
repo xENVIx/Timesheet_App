@@ -15,13 +15,13 @@ namespace Timesheeter.Elements
 
         }
 
-        // Renamed to a deleted customer's name: that customer comes back and takes over this one's
-        // project codes, and this one is deleted (keeping its old name).
-        protected override Func<bool>? MergeOntoDeleted(Customers.Customer item)
+        // Renamed to another customer's name (deleted or not): that customer is kept (brought back if
+        // deleted) and takes over this one's project codes, and this one is deleted (keeping its old name).
+        protected override Func<bool>? MergeOnRename(Customers.Customer item)
         {
             if (_data is not Customers customers || _factory?.GetData<ProjectCodes>() is not ProjectCodes projectCodes) return null;
-            if (customers.GetDeletedByName(item.Name, item) == null) return null;
-            return () => customers.MergeRenamedIntoDeleted(item, projectCodes);
+            if (customers.GetOtherByName(item.Name, item) == null) return null;
+            return () => customers.MergeRenamed(item, projectCodes);
         }
 
 

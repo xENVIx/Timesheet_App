@@ -138,13 +138,13 @@ namespace Timesheeter.Core.Data
         }
 
         /// <summary>
-        /// For an item renamed to the name of the deleted item <paramref name="target"/> (which a unique
-        /// name won't allow): brings <paramref name="target"/> back, moves everything referring to the
-        /// renamed item over to it (<paramref name="referenceProperty"/> of <typeparamref name="TRef"/>,
-        /// in the database, deleted rows included, and in memory), and deletes the renamed item with its
-        /// name from before the rename. All or nothing.
+        /// For an item renamed to the unique name of <paramref name="target"/> (deleted or not, which the
+        /// unique name won't allow): <paramref name="target"/> is kept (brought back if deleted),
+        /// everything referring to the renamed item moves over to it (<paramref name="referenceProperty"/>
+        /// of <typeparamref name="TRef"/>, in the database, deleted rows included, and in memory), and the
+        /// renamed item is deleted with its name from before the rename. All or nothing.
         /// </summary>
-        protected bool MergeIntoDeleted<TRef>(T renamed, T target, DataClass<TRef> references, string referenceProperty)
+        protected bool MergeInto<TRef>(T renamed, T target, DataClass<TRef> references, string referenceProperty)
             where TRef : class
         {
             var idProperty = typeof(T).GetProperty("ID")!;
@@ -158,6 +158,7 @@ namespace Timesheeter.Core.Data
             var refProperty = typeof(TRef).GetProperty(referenceProperty)!;
             string refTable = typeof(TRef).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(TRef).Name;
 
+            bool targetWasDeleted = targetDeletable.Deleted;
             originalDeletable.Deleted = true;
             targetDeletable.Deleted = false;
             try
@@ -174,7 +175,7 @@ namespace Timesheeter.Core.Data
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception: {ex.Message}");
-                targetDeletable.Deleted = true;
+                targetDeletable.Deleted = targetWasDeleted;
                 return false;
             }
 
