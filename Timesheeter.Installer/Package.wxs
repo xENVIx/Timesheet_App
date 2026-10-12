@@ -57,7 +57,9 @@
     <!-- Everything dotnet publish produced (the app plus .NET itself). -->
     <ComponentGroup Id="AppFiles" Directory="APPLICATIONFOLDER">
       <Component>
-        <File Id="TimesheeterExe" Source="!(bindpath.App)Timesheeter.exe" KeyPath="yes" />
+        <!-- Name given explicitly: without it, WiX names the file after the Source text as written,
+             bind path and all ("!(bindpath.App)Timesheeter.exe"). -->
+        <File Id="TimesheeterExe" Name="Timesheeter.exe" Source="!(bindpath.App)Timesheeter.exe" KeyPath="yes" />
       </Component>
       <Files Include="!(bindpath.App)**">
         <Exclude Files="!(bindpath.App)Timesheeter.exe" />
