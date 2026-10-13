@@ -223,44 +223,32 @@ namespace Timesheeter.Server
             {
                 if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
 
-                if (data is IData iData)
-                {
+                
 
-                    try
-                    {
-                        //return store.Update(customer) ? Results.Ok(customer) : Results.NotFound();
-                        store.Insert(data);
-                    }
-                    catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
-                    {
-                        return Results.Conflict(ConflictMessage<T>(ex));
-                    }
-                    return Results.Created($"{endpoint}/{iData.ID}", data);
-
-                }
-                else
+                try
                 {
-                    return Results.NotFound($"Invalid Data Type: {typeof(T)}");
+                    //return store.Update(customer) ? Results.Ok(customer) : Results.NotFound();
+                    store.Insert(data);
                 }
+                catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
+                {
+                    return Results.Conflict(ConflictMessage<T>(ex));
+                }
+                return Results.Created($"{endpoint}/{data.ID}", data);
+
+                
             });
 
 
             mapGroup.MapPut("/{id:long}", (long id, T data, SqliteStore store) =>
             {
-                if (data is IData iData)
-                {
 
-                    iData.ID = id;
-                    if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
-                    try { return store.Update(data) ? Results.Ok(data) : Results.NotFound(); }
-                    catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
-                    {
-                        return Results.Conflict(ConflictMessage<T>(ex));
-                    }
-                }
-                else
+                data.ID = id;
+                if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
+                try { return store.Update(data) ? Results.Ok(data) : Results.NotFound(); }
+                catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
                 {
-                    return Results.NotFound($"Invalid Data Type: {typeof(T)}");
+                    return Results.Conflict(ConflictMessage<T>(ex));
                 }
             });
 
