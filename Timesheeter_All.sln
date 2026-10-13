@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timesheeter.Server", "Times
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLogging", "LibLogging\LibLogging.csproj", "{3E10B806-A6CE-03ED-AFF3-9F0AA40C8A78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timesheeter.DbConversion", "Timesheeter.DbConversion\Timesheeter.DbConversion.csproj", "{FB9255C8-3C93-134A-70DC-C024C3969FF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{3E10B806-A6CE-03ED-AFF3-9F0AA40C8A78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E10B806-A6CE-03ED-AFF3-9F0AA40C8A78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E10B806-A6CE-03ED-AFF3-9F0AA40C8A78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB9255C8-3C93-134A-70DC-C024C3969FF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB9255C8-3C93-134A-70DC-C024C3969FF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB9255C8-3C93-134A-70DC-C024C3969FF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB9255C8-3C93-134A-70DC-C024C3969FF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

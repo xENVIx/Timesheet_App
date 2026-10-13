@@ -10,10 +10,12 @@
     <ApplicationIcon>Resources\Timesheeter.ico</ApplicationIcon>
     <!-- The app's version; the installer (Timesheeter.Installer) takes its version from here too.
          Bump it for each release so a new installer upgrades the installed app. -->
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <!-- Shown in the exe's Properties > Details. -->
     <Company>WeissLab</Company>
     <Product>Timesheeter</Product>
+    <Title>Timesheeter</Title>
+    <Description>Timesheeting App to help keep track of worked hours.</Description>
   </PropertyGroup>
 
   <ItemGroup>
