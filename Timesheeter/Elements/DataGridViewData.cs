@@ -116,6 +116,41 @@ namespace Timesheeter.Elements
         /// </summary>
         protected virtual Func<bool>? MergeOnRename(T item) => null;
 
+        // The record's properties in the order they're declared in its class.
+        private static readonly List<string> PropertyOrder = typeof(T).GetProperties()
+            .OrderBy(p => p.MetadataToken)
+            .Select(p => p.Name)
+            .ToList();
+
+        protected override void OnDataBindingComplete(DataGridViewBindingCompleteEventArgs e)
+        {
+            base.OnDataBindingComplete(e);
+            ApplyColumnOrder();
+        }
+
+        /// <summary>
+        /// Shows the columns in the order their properties are declared in the record class, with
+        /// unbound columns (e.g. the delete checkboxes) last. Columns are created at different times
+        /// (lookup columns before binding, the rest when the grid is first shown, extra columns later),
+        /// which otherwise leaves them out of order.
+        /// </summary>
+        private void ApplyColumnOrder()
+        {
+            var ordered = Columns.Cast<DataGridViewColumn>()
+                .OrderBy(column =>
+                {
+                    int index = PropertyOrder.IndexOf(column.DataPropertyName);
+                    return index < 0 ? int.MaxValue : index;
+                })
+                .ThenBy(column => column.Index)
+                .ToList();
+
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                ordered[i].DisplayIndex = i;
+            }
+        }
+
         protected override void OnColumnAdded(DataGridViewColumnEventArgs e)
         {
             // Runs for auto-generated columns too, including when the grid rebinds.
