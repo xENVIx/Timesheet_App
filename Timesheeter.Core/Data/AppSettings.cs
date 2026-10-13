@@ -4,6 +4,7 @@ using System.Text;
 
 using LibSqlLite;
 using System.Drawing;
+using Microsoft.Extensions.Logging;
 
 namespace Timesheeter.Core.Data
 {
@@ -30,12 +31,13 @@ namespace Timesheeter.Core.Data
 
         private readonly SqliteStore _dataStore;
         private readonly Setting _setting;
-
-        public AppSettings(SqliteStore dataStore)
+        private ILogger? _logger;
+        public AppSettings(SqliteStore dataStore, ILogger? logger)
         {
             _dataStore = dataStore;
             _dataStore.EnsureTable<Setting>();
             _setting = _dataStore.Get<Setting>(SettingsId) ?? new Setting { Id = SettingsId };
+            _logger = logger;
         }
 
         public ThemeMode ThemeMode

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 using LibSqlLite;
+using Microsoft.Extensions.Logging;
 
 namespace Timesheeter.Core.Data
 {
@@ -37,7 +38,7 @@ namespace Timesheeter.Core.Data
         }
 
 
-        public Customers(SqliteStore dataStore) : base(dataStore) 
+        public Customers(SqliteStore dataStore, ILogger? logger) : base(dataStore, logger) 
         {
             _dataStore.EnsureTable<Customer>();
 

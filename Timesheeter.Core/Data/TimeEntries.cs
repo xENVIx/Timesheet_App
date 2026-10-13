@@ -1,4 +1,5 @@
 ﻿using LibSqlLite;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -64,7 +65,7 @@ namespace Timesheeter.Core.Data
         }
 
 
-        public TimeEntries(SqliteStore dataStore) : base(dataStore)
+        public TimeEntries(SqliteStore dataStore, ILogger? logger) : base(dataStore, logger)
         {
             _dataStore.EnsureTable<TimeEntry>();
 

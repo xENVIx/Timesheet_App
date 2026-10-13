@@ -1,4 +1,5 @@
 ﻿using LibSqlLite;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,16 +17,21 @@ namespace Timesheeter.Core.Data
         IBindingList Active { get; }
     }
 
+    
+
     public abstract class DataClass<T> : IDataClass where T : class
     {
 
+        protected ILogger? _logger { get; private set; }
+
         protected SqliteStore _dataStore;
 
-        public DataClass(SqliteStore dataStore)
+        public DataClass(SqliteStore dataStore, ILogger? logger)
         {
             _dataStore = dataStore;
             _list = new BindingListView<T>();
             _active = new BindingListView<T>();
+            _logger = logger;
 
             // The active list holds the same items; the filter hides the deleted ones.
             if (typeof(ISoftDeletable).IsAssignableFrom(typeof(T))) _active.Filter = "Deleted = false";

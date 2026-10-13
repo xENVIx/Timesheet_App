@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibLogging;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -19,14 +20,22 @@ namespace Timesheeter
 
         private DataFactory _dataFactory;
         private readonly System.Windows.Forms.Timer _timer;
+        private CancellationTokenSource _cts;
 
-
+        private readonly Logger _logger;
         /// <summary>Where the database and its backups live (also shown on the About screen).</summary>
         internal static readonly String DataFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Timersheeter");
 
         internal Factory()
         {
+
+            _cts = new CancellationTokenSource();
+            _logger = new LibLogging.Logger(
+                "Timesheeter",
+                Microsoft.Extensions.Logging.LogLevel.Trace,
+                _cts.Token,
+                true);
 
 
             String timeSheeterPath = DataFolder;
@@ -135,7 +144,7 @@ namespace Timesheeter
 
         internal void Run(Forms.FrmSplash? splash = null)
         {
-            var ui = new UserInterface(_dataFactory);
+            var ui = new UserInterface(_dataFactory, _logger);
             splash?.CloseWhenShown(ui);
 
             Application.Run(ui);

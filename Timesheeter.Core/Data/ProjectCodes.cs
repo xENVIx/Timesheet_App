@@ -1,10 +1,10 @@
-﻿using System;
+﻿using LibSqlLite;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-
-using LibSqlLite;
 
 namespace Timesheeter.Core.Data
 {
@@ -40,7 +40,7 @@ namespace Timesheeter.Core.Data
         }
 
 
-        public ProjectCodes(SqliteStore dataStore) : base(dataStore)
+        public ProjectCodes(SqliteStore dataStore, ILogger? logger) : base(dataStore, logger)
         {
             _dataStore.EnsureTable<ProjectCode>();
 

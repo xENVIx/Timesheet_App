@@ -1,5 +1,6 @@
 ﻿using Timesheeter.Lib;
 using Timesheeter.Core.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Timesheeter
 {
@@ -8,10 +9,12 @@ namespace Timesheeter
 
 
         private IDataFactory _factory;
-        public UserInterface(IDataFactory factory)
+        private ILogger? _logger;
+        public UserInterface(IDataFactory factory, ILogger? logger)
         {
             InitializeComponent();
             _factory = factory;
+            _logger = logger;
 
             using (var iconStream = typeof(UserInterface).Assembly.GetManifestResourceStream("Timesheeter.ico"))
             {
