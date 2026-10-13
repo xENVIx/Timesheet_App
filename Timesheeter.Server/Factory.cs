@@ -145,6 +145,25 @@ namespace Timesheeter.Server
                 _app.UseSwaggerUI();
             }
 
+            try
+            {
+                InitializeCustomersEndpoint();
+                InitializeProjectCodesEndpoint();
+                InitializeTimeEntriesEndpoint();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Exception Initializing Endpoint: {ex.Message}");
+                throw;
+            }
+
+            _initialized = true;
+        }
+
+
+        private void InitializeCustomersEndpoint()
+        {
+            if (_app == null) throw new ArgumentNullException(nameof(_app));
 
             var customers = _app.MapGroup("/api/customers");
             customers.MapGet("/", (SqliteStore store) => store.All<Customers.Customer>());
@@ -157,52 +176,37 @@ namespace Timesheeter.Server
 
                 try
                 {
-                    return store.Update(customer) ? Results.Ok(customer) : Results.NotFound();
+                    //return store.Update(customer) ? Results.Ok(customer) : Results.NotFound();
+                    store.Insert(customer);
                 }
                 catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
                 {
                     return Results.Conflict($"A customer named \'{customer.Name}\' already exists.");
                 }
+                return Results.Created($"/api/customers/{customer.ID}", customer);
             });
 
-            /* this is obviously wrong...?
-            _app.MapGet("/customer", (HttpContext httpContext) =>
+
+            customers.MapPut("/{id:long}", (long id, Customers.Customer customer, SqliteStore store) =>
             {
-                var customer = Enumerable.Range(1, 5).Select(index =>
+                customer.ID = id;
+                if (!IsValid(customer, out var errors)) return Results.ValidationProblem(errors);
+                try { return store.Update(customer) ? Results.Ok(customer) : Results.NotFound(); }
+                catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
                 {
-
-                })
+                    return Results.Conflict($"A customer named \'{customer.Name}\' already exists.");
+                }
             });
-            */
+        }
 
+        private void InitializeProjectCodesEndpoint()
+        {
 
-            /*
-            _app.UseHttpsRedirection();
+        }
 
-            _app.UseAuthorization();
+        private void InitializeTimeEntriesEndpoint()
+        {
 
-            var summaries = new[]
-            {
-                "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-            };
-
-            _app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-            {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                    new WeatherForecast
-                    {
-                        Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                        TemperatureC = Random.Shared.Next(-20, 55),
-                        Summary = summaries[Random.Shared.Next(summaries.Length)]
-                    })
-                    .ToArray();
-                return forecast;
-            })
-            .WithName("GetWeatherForecast")
-            .WithOpenApi();
-            */
-
-            _initialized = true;
         }
 
         private static bool IsValid(Object item, out Dictionary<String, String[]> errors)
