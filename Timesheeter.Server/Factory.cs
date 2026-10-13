@@ -1,4 +1,5 @@
 ﻿using LibLogging;
+using LibSqlLite;
 using Timesheeter.Core.Data;
 
 namespace Timesheeter.Server
@@ -143,6 +144,25 @@ namespace Timesheeter.Server
             }
 
 
+            var customers = _app.MapGroup("/api/customers");
+            customers.MapGet("/", (SqliteStore store) => store.All<Customers.Customer>());
+            customers.MapGet("{id:long}", (long id, SqliteStore store) =>
+                store.Get<Customers.Customer>(id) is { } customer ? Results.Ok(customer) : Results.NotFound());
+
+            customers.MapPost("/", (Customers.Customer customer, LibSqlLite.SqliteStore store) =>
+            {
+                if (!IsValid(customer, out var errors)) return Results.ValidationProblem(errors);
+
+                try
+                {
+                    return store.Update(customer) ? Results.Ok(customer) : Results.NotFound();
+                }
+                catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
+                {
+                    return Results.Conflict($"A customer named \'{customer.Name}\' already exists.");
+                }
+            });
+
             /* this is obviously wrong...?
             _app.MapGet("/customer", (HttpContext httpContext) =>
             {
@@ -181,6 +201,17 @@ namespace Timesheeter.Server
             */
 
             _initialized = true;
+        }
+
+        private static bool IsValid(Object item, out Dictionary<String, String[]> errors)
+        {
+            var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+            bool valid = System.ComponentModel.DataAnnotations.Validator.TryValidateObject(
+                item, new System.ComponentModel.DataAnnotations.ValidationContext(item), results, validateAllProperties: true);
+            errors = results.GroupBy(r => r.MemberNames.FirstOrDefault() ?? "")
+                .ToDictionary(g => g.Key, g => g.Select(r => r.ErrorMessage ?? "Invalid value.").ToArray());
+
+            return valid;
         }
 
 
