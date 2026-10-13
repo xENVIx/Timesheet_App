@@ -53,6 +53,17 @@ namespace Timesheeter
             // Checked before opening: opening creates the file, and a brand new database needs no backup.
             bool existingDatabase = File.Exists(dbFile);
 
+            // An older database lacks the foreign keys the records now declare ([References]); this
+            // rebuilds it with them, keeping all data and the original file as a backup.
+            var rebuild = LibSqlLite.SqliteRebuilder.RebuildIfNeeded(dbFile, _logger, StoredTypes.App);
+            if (rebuild.Problems.Count > 0)
+            {
+                MessageBox.Show(
+                    "Timesheeter couldn't upgrade its database, so it will keep using it as it is.\n\n" +
+                    string.Join("\n", rebuild.Problems.Take(10)),
+                    "Database upgrade", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
             _store = new LibSqlLite.SqliteStore(dbFile, _logger);
 
             // make a backup if the file already existed...

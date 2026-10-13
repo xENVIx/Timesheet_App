@@ -45,8 +45,10 @@ namespace Timesheeter.Server
             // Checked before opening: opening creates the file, and a brand new database needs no backup.
             bool existingDatabase = File.Exists(dbFile);
 
-            
-
+            // An older database lacks the foreign keys the records now declare ([References]); this
+            // rebuilds it with them, keeping all data and the original file as a backup.
+            var rebuild = SqliteRebuilder.RebuildIfNeeded(dbFile, _logger, StoredTypes.Data);
+            foreach (var problem in rebuild.Problems) _logger.Warn($"Database not upgraded: {problem}");
 
             _store = new LibSqlLite.SqliteStore(dbFile, _logger);
 
@@ -263,6 +265,10 @@ namespace Timesheeter.Server
         private static string ConflictMessage<T>(Microsoft.Data.Sqlite.SqliteException ex)
         {
             string type = typeof(T).Name;
+
+            // SQLite's foreign key error names no column: "FOREIGN KEY constraint failed".
+            if (ex.Message.Contains("FOREIGN KEY constraint failed", StringComparison.OrdinalIgnoreCase))
+                return $"The {type} refers to a record that doesn't exist.";
 
             // SQLite's text, e.g. "SQLite Error 19: 'UNIQUE constraint failed: Customer.Name'."
             var match = System.Text.RegularExpressions.Regex.Match(ex.Message, @"(\w+) constraint failed: ([^']+)");

@@ -34,7 +34,7 @@ namespace Timesheeter.Core.Data
             [Required, DisplayName("Entry Date")] public DateOnly Date { get; set; }
             [Required, DisplayName("Entry Start Time")] public TimeOnly TimeStart { get; set; }
             [Required, DisplayName("Entry End Time")] public TimeOnly TimeEnd { get; set; }
-            [Required, DisplayName("Project Code"), GridLookup(typeof(ProjectCodes), "Code")] public long ProjectCodeID { get; set; }
+            [Required, DisplayName("Project Code"), GridLookup(typeof(ProjectCodes), "Code"), References(typeof(ProjectCodes.ProjectCode))] public long ProjectCodeID { get; set; }
             [DisplayName("Comment")] public String Comment { get; set; } = String.Empty;
             [DisplayName("Deleted"), GridHidden] public bool Deleted { get; set; } = false;
 

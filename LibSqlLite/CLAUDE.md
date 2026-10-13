@@ -1,4 +1,4 @@
-# LibSqlLite
+﻿# LibSqlLite
 
 A small, reusable C# class library that lets any app persist plain C# classes to a local SQLite database **without hand-writing table definitions or column lists**. The C# class is the schema. Tables are created from classes via reflection, new properties become new columns automatically, and CRUD operations are generic.
 
@@ -156,6 +156,8 @@ All in namespace `LibSqlLite`:
 - `[Ignore]`: property-level, excludes from storage
 - `[PrimaryKey]`: property-level, marks the key when it isn't named `Id`
 - `[Unique]` / `[Unique(IgnoreCase = true)]`: property-level, creates `UX_{Table}_{Column}` via `CREATE UNIQUE INDEX IF NOT EXISTS` (with `COLLATE NOCASE` when `IgnoreCase`). Ignored on the key. Created in `EnsureTable` after columns are added, so it also applies to existing tables; it's never dropped or altered afterwards.
+
+- `[References(typeof(Other))]`: property-level, a real foreign key (`REFERENCES [OtherTable]([OtherKey])` in `CREATE TABLE`) to `Other`'s primary key. `EnsureTable` creates the referenced table first. SQLite can't add a foreign key to an existing table, so existing databases are upgraded by `SqliteRebuilder.RebuildIfNeeded(path, logger, types)` before the store opens: it builds a new file from the current classes, copies every row across (keys and AUTOINCREMENT counters kept, extra tables copied as they are), runs `PRAGMA foreign_key_check`, and only then swaps it in, keeping the original as `<db>.before-rebuild-<timestamp>.bak`. Any orphan row or duplicate leaves the original untouched and is reported in `RebuildResult.Problems`.
 
 Keep attributes as the only customization mechanism in v1. No fluent configuration.
 
