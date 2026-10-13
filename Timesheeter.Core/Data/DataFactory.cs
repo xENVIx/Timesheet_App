@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using LibLogging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,11 @@ namespace Timesheeter.Core.Data
         private AppSettings? _appSettings;
 
 
-        private ILogger? _logger;
+        private ILoggerApp? _logger;
         private LibSqlLite.SqliteStore _store;
         
 
-        public DataFactory(LibSqlLite.SqliteStore store, ILogger? logger = null)
+        public DataFactory(LibSqlLite.SqliteStore store, ILoggerApp? logger = null)
         {
             _store = store;
             _logger = logger;

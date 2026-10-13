@@ -1,6 +1,7 @@
 ﻿using Timesheeter.Lib;
 using Timesheeter.Core.Interfaces;
 using Microsoft.Extensions.Logging;
+using LibLogging;
 
 namespace Timesheeter
 {
@@ -9,8 +10,8 @@ namespace Timesheeter
 
 
         private IDataFactory _factory;
-        private ILogger? _logger;
-        public UserInterface(IDataFactory factory, ILogger? logger)
+        private ILoggerApp? _logger;
+        public UserInterface(IDataFactory factory, ILoggerApp? logger)
         {
             InitializeComponent();
             _factory = factory;

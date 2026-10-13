@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿using LibLogging;
 using LibSqlLite;
-using System.Drawing;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Text;
 
 namespace Timesheeter.Core.Data
 {
@@ -31,8 +31,8 @@ namespace Timesheeter.Core.Data
 
         private readonly SqliteStore _dataStore;
         private readonly Setting _setting;
-        private ILogger? _logger;
-        public AppSettings(SqliteStore dataStore, ILogger? logger)
+        private ILoggerApp? _logger;
+        public AppSettings(SqliteStore dataStore, ILoggerApp? logger)
         {
             _dataStore = dataStore;
             _dataStore.EnsureTable<Setting>();

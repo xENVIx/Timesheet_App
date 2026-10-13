@@ -1,4 +1,5 @@
-﻿using LibSqlLite;
+﻿using LibLogging;
+using LibSqlLite;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,11 +23,11 @@ namespace Timesheeter.Core.Data
     public abstract class DataClass<T> : IDataClass where T : class
     {
 
-        protected ILogger? _logger { get; private set; }
+        protected ILoggerApp? _logger { get; private set; }
 
         protected SqliteStore _dataStore;
 
-        public DataClass(SqliteStore dataStore, ILogger? logger)
+        public DataClass(SqliteStore dataStore, ILoggerApp? logger)
         {
             _dataStore = dataStore;
             _list = new BindingListView<T>();

@@ -1,4 +1,7 @@
-﻿namespace Timesheeter.Server
+﻿using LibLogging;
+using Timesheeter.Core.Data;
+
+namespace Timesheeter.Server
 {
     public class Factory
     {
@@ -10,15 +13,20 @@
         internal static readonly String DataFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Timersheeter.Server");
 
+        private Logger? _logger;
+        private CancellationTokenSource _cts;
+
         public Factory()
         {
-
+            _cts = new CancellationTokenSource();
         }
 
         public void Initialize(string[] args)
         {
             /* initialize database...
             */
+            _logger = new Logger("Timesheeter.Server", LogLevel.Trace, _cts.Token, true);
+
 
             String timeSheeterPath = DataFolder;
 
@@ -35,7 +43,23 @@
             // Checked before opening: opening creates the file, and a brand new database needs no backup.
             bool existingDatabase = File.Exists(dbFile);
 
-            _store = new LibSqlLite.SqliteStore(dbFile);
+            
+
+
+            _store = new LibSqlLite.SqliteStore(dbFile, _logger);
+
+            try
+            {
+                _store.EnsureTable<Customers>();
+                _store.EnsureTable<ProjectCodes>();
+                _store.EnsureTable<TimeEntries>();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Exception Ensuring Tables Exist");
+                _logger.Exception(ex);
+                throw;
+            }
 
             // make a backup if the file already existed...
             // Backed up through the open store rather than copying the .db file: changes from the
@@ -112,6 +136,7 @@
                 _app.UseSwaggerUI();
             }
 
+            /*
             _app.UseHttpsRedirection();
 
             _app.UseAuthorization();
@@ -135,6 +160,7 @@
             })
             .WithName("GetWeatherForecast")
             .WithOpenApi();
+            */
 
             _initialized = true;
         }

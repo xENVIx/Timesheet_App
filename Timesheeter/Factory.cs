@@ -53,7 +53,7 @@ namespace Timesheeter
             // Checked before opening: opening creates the file, and a brand new database needs no backup.
             bool existingDatabase = File.Exists(dbFile);
 
-            _store = new LibSqlLite.SqliteStore(dbFile);
+            _store = new LibSqlLite.SqliteStore(dbFile, _logger);
 
             // make a backup if the file already existed...
             // Backed up through the open store rather than copying the .db file: changes from the

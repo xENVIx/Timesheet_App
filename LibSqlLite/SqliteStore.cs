@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Dapper;
+using LibLogging;
 using LibSqlLite.Schema;
 using LibSqlLite.TypeHandlers;
 using Microsoft.Data.Sqlite;
@@ -47,9 +48,13 @@ public sealed class SqliteStore : IDisposable
         set => _pendingEnsuredTablesLocal.Value = value;
     }
 
+    private ILoggerApp? _logger;
+
     /// <summary>Opens (creating if necessary) a SQLite database at <paramref name="databasePath"/>.</summary>
-    public SqliteStore(string databasePath)
+    public SqliteStore(string databasePath, ILoggerApp? logger)
     {
+        _logger = logger;
+
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
         TypeHandlerRegistration.Ensure();
 
@@ -97,14 +102,14 @@ public sealed class SqliteStore : IDisposable
     }
 
     /// <summary>Opens a database at %AppData%/{appName}/{fileName}.</summary>
-    public static SqliteStore ForApp(string appName, string fileName = "data.db")
+    public static SqliteStore ForApp(string appName, ILoggerApp? logger, string fileName = "data.db")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(appName);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
 
         var path = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName, fileName);
-        return new SqliteStore(path);
+        return new SqliteStore(path, logger);
     }
 
     /// <summary>Creates the table for <typeparamref name="T"/> if missing and adds any new columns.</summary>
