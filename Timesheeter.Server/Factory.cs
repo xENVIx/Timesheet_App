@@ -148,12 +148,10 @@ namespace Timesheeter.Server
 
             try
             {
-                InitializeEndpoint<Customers.Customer>("/api/customers", out var mapGroupCustomers);
-                InitializeEndpoint<ProjectCodes.ProjectCode>("/api/project_codes", out var mapGroupProjectCodes);
-                InitializeEndpoint<TimeEntries.TimeEntry>("/api/time_entries", out var mapGroupTimeEntries);
-                //InitializeCustomersEndpoint();
-                //InitializeProjectCodesEndpoint();
-                //InitializeTimeEntriesEndpoint();
+                var mapGroupCustomers       = MapCRUD   <Customers.Customer>       ("/api/customers");
+                var mapGroupProjectCodes    = MapCRUD   <ProjectCodes.ProjectCode> ("/api/project_codes");
+                var mapGroupTimeEntries     = MapCRUD   <TimeEntries.TimeEntry>    ("/api/time_entries");
+                
             }
             catch (Exception ex)
             {
@@ -210,11 +208,13 @@ namespace Timesheeter.Server
         /// <typeparam name="T"></typeparam>
         /// <param name="endpoint"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public void InitializeEndpoint<T>(String endpoint, out RouteGroupBuilder? mapGroup) where T : class
+        public RouteGroupBuilder MapCRUD<T>(String endpoint) where T : class, IData
         {
             if (_app == null) throw new ArgumentNullException(nameof(_app));
 
-            mapGroup = _app.MapGroup(endpoint);
+           
+
+            var mapGroup = _app.MapGroup(endpoint);
             mapGroup.MapGet("/", (SqliteStore store) => store.All<T>());
             mapGroup.MapGet("{id:long}", (long id, SqliteStore store) =>
                 store.Get<T>(id) is { } data ? Results.Ok(data) : Results.NotFound());
@@ -235,7 +235,7 @@ namespace Timesheeter.Server
                     {
                         return Results.Conflict($"Duplicate Key Exception");
                     }
-                    return Results.Created($"/api/customers/{iData.ID}", data);
+                    return Results.Created($"{endpoint}/{iData.ID}", data);
 
                 }
                 else
@@ -263,6 +263,8 @@ namespace Timesheeter.Server
                     return Results.NotFound($"Invalid Data Type: {typeof(T)}");
                 }
             });
+
+            return mapGroup;
         }
 
 
