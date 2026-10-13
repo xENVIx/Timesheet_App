@@ -132,6 +132,8 @@ namespace Timesheeter.Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddSingleton(_store);
+
             _app = builder.Build();
 
 
