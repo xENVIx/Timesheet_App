@@ -212,10 +212,10 @@ namespace Timesheeter.Server
            
 
             var mapGroup = _app.MapGroup(endpoint);
-            mapGroup.MapGet("/", (SqliteStore store) => store.All<T>());
 
-            // GET /api/customers.json and /api/customers.xml: every record in that format, or with
-            // ?id=<guid> just that one (404 if there's no such record).
+            // Reading is only through the format endpoints: GET /api/customers.json and
+            // /api/customers.xml give every record in that format, or with ?id=<guid> just that one
+            // (404 if there's no such record).
             string name = endpoint.TrimEnd('/')[(endpoint.TrimEnd('/').LastIndexOf('/') + 1)..];
             _app.MapGet($"{endpoint.TrimEnd('/')}.json", (Guid? id, SqliteStore store) =>
                 id is { } key
@@ -227,8 +227,6 @@ namespace Timesheeter.Server
                     ? store.Get<T>(key) is { } item ? Results.Content(XmlFormat.Write(item), XmlFormat.ContentType) : Results.NotFound()
                     : Results.Content(XmlFormat.Write(store.All<T>(), name), XmlFormat.ContentType))
                 .WithTags(name);
-            mapGroup.MapGet("{id:guid}", (Guid id, SqliteStore store) =>
-                store.Get<T>(id) is { } data ? Results.Ok(data) : Results.NotFound());
 
             // POST: an ID from the client is kept (devices create their own GUIDs); none gets a new one.
             mapGroup.MapPost("/", (T data, LibSqlLite.SqliteStore store) =>
@@ -247,7 +245,7 @@ namespace Timesheeter.Server
                 {
                     return Results.Conflict(ConflictMessage<T>(ex));
                 }
-                return Results.Created($"{endpoint}/{data.ID}", data);
+                return Results.Created($"{endpoint.TrimEnd('/')}.json?id={data.ID}", data);
 
                 
             });
