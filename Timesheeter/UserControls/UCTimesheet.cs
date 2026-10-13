@@ -40,10 +40,10 @@ namespace Timesheeter.UserControls
             _dgvTimesheet.PostInit(_factory);
             _dgvTimesheet.SetStartDate(DateOnly.FromDateTime(_datePicker.Value));
 
-            
+            _initializedFull = true;
         }
 
-        
+
         private void _datePickerChanged(object sender, EventArgs e)
         {
 
@@ -56,7 +56,17 @@ namespace Timesheeter.UserControls
 
         }
 
+        private void _rbHours_CheckedChanged(object sender, EventArgs e)
+        {
 
+            if (!_initializedFull)
+            {
+                return;
+            }
 
+            _dgvTimesheet.ToggleHoursMode();
+        }
+
+        private volatile bool _initializedFull = false;
     }
 }

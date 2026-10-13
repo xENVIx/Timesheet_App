@@ -6,6 +6,7 @@ using Timesheeter.Core.Data;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Lib;
 using Timesheeter.UserControls;
+using Windows.Services.Maps.LocalSearch;
 
 namespace Timesheeter.Elements
 {
@@ -41,6 +42,31 @@ namespace Timesheeter.Elements
         private volatile bool _postInitOccured = false;
         private bool _populated = false;
         private Font? _boldFont;
+
+        public enum EHoursMode
+        {
+            HOURS,
+            DATE_TIME,
+        }
+
+        private EHoursMode _hoursMode = EHoursMode.HOURS;
+
+        //public EHoursMode HoursMode { get; set; } = EHoursMode.HOURS;
+        public void ToggleHoursMode()
+        {
+            if (_hoursMode == EHoursMode.HOURS)
+            {
+                _hoursMode = EHoursMode.DATE_TIME;
+            }
+            else
+            {
+                _hoursMode = EHoursMode.HOURS;
+            }
+
+            Rebuild();
+        }
+
+
 
         public TimesheetDataGridView() : base()
         {
@@ -136,15 +162,15 @@ namespace Timesheeter.Elements
                 {
                     if (Columns[i].Tag is DateOnly day && project.EntriesByDate.TryGetValue(day, out var entries))
                     {
-                        double hours = entries.Sum(x => x.Hours);
-                        Rows[newEntryRow].Cells[i].Value = FormatHours(hours);
+                        double hours = Math.Round(entries.Sum(x => x.Hours), 2);
+                        Rows[newEntryRow].Cells[i].Value = FormatHours(EHoursMode.HOURS, hours);
                         Rows[newEntryRow].Cells[i].ToolTipText = EntriesToolTip(entries);
                         dayTotals[i - FirstDayColumn] += hours;
                         projectTotal += hours;
                     }
                 }
 
-                Rows[newEntryRow].Cells[TotalColumn].Value = FormatHours(projectTotal);
+                Rows[newEntryRow].Cells[TotalColumn].Value = FormatHours(EHoursMode.HOURS, projectTotal);
                 projectTotals.Add(new ProjectHours(project.ProjectCode, projectTotal));
             }
 
@@ -163,22 +189,43 @@ namespace Timesheeter.Elements
             for (int i = FirstDayColumn; i < TotalColumn; i++)
             {
                 double total = dayTotals[i - FirstDayColumn];
-                if (total > 0) Rows[_totalRow].Cells[i].Value = FormatHours(total);
+                if (total > 0) Rows[_totalRow].Cells[i].Value = FormatHours(_hoursMode, total);
             }
 
             // Always shown, so an empty week reads as 0 rather than blank.
-            Rows[_totalRow].Cells[TotalColumn].Value = FormatHours(dayTotals.Sum());
+            Rows[_totalRow].Cells[TotalColumn].Value = FormatHours(EHoursMode.HOURS, dayTotals.Sum());
         }
 
-        private static string FormatHours(double hours) => hours.ToString("0.##");
+        private static string FormatHours(EHoursMode hoursMode, double hours)
+        {
+
+            if (hoursMode == EHoursMode.HOURS)
+            {
+
+                return hours.ToString("0.##");
+            }
+            else
+            {
+                DateTime dateTimeToday = DateTime.Now;
+                DateOnly todayDate = new DateOnly(dateTimeToday.Year, dateTimeToday.Month, dateTimeToday.Day);
+                TimeOnly onlyTime = new TimeOnly(8, 0); // 8 am
+                double hourOnly = (double)(int)hours;
+                double minutesOnly = Math.Round((60 * (hours - hourOnly)), 0);
+                TimeOnly endTime = onlyTime.AddHours(hourOnly).AddMinutes(minutesOnly);// new TimeOnly((int)hourOnly, (int)minutesOnly);
+                return $"{onlyTime.ToString()}-{endTime.ToString()}";
+
+            }
+
+            
+        }
 
         /// <summary>One line per time entry, e.g. "hours: 1.5, comment: Site visit".</summary>
         private static string EntriesToolTip(IEnumerable<TimeEntries.TimeEntry> entries)
         {
             return string.Join(Environment.NewLine, entries.Select(entry =>
                 string.IsNullOrWhiteSpace(entry.Comment)
-                    ? $"hours: {FormatHours(entry.Hours)}"
-                    : $"hours: {FormatHours(entry.Hours)}, comment: {entry.Comment.Trim()}"));
+                    ? $"hours: {FormatHours(EHoursMode.HOURS, entry.Hours)}"
+                    : $"hours: {FormatHours(EHoursMode.HOURS, entry.Hours)}, comment: {entry.Comment.Trim()}"));
         }
 
         private void CreateBaseHeading()
