@@ -5,7 +5,7 @@ using System.Xml.Linq;
 namespace Timesheeter.Server
 {
     /// <summary>
-    /// Writes records as XML for the ".xml" endpoints: one element per record, named after its class,
+    /// Writes records as XML for requests with an "Accept: application/xml" header: one element per record, named after its class,
     /// with one child element per public property (the same fields the JSON has), e.g.
     /// &lt;customers&gt;&lt;Customer&gt;&lt;ID&gt;…&lt;/ID&gt;&lt;Name&gt;Acme&lt;/Name&gt;…&lt;/Customer&gt;&lt;/customers&gt;.
     /// </summary>

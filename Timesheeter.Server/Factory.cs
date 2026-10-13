@@ -213,20 +213,13 @@ namespace Timesheeter.Server
 
             var mapGroup = _app.MapGroup(endpoint);
 
-            // Reading is only through the format endpoints: GET /api/customers.json and
-            // /api/customers.xml give every record in that format, or with ?id=<guid> just that one
-            // (404 if there's no such record).
+            // GET /api/customers and /api/customers/{id}: JSON, or XML when the request's Accept header
+            // asks for it (Accept: application/xml).
             string name = endpoint.TrimEnd('/')[(endpoint.TrimEnd('/').LastIndexOf('/') + 1)..];
-            _app.MapGet($"{endpoint.TrimEnd('/')}.json", (Guid? id, SqliteStore store) =>
-                id is { } key
-                    ? store.Get<T>(key) is { } item ? Results.Json(item) : Results.NotFound()
-                    : Results.Json(store.All<T>()))
-                .WithTags(name);
-            _app.MapGet($"{endpoint.TrimEnd('/')}.xml", (Guid? id, SqliteStore store) =>
-                id is { } key
-                    ? store.Get<T>(key) is { } item ? Results.Content(XmlFormat.Write(item), XmlFormat.ContentType) : Results.NotFound()
-                    : Results.Content(XmlFormat.Write(store.All<T>(), name), XmlFormat.ContentType))
-                .WithTags(name);
+            mapGroup.MapGet("/", (HttpRequest request, SqliteStore store) =>
+                Respond(request, store.All<T>(), name));
+            mapGroup.MapGet("{id:guid}", (Guid id, HttpRequest request, SqliteStore store) =>
+                store.Get<T>(id) is { } data ? Respond(request, data) : Results.NotFound());
 
             // POST: an ID from the client is kept (devices create their own GUIDs); none gets a new one.
             mapGroup.MapPost("/", (T data, LibSqlLite.SqliteStore store) =>
@@ -245,7 +238,7 @@ namespace Timesheeter.Server
                 {
                     return Results.Conflict(ConflictMessage<T>(ex));
                 }
-                return Results.Created($"{endpoint.TrimEnd('/')}.json?id={data.ID}", data);
+                return Results.Created($"{endpoint.TrimEnd('/')}/{data.ID}", data);
 
                 
             });
@@ -269,6 +262,19 @@ namespace Timesheeter.Server
             return mapGroup;
         }
 
+
+        /// <summary>True when the request's Accept header asks for XML (application/xml or text/xml).</summary>
+        private static bool WantsXml(HttpRequest request) =>
+            request.GetTypedHeaders().Accept is { Count: > 0 } accept &&
+            accept.Any(type => type.MediaType.Value is "application/xml" or "text/xml");
+
+        /// <summary>A list of records as JSON, or as XML (under a <paramref name="root"/> element) if asked.</summary>
+        private static IResult Respond<T>(HttpRequest request, IEnumerable<T> items, string root) where T : class =>
+            WantsXml(request) ? Results.Content(XmlFormat.Write(items, root), XmlFormat.ContentType) : Results.Json(items);
+
+        /// <summary>A single record as JSON, or as XML if asked.</summary>
+        private static IResult Respond<T>(HttpRequest request, T item) where T : class =>
+            WantsXml(request) ? Results.Content(XmlFormat.Write(item), XmlFormat.ContentType) : Results.Json(item);
 
         /// <summary>
         /// TOC / TOM / MOP for a record written through the API. A device that sends them (it made the
