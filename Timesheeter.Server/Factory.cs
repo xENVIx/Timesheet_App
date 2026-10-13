@@ -50,9 +50,9 @@ namespace Timesheeter.Server
 
             try
             {
-                _store.EnsureTable<Customers>();
-                _store.EnsureTable<ProjectCodes>();
-                _store.EnsureTable<TimeEntries>();
+                _store.EnsureTable<Customers.Customer>();
+                _store.EnsureTable<ProjectCodes.ProjectCode>();
+                _store.EnsureTable<TimeEntries.TimeEntry>();
             }
             catch (Exception ex)
             {
@@ -129,6 +129,8 @@ namespace Timesheeter.Server
 
             _app = builder.Build();
 
+
+            
             // Configure the HTTP request pipeline.
             if (_app.Environment.IsDevelopment())
             {
