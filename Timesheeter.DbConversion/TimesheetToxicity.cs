@@ -1,8 +1,10 @@
-namespace Timesheeter.DbConversion
+﻿namespace Timesheeter.DbConversion
 {
     /// <summary>"Timesheet Toxicity", sung on every run (skip it with --no-song).</summary>
     internal static class TimesheetToxicity
     {
+        // Follows the song section by section and line by line (verse, pre-chorus, chorus,
+        // second verse, pre-chorus, chorus, bridge, chorus), with timesheet words.
         public const string Lyrics = """
 
             ♪ Timesheet Toxicity ♪
@@ -13,21 +15,37 @@ namespace Timesheeter.DbConversion
             The toxicity of my timesheet,
             Of my timesheet!
 
-            New file, opened up and empty,
-            Every table built from a class,
-            Rows come marching over, IDs intact,
-            The counters remember the deleted past.
+            Now, where do you store the hours?
+            How do you store a project, a project?
 
-            Orphans pointing at a code that's gone?
-            Then the old file stays and nothing's wrong,
-            A list of every row that doesn't belong,
-            And no new database is left hanging on.
+            Somewhere, between the parent table,
+            Parent table and key,
+            Somewhere between the parent table and key,
+            Reorder, reorder, reorder!
 
-            Conversion, software version 7.0,
-            Looking at life through the eyes of a project code,
-            Foreign keys are a db necessity,
+            More rows for the new file, old neighbors,
+            Orphan entries caught in the headlights of a check,
+            Copying keys as a pastime activity,
             The toxicity of my timesheet,
-            Of my timesheeeeet!
+            Of my timesheet!
+
+            You, where do you keep the hours?
+            How do you keep a record, a record?
+
+            Somewhere, between the parent table,
+            Parent table and key,
+            Somewhere between the parent table and key,
+            Reorder, reorder, reorder!
+
+            When I became the key,
+            I gave life to the project's rows!
+            When I became the key,
+            I gave life to the project's rows!
+
+            Somewhere, between the parent table,
+            Parent table and key,
+            Somewhere between the parent table and key,
+            Reorder, reorder, reorder!
 
             """;
     }
