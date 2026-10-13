@@ -45,11 +45,6 @@ namespace Timesheeter.Server
             // Checked before opening: opening creates the file, and a brand new database needs no backup.
             bool existingDatabase = File.Exists(dbFile);
 
-            // An older database lacks the foreign keys the records now declare ([References]); this
-            // rebuilds it with them, keeping all data and the original file as a backup.
-            var rebuild = SqliteRebuilder.RebuildIfNeeded(dbFile, _logger, StoredTypes.Data);
-            foreach (var problem in rebuild.Problems) _logger.Warn($"Database not upgraded: {problem}");
-
             _store = new LibSqlLite.SqliteStore(dbFile, _logger);
 
             try

@@ -5,101 +5,90 @@ using Microsoft.Data.Sqlite;
 
 namespace LibSqlLite;
 
-/// <summary>What <see cref="SqliteRebuilder.RebuildIfNeeded"/> did.</summary>
-/// <param name="Rebuilt">True when the database was replaced by a rebuilt copy.</param>
-/// <param name="BackupPath">Where the original database was kept, when rebuilt.</param>
-/// <param name="Problems">Why a needed rebuild didn't happen (the original is then left as it was).</param>
-public sealed record RebuildResult(bool Rebuilt, string? BackupPath, IReadOnlyList<string> Problems)
-{
-    public static readonly RebuildResult NotNeeded = new(false, null, []);
-}
+/// <summary>What <see cref="SqliteConverter.Convert"/> did.</summary>
+/// <param name="Succeeded">True when the new database was written and checks out.</param>
+/// <param name="Problems">Why it failed (no new database is left behind then).</param>
+/// <param name="RowCounts">Rows copied per table.</param>
+public sealed record ConversionResult(bool Succeeded, IReadOnlyList<string> Problems, IReadOnlyDictionary<string, long> RowCounts);
 
 /// <summary>
-/// Rebuilds a database whose tables lack foreign keys their classes now declare with
-/// <see cref="ReferencesAttribute"/>. SQLite can't add a foreign key to an existing table, so this
-/// creates a new database file with the current schema, copies every row across (keeping their
-/// keys), checks every reference resolves, and only then swaps the new file in, keeping the
-/// original as a backup. If anything doesn't check out, the original is left untouched.
+/// Converts a database to the schema its classes now declare, for changes SQLite can't make to an
+/// existing table, such as adding a foreign key (<see cref="ReferencesAttribute"/>): creates a new
+/// database from the classes, copies every row of the old one into it (keys and AUTOINCREMENT
+/// counters kept), and checks every reference resolves. The old database is only read.
 /// </summary>
 /// <remarks>
-/// Call it before opening a <see cref="SqliteStore"/> on the file, e.g. at startup:
-/// <code>
-/// var result = SqliteRebuilder.RebuildIfNeeded(path, logger, typeof(Customer), typeof(ProjectCode));
-/// using var store = new SqliteStore(path, logger);
-/// </code>
-/// Tables in the file that aren't in <c>types</c> are copied as they are.
+/// Run it deliberately (e.g. from a conversion tool) while nothing else has either file open.
+/// Tables in the old database that aren't in <c>types</c> are copied as they are; columns the old
+/// tables don't have get their defaults.
 /// </remarks>
-public static class SqliteRebuilder
+public static class SqliteConverter
 {
-    /// <param name="databasePath">The database file. Nothing happens if it doesn't exist yet.</param>
+    /// <param name="sourcePath">The existing database.</param>
+    /// <param name="destinationPath">The new database to create; must not exist yet.</param>
     /// <param name="logger">Optional; told what happened.</param>
     /// <param name="types">Every class stored in the database.</param>
-    public static RebuildResult RebuildIfNeeded(string databasePath, ILoggerApp? logger, params Type[] types)
+    public static ConversionResult Convert(string sourcePath, string destinationPath, ILoggerApp? logger, params Type[] types)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
-        var path = Path.GetFullPath(databasePath);
-        if (!File.Exists(path)) return RebuildResult.NotNeeded;
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourcePath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationPath);
+        var source = Path.GetFullPath(sourcePath);
+        var destination = Path.GetFullPath(destinationPath);
+
+        if (!File.Exists(source)) return Failed($"{source} doesn't exist.");
+        if (File.Exists(destination)) return Failed($"{destination} already exists.");
+        if (string.Equals(source, destination, StringComparison.OrdinalIgnoreCase)) return Failed("The new database must be a different file.");
 
         TypeHandlerRegistration.Ensure();
-        var entities = types.Select(EntityInfo.Build).ToList();
-
-        List<string> missing;
-        using (var original = Open(path))
-        {
-            // Fold any -wal content into the file first: it's what gets copied, and later moved.
-            Execute(original, "PRAGMA wal_checkpoint(TRUNCATE);");
-            missing = MissingForeignKeys(original, entities);
-        }
-
-        if (missing.Count == 0) return RebuildResult.NotNeeded;
-
-        logger?.Info($"Rebuilding {path} to add foreign keys: {string.Join(", ", missing)}");
-
-        var rebuiltPath = path + ".rebuild";
-        DeleteDatabaseFiles(rebuiltPath);
+        logger?.Info($"Converting {source} into {destination}");
 
         try
         {
-            // The new file, with every table created from the current classes (foreign keys included).
-            using (var store = new SqliteStore(rebuiltPath, logger))
+            // Fold any -wal content into the old file, so the copy includes the latest changes.
+            using (var old = Open(source)) Execute(old, "PRAGMA wal_checkpoint(TRUNCATE);");
+
+            // The new file, with every table created from the current classes.
+            using (var store = new SqliteStore(destination, logger))
             {
-                foreach (var entity in entities) EnsureTable(store, entity.Type);
+                foreach (var type in types)
+                {
+                    typeof(SqliteStore).GetMethod(nameof(SqliteStore.EnsureTable))!.MakeGenericMethod(type).Invoke(store, null);
+                }
             }
 
-            var problems = CopyAndCheck(rebuiltPath, path);
+            var (problems, counts) = CopyAndCheck(destination, source);
             if (problems.Count > 0)
             {
-                DeleteDatabaseFiles(rebuiltPath);
-                foreach (var problem in problems) logger?.Error($"Database not rebuilt: {problem}");
-                return new RebuildResult(false, null, problems);
+                DeleteDatabaseFiles(destination);
+                foreach (var problem in problems) logger?.Error($"Conversion failed: {problem}");
+                return new ConversionResult(false, problems, counts);
             }
+
+            logger?.Info($"Converted {source} into {destination}");
+            return new ConversionResult(true, [], counts);
         }
         catch (Exception ex)
         {
-            DeleteDatabaseFiles(rebuiltPath);
-            logger?.Error($"Database not rebuilt: {ex.Message}", ex);
-            return new RebuildResult(false, null, [ex.Message]);
+            DeleteDatabaseFiles(destination);
+            var message = ex is System.Reflection.TargetInvocationException { InnerException: { } inner } ? inner.Message : ex.Message;
+            logger?.Error($"Conversion failed: {message}", ex);
+            return Failed(message);
         }
-
-        // Swap: the original becomes the backup, the rebuilt copy takes its place.
-        var backupPath = $"{path}.before-rebuild-{DateTime.Now:yyyyMMddHHmmss}.bak";
-        File.Move(path, backupPath);
-        DeleteFile(path + "-wal");
-        DeleteFile(path + "-shm");
-        File.Move(rebuiltPath, path);
-        DeleteDatabaseFiles(rebuiltPath);
-
-        logger?.Info($"Database rebuilt; the original is kept at {backupPath}");
-        return new RebuildResult(true, backupPath, []);
     }
 
-    /// <summary>"Table.Column" for each [References] column whose table exists without that foreign key.</summary>
-    private static List<string> MissingForeignKeys(SqliteConnection connection, IEnumerable<EntityInfo> entities)
+    /// <summary>
+    /// "Table.Column" for each <see cref="ReferencesAttribute"/> column whose table in the database
+    /// exists without that foreign key, i.e. what a conversion would add. Empty if none.
+    /// </summary>
+    public static IReadOnlyList<string> MissingForeignKeys(string databasePath, params Type[] types)
     {
         var missing = new List<string>();
-        foreach (var entity in entities)
+        if (!File.Exists(databasePath)) return missing;
+
+        using var connection = Open(Path.GetFullPath(databasePath));
+        foreach (var entity in types.Select(EntityInfo.Build))
         {
-            if (!TableExists(connection, "main", entity.TableName)) continue; // created fresh, with its keys
+            if (!TableExists(connection, "main", entity.TableName)) continue;
 
             var declared = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             using (var command = connection.CreateCommand())
@@ -119,21 +108,25 @@ public static class SqliteRebuilder
         return missing;
     }
 
+    private static ConversionResult Failed(string problem) =>
+        new(false, [problem], new Dictionary<string, long>());
+
     /// <summary>
-    /// Copies every row of the original into the rebuilt file (foreign keys off while copying, so
+    /// Copies every row of the old database into the new one (foreign keys off while copying, so
     /// table order doesn't matter), then lists whatever breaks a foreign key or a unique rule.
     /// </summary>
-    private static List<string> CopyAndCheck(string rebuiltPath, string originalPath)
+    private static (List<string> Problems, Dictionary<string, long> Counts) CopyAndCheck(string destination, string source)
     {
         var problems = new List<string>();
+        var counts = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
 
-        using var connection = Open(rebuiltPath);
+        using var connection = Open(destination);
         Execute(connection, "PRAGMA foreign_keys=OFF;");
 
         using (var attach = connection.CreateCommand())
         {
             attach.CommandText = "ATTACH DATABASE $path AS original;";
-            attach.Parameters.AddWithValue("$path", originalPath);
+            attach.Parameters.AddWithValue("$path", source);
             attach.ExecuteNonQuery();
         }
 
@@ -156,11 +149,14 @@ public static class SqliteRebuilder
                 var list = string.Join(", ", columns);
                 try
                 {
-                    Execute(connection, $"INSERT INTO main.[{table}] ({list}) SELECT {list} FROM original.[{table}];", tx);
+                    using var copy = connection.CreateCommand();
+                    copy.Transaction = tx;
+                    copy.CommandText = $"INSERT INTO main.[{table}] ({list}) SELECT {list} FROM original.[{table}];";
+                    counts[table] = copy.ExecuteNonQuery();
                 }
                 catch (SqliteException ex)
                 {
-                    problems.Add($"{table}: {ex.Message}"); // e.g. duplicates a new unique rule refuses
+                    problems.Add($"{table}: {ex.Message}"); // e.g. duplicates a unique rule refuses
                 }
             }
 
@@ -173,11 +169,11 @@ public static class SqliteRebuilder
                     "WHERE name IN (SELECT name FROM main.sqlite_master WHERE type = 'table');", tx);
             }
 
-            if (problems.Count > 0) return problems;
+            if (problems.Count > 0) return (problems, counts);
             tx.Commit();
         }
 
-        // Every reference must point at an existing row, or the new foreign keys would block edits.
+        // Every reference must point at an existing row, or the foreign keys would block edits later.
         using (var check = connection.CreateCommand())
         {
             check.CommandText = "PRAGMA main.foreign_key_check;";
@@ -192,12 +188,7 @@ public static class SqliteRebuilder
         }
 
         Execute(connection, "DETACH DATABASE original;");
-        return problems;
-    }
-
-    private static void EnsureTable(SqliteStore store, Type type)
-    {
-        typeof(SqliteStore).GetMethod(nameof(SqliteStore.EnsureTable))!.MakeGenericMethod(type).Invoke(store, null);
+        return (problems, counts);
     }
 
     private static SqliteConnection Open(string path)
@@ -221,7 +212,7 @@ public static class SqliteRebuilder
         command.Transaction = tx;
         command.CommandText = $"SELECT COUNT(*) FROM {schema}.sqlite_master WHERE type = 'table' AND name = $name COLLATE NOCASE;";
         command.Parameters.AddWithValue("$name", table);
-        return Convert.ToInt64(command.ExecuteScalar()) > 0;
+        return System.Convert.ToInt64(command.ExecuteScalar()) > 0;
     }
 
     private static List<string> Tables(SqliteConnection connection, string schema)
@@ -257,13 +248,9 @@ public static class SqliteRebuilder
 
     private static void DeleteDatabaseFiles(string path)
     {
-        DeleteFile(path);
-        DeleteFile(path + "-wal");
-        DeleteFile(path + "-shm");
-    }
-
-    private static void DeleteFile(string path)
-    {
-        if (File.Exists(path)) File.Delete(path);
+        foreach (var file in new[] { path, path + "-wal", path + "-shm" })
+        {
+            if (File.Exists(file)) File.Delete(file);
+        }
     }
 }
