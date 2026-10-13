@@ -1,4 +1,4 @@
-using LibLogging;
+﻿using LibLogging;
 using LibSqlLite.Schema;
 using LibSqlLite.TypeHandlers;
 using Microsoft.Data.Sqlite;
@@ -13,10 +13,15 @@ public sealed record ConversionResult(bool Succeeded, IReadOnlyList<string> Prob
 
 /// <summary>
 /// Converts a database to the schema its classes now declare, for changes SQLite can't make to an
-/// existing table, such as adding a foreign key (<see cref="ReferencesAttribute"/>): creates a new
-/// database from the classes, copies every row of the old one into it (keys and AUTOINCREMENT
-/// counters kept), and checks every reference resolves. The old database is only read.
+/// existing table: adding a foreign key (<see cref="ReferencesAttribute"/>), or a key that changed
+/// from a number to a <see cref="Guid"/>. Creates a new database from the classes, copies every row
+/// of the old one into it, and checks every reference resolves. The old database is only read.
 /// </summary>
+/// <remarks>
+/// Keys are kept as they are, except number keys whose class now has a <see cref="Guid"/> key: each
+/// row gets a new GUID, and every [References] column pointing at that table is translated to match.
+/// AUTOINCREMENT counters are kept for tables that still have number keys.
+/// </remarks>
 /// <remarks>
 /// Run it deliberately (e.g. from a conversion tool) while nothing else has either file open.
 /// Tables in the old database that aren't in <c>types</c> are copied as they are; columns the old
@@ -56,7 +61,8 @@ public static class SqliteConverter
                 }
             }
 
-            var (problems, counts) = CopyAndCheck(destination, source);
+            var entities = types.Select(EntityInfo.Build).ToList();
+            var (problems, counts) = CopyAndCheck(destination, source, entities);
             if (problems.Count > 0)
             {
                 DeleteDatabaseFiles(destination);
@@ -77,18 +83,21 @@ public static class SqliteConverter
     }
 
     /// <summary>
-    /// "Table.Column" for each <see cref="ReferencesAttribute"/> column whose table in the database
-    /// exists without that foreign key, i.e. what a conversion would add. Empty if none.
+    /// What a conversion would change in the database, e.g. "TimeEntry.ProjectCodeID: add foreign
+    /// key to ProjectCode" or "Customer.ID: number key becomes a GUID". Empty if it already matches.
     /// </summary>
-    public static IReadOnlyList<string> MissingForeignKeys(string databasePath, params Type[] types)
+    public static IReadOnlyList<string> SchemaChanges(string databasePath, params Type[] types)
     {
-        var missing = new List<string>();
-        if (!File.Exists(databasePath)) return missing;
+        var changes = new List<string>();
+        if (!File.Exists(databasePath)) return changes;
 
         using var connection = Open(Path.GetFullPath(databasePath));
         foreach (var entity in types.Select(EntityInfo.Build))
         {
             if (!TableExists(connection, "main", entity.TableName)) continue;
+
+            if (KeyBecomesGuid(connection, "main", entity))
+                changes.Add($"{entity.TableName}.{entity.KeyColumn.Name}: number key becomes a GUID");
 
             var declared = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             using (var command = connection.CreateCommand())
@@ -102,10 +111,28 @@ public static class SqliteConverter
             foreach (var column in entity.ForeignKeyColumns)
             {
                 if (!declared.Contains($"{column.Name}->{column.References!.Table}"))
-                    missing.Add($"{entity.TableName}.{column.Name}");
+                    changes.Add($"{entity.TableName}.{column.Name}: add foreign key to {column.References.Table}");
             }
         }
-        return missing;
+        return changes;
+    }
+
+    /// <summary>The class has a GUID key but the table in <paramref name="schema"/> still has a number one.</summary>
+    private static bool KeyBecomesGuid(SqliteConnection connection, string schema, EntityInfo entity, SqliteTransaction? tx = null)
+    {
+        if (entity.KeyKind != PrimaryKeyKind.Guid) return false;
+
+        using var command = connection.CreateCommand();
+        command.Transaction = tx;
+        command.CommandText = $"PRAGMA {schema}.table_info([{entity.TableName}]);";
+        using var reader = command.ExecuteReader();
+        int name = reader.GetOrdinal("name"), type = reader.GetOrdinal("type");
+        while (reader.Read())
+        {
+            if (string.Equals(reader.GetString(name), entity.KeyColumn.Name, StringComparison.OrdinalIgnoreCase))
+                return reader.GetString(type).Contains("INT", StringComparison.OrdinalIgnoreCase);
+        }
+        return false;
     }
 
     private static ConversionResult Failed(string problem) =>
@@ -115,7 +142,8 @@ public static class SqliteConverter
     /// Copies every row of the old database into the new one (foreign keys off while copying, so
     /// table order doesn't matter), then lists whatever breaks a foreign key or a unique rule.
     /// </summary>
-    private static (List<string> Problems, Dictionary<string, long> Counts) CopyAndCheck(string destination, string source)
+    private static (List<string> Problems, Dictionary<string, long> Counts) CopyAndCheck(
+        string destination, string source, IReadOnlyList<EntityInfo> entities)
     {
         var problems = new List<string>();
         var counts = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
@@ -132,6 +160,19 @@ public static class SqliteConverter
 
         using (var tx = connection.BeginTransaction())
         {
+            // Tables whose number keys become GUIDs: a new GUID per row, kept in a temp map
+            // (old key -> new key) that the copy below translates keys and references through.
+            var entityByTable = entities.ToDictionary(e => e.TableName, StringComparer.OrdinalIgnoreCase);
+            var mapped = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var entity in entities)
+            {
+                if (TableExists(connection, "original", entity.TableName, tx) && KeyBecomesGuid(connection, "original", entity, tx))
+                {
+                    MapKeysToGuids(connection, entity, tx);
+                    mapped.Add(entity.TableName);
+                }
+            }
+
             foreach (var table in Tables(connection, "original"))
             {
                 if (!TableExists(connection, "main", table, tx))
@@ -142,16 +183,36 @@ public static class SqliteConverter
 
                 var columns = Columns(connection, "original", table, tx)
                     .Intersect(Columns(connection, "main", table, tx), StringComparer.OrdinalIgnoreCase)
-                    .Select(c => $"[{c}]")
                     .ToList();
                 if (columns.Count == 0) continue;
 
-                var list = string.Join(", ", columns);
+                // Each column as is, or through a key map: the table's own key if its keys became
+                // GUIDs, and a [References] column if the table it refers to did. A value with no
+                // match is kept, so the foreign key check below reports it.
+                entityByTable.TryGetValue(table, out var tableEntity);
+                string Select(string column)
+                {
+                    string? mapTable = null;
+                    if (tableEntity != null)
+                    {
+                        if (string.Equals(column, tableEntity.KeyColumn.Name, StringComparison.OrdinalIgnoreCase) && mapped.Contains(table))
+                            mapTable = table;
+                        else if (tableEntity.ForeignKeyColumns.FirstOrDefault(c => string.Equals(c.Name, column, StringComparison.OrdinalIgnoreCase))
+                                 is { References: { } fk } && mapped.Contains(fk.Table))
+                            mapTable = fk.Table;
+                    }
+                    return mapTable == null
+                        ? $"o.[{column}]"
+                        : $"COALESCE((SELECT m.new FROM temp.[{MapName(mapTable)}] m WHERE m.old = o.[{column}]), o.[{column}])";
+                }
+
+                var list = string.Join(", ", columns.Select(c => $"[{c}]"));
+                var selects = string.Join(", ", columns.Select(Select));
                 try
                 {
                     using var copy = connection.CreateCommand();
                     copy.Transaction = tx;
-                    copy.CommandText = $"INSERT INTO main.[{table}] ({list}) SELECT {list} FROM original.[{table}];";
+                    copy.CommandText = $"INSERT INTO main.[{table}] ({list}) SELECT {selects} FROM original.[{table}] o;";
                     counts[table] = copy.ExecuteNonQuery();
                 }
                 catch (SqliteException ex)
@@ -160,14 +221,17 @@ public static class SqliteConverter
                 }
             }
 
-            // Keep the AUTOINCREMENT counters, so keys of rows deleted in the past are never reused.
+            // Keep the AUTOINCREMENT counters, so keys of rows deleted in the past are never reused
+            // (only for tables that still have number keys).
             if (TableExists(connection, "original", "sqlite_sequence", tx) && TableExists(connection, "main", "sqlite_sequence", tx))
             {
                 Execute(connection,
                     "DELETE FROM main.sqlite_sequence WHERE name IN (SELECT name FROM original.sqlite_sequence);" +
                     "INSERT INTO main.sqlite_sequence (name, seq) SELECT name, seq FROM original.sqlite_sequence " +
-                    "WHERE name IN (SELECT name FROM main.sqlite_master WHERE type = 'table');", tx);
+                    "WHERE name IN (SELECT name FROM main.sqlite_master WHERE type = 'table' AND sql LIKE '%AUTOINCREMENT%');", tx);
             }
+
+            foreach (var table in mapped) Execute(connection, $"DROP TABLE temp.[{MapName(table)}];", tx);
 
             if (problems.Count > 0) return (problems, counts);
             tx.Commit();
@@ -189,6 +253,36 @@ public static class SqliteConverter
 
         Execute(connection, "DETACH DATABASE original;");
         return (problems, counts);
+    }
+
+    private static string MapName(string table) => $"_keymap_{table}";
+
+    /// <summary>A new GUID for every row of the old table, in temp.[_keymap_Table] (old, new).</summary>
+    private static void MapKeysToGuids(SqliteConnection connection, EntityInfo entity, SqliteTransaction tx)
+    {
+        var map = MapName(entity.TableName);
+        Execute(connection, $"CREATE TEMP TABLE [{map}] (old INTEGER PRIMARY KEY, new TEXT NOT NULL);", tx);
+
+        var oldKeys = new List<long>();
+        using (var read = connection.CreateCommand())
+        {
+            read.Transaction = tx;
+            read.CommandText = $"SELECT [{entity.KeyColumn.Name}] FROM original.[{entity.TableName}];";
+            using var reader = read.ExecuteReader();
+            while (reader.Read()) oldKeys.Add(reader.GetInt64(0));
+        }
+
+        using var insert = connection.CreateCommand();
+        insert.Transaction = tx;
+        insert.CommandText = $"INSERT INTO temp.[{map}] (old, new) VALUES ($old, $new);";
+        var oldParameter = insert.Parameters.Add("$old", SqliteType.Integer);
+        var newParameter = insert.Parameters.Add("$new", SqliteType.Text);
+        foreach (var key in oldKeys)
+        {
+            oldParameter.Value = key;
+            newParameter.Value = Guid.NewGuid().ToString("D"); // the store's GUID format: lowercase "D"
+            insert.ExecuteNonQuery();
+        }
     }
 
     private static SqliteConnection Open(string path)

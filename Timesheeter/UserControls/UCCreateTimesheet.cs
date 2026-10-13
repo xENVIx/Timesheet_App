@@ -90,7 +90,7 @@ namespace Timesheeter.UserControls
             if (_timeEntries == null || _projectCodes == null) return;
 
             var (monday, sunday) = SelectedWeek();
-            long? previous = _cbProjects.SelectedValue is long id ? id : null;
+            Guid? previous = _cbProjects.SelectedValue is Guid id ? id : null;
 
             var workedCodeIds = _timeEntries.All.Unfiltered
                 .Where(entry => entry.Date >= monday && entry.Date <= sunday)
@@ -107,7 +107,7 @@ namespace Timesheeter.UserControls
                 }
 
                 // Adding items makes the combo box select the first one; select the previous project or none.
-                int index = previous is long keep ? IndexOfProject(keep) : -1;
+                int index = previous is Guid keep ? IndexOfProject(keep) : -1;
                 _cbProjects.SelectedIndex = index;
                 if (index < 0) _cbProjects.Text = "";
             }
@@ -119,7 +119,7 @@ namespace Timesheeter.UserControls
             ShowSelectedWeek();
         }
 
-        private int IndexOfProject(long projectCodeId)
+        private int IndexOfProject(Guid projectCodeId)
         {
             for (int i = 0; i < _weekProjects.Count; i++)
             {
@@ -138,7 +138,7 @@ namespace Timesheeter.UserControls
         {
             _weekEntries.Clear();
 
-            if (_timeEntries == null || _cbProjects.SelectedValue is not long projectCodeId) return;
+            if (_timeEntries == null || _cbProjects.SelectedValue is not Guid projectCodeId) return;
 
             var (monday, sunday) = SelectedWeek();
 

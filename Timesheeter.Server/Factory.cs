@@ -213,11 +213,13 @@ namespace Timesheeter.Server
 
             var mapGroup = _app.MapGroup(endpoint);
             mapGroup.MapGet("/", (SqliteStore store) => store.All<T>());
-            mapGroup.MapGet("{id:long}", (long id, SqliteStore store) =>
+            mapGroup.MapGet("{id:guid}", (Guid id, SqliteStore store) =>
                 store.Get<T>(id) is { } data ? Results.Ok(data) : Results.NotFound());
 
+            // POST: an ID from the client is kept (devices create their own GUIDs); none gets a new one.
             mapGroup.MapPost("/", (T data, LibSqlLite.SqliteStore store) =>
             {
+                StampIfMissing(data, existing: null);
                 if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
 
                 
@@ -237,10 +239,13 @@ namespace Timesheeter.Server
             });
 
 
-            mapGroup.MapPut("/{id:long}", (long id, T data, SqliteStore store) =>
+            mapGroup.MapPut("/{id:guid}", (Guid id, T data, SqliteStore store) =>
             {
 
                 data.ID = id;
+                var existing = store.Get<T>(id);
+                if (existing == null) return Results.NotFound();
+                StampIfMissing(data, existing);
                 if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
                 try { return store.Update(data) ? Results.Ok(data) : Results.NotFound(); }
                 catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
@@ -252,6 +257,19 @@ namespace Timesheeter.Server
             return mapGroup;
         }
 
+
+        /// <summary>
+        /// TOC / TOM / MOP for a record written through the API. A device that sends them (it made the
+        /// change, so it knows when and where) is kept as is; a request without them is stamped here.
+        /// An update keeps the stored TOC unless the request has one.
+        /// </summary>
+        private static void StampIfMissing(object data, object? existing)
+        {
+            if (data is not IAudited audited) return;
+
+            if (audited.TOC == default && existing is IAudited stored) audited.TOC = stored.TOC;
+            if (audited.TOM == default || string.IsNullOrWhiteSpace(audited.MOP)) Audit.Stamp(data, created: existing == null);
+        }
 
         /// <summary>
         /// A readable message for a SQLite constraint error (code 19), e.g. for

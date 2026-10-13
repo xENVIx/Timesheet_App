@@ -82,6 +82,7 @@ namespace Timesheeter.Core.Data
         public bool Update(T item)
         {
             if (!IsValid(item)) return false;
+            Audit.Stamp(item, created: false);
 
             try { return _dataStore.Update(item);  } 
             catch (Exception ex) { Console.WriteLine($"Exception: {ex.Message}"); return false; }
@@ -120,6 +121,7 @@ namespace Timesheeter.Core.Data
             if (item is not ISoftDeletable deletable) throw new NotSupportedException($"{typeof(T).Name} can't be deleted.");
 
             deletable.Deleted = true;
+            Audit.Stamp(item, created: false);
 
             // Not validated like Update: a record with an invalid value can still be deleted.
             bool saved;
@@ -168,12 +170,21 @@ namespace Timesheeter.Core.Data
             bool targetWasDeleted = targetDeletable.Deleted;
             originalDeletable.Deleted = true;
             targetDeletable.Deleted = false;
+            Audit.Stamp(original, created: false);
+            Audit.Stamp(target, created: false);
+
+            // Keys as the store writes them (a GUID as lowercase text), since these go in as plain parameters.
+            object Key(object id) => id is Guid guid ? guid.ToString("D") : id;
+            bool referencesAudited = typeof(IAudited).IsAssignableFrom(typeof(TRef));
+            var now = DateTime.UtcNow;
             try
             {
                 _dataStore.InTransaction(store =>
                 {
-                    store.Execute($"UPDATE [{refTable}] SET [{referenceProperty}] = @to WHERE [{referenceProperty}] = @from",
-                        new { to = toId, from = fromId });
+                    // The moved references changed too, so they get this modification's stamp.
+                    string stamp = referencesAudited ? ", [TOM] = @now, [MOP] = @mop" : "";
+                    store.Execute($"UPDATE [{refTable}] SET [{referenceProperty}] = @to{stamp} WHERE [{referenceProperty}] = @from",
+                        new { to = Key(toId), from = Key(fromId), now = now.ToString("O"), mop = Audit.Process });
 
                     if (!IsValid(target) || !store.Update(target) || !store.Update(original))
                         throw new InvalidOperationException("Could not save the merge.");
@@ -196,6 +207,11 @@ namespace Timesheeter.Core.Data
             {
                 if (!Equals(refProperty.GetValue(reference), fromId)) continue;
                 refProperty.SetValue(reference, toId);
+                if (reference is IAudited audited)
+                {
+                    audited.TOM = now;
+                    audited.MOP = Audit.Process;
+                }
                 references.Reposition(reference);
             }
 
@@ -227,6 +243,7 @@ namespace Timesheeter.Core.Data
         public bool Save(T item)
         {
             if (!IsValid(item)) return false;
+            Audit.Stamp(item, created: true);
 
             try
             {

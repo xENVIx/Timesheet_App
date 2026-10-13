@@ -13,7 +13,7 @@ namespace Timesheeter.Core.Data
     public class ProjectCodes : DataClass<ProjectCodes.ProjectCode>
     {
 
-        public ProjectCode? this[long key] 
+        public ProjectCode? this[Guid key] 
         { 
             get
             {
@@ -25,15 +25,18 @@ namespace Timesheeter.Core.Data
 
 
 
-        public class ProjectCode : IData, ISoftDeletable
+        public class ProjectCode : IData, ISoftDeletable, IAudited
         {
-            [PrimaryKey, GridHidden] public long ID { get; set; }
+            [PrimaryKey, GridHidden] public Guid ID { get; set; }
             [Required, Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
-            [Required, DisplayName("Customer"), GridLookup(typeof(Customers), "Name"), References(typeof(Customers.Customer))] public long CustomerID { get; set; }
+            [Required, DisplayName("Customer"), GridLookup(typeof(Customers), "Name"), References(typeof(Customers.Customer))] public Guid CustomerID { get; set; }
             [DisplayName("Project Name")] public String ProjectName { get; set; } = string.Empty;
             [DisplayName("Description")] public String Description { get; set; } = string.Empty;
             public String Location { get; set; } = String.Empty;
             [DisplayName("Deleted"), GridHidden] public bool Deleted { get; set; } = false;
+            [GridHidden, DisplayName("Created (UTC)")] public DateTime TOC { get; set; }
+            [GridHidden, DisplayName("Modified (UTC)")] public DateTime TOM { get; set; }
+            [GridHidden, MaxLength(Audit.MaxProcessLength), DisplayName("Modified By")] public string MOP { get; set; } = string.Empty;
 
 
             // used to allow compatability with the DataComboBox impl...

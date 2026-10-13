@@ -9,7 +9,7 @@ namespace Timesheeter.Core.Interfaces
     public interface IData
     {
 
-        public long ID { get; set; }
+        public Guid ID { get; set; }
 
     }
 }

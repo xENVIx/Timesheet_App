@@ -57,13 +57,13 @@ namespace Timesheeter.DbConversion
                 return 1;
             }
 
-            var missing = SqliteConverter.MissingForeignKeys(oldPath, StoredTypes.App);
-            if (missing.Count == 0 && !force)
+            var changes = SqliteConverter.SchemaChanges(oldPath, StoredTypes.App);
+            if (changes.Count == 0 && !force)
             {
-                Console.WriteLine("Already up to date: it has every foreign key. Nothing to do (--force converts anyway).");
+                Console.WriteLine("Already up to date. Nothing to do (--force converts anyway).");
                 return 0;
             }
-            if (missing.Count > 0) Console.WriteLine($"  adds foreign keys: {string.Join(", ", missing)}");
+            foreach (var change in changes) Console.WriteLine($"  {change}");
             Console.WriteLine($"  new: {newPath}");
             Console.WriteLine();
 
@@ -75,6 +75,8 @@ namespace Timesheeter.DbConversion
                 foreach (var problem in result.Problems) Console.Error.WriteLine($"  - {problem}");
                 return 2;
             }
+
+            StampConvertedRows(newPath);
 
             foreach (var (table, rows) in result.RowCounts.OrderBy(kv => kv.Key))
             {
@@ -108,6 +110,26 @@ namespace Timesheeter.DbConversion
                 Console.Error.WriteLine($"Couldn't put the new database in place ({ex.Message}). Is Timesheeter still open?");
                 Console.Error.WriteLine($"The converted database is at {newPath}");
                 return 3;
+            }
+        }
+
+        /// <summary>
+        /// Rows from before TOC / TOM / MOP existed have no creation or change time on record, so
+        /// they get the time of conversion and this tool as the process.
+        /// </summary>
+        private static void StampConvertedRows(string databasePath)
+        {
+            using var store = new SqliteStore(databasePath);
+            string now = DateTime.UtcNow.ToString("O");
+            const string never = "0001-01-01T00:00:00.0000000Z"; // a DateTime column's default
+
+            foreach (var type in StoredTypes.Data.Where(t => typeof(IAudited).IsAssignableFrom(t)))
+            {
+                string table = type.GetCustomAttributes(typeof(TableAttribute), false).OfType<TableAttribute>().FirstOrDefault()?.Name ?? type.Name;
+                store.Execute(
+                    $"UPDATE [{table}] SET [TOC] = @now WHERE [TOC] = @never OR [TOC] = '';" +
+                    $"UPDATE [{table}] SET [TOM] = @now, [MOP] = @mop WHERE [TOM] = @never OR [TOM] = '' OR [MOP] = '';",
+                    new { now, never, mop = Audit.Process });
             }
         }
 

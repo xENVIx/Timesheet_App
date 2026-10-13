@@ -49,7 +49,7 @@ namespace Timesheeter.UserControls
                 Date = _dtpDate.Date,
                 TimeStart = _tpStart.Time,
                 TimeEnd = _tpEnd.Time,
-                ProjectCodeID = _cbProjCodes.SelectedValue is long id ? id : 0,
+                ProjectCodeID = _cbProjCodes.SelectedValue is Guid id ? id : Guid.Empty,
                 Comment = _tbComment.Text,
             };
 

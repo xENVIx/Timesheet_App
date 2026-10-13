@@ -18,7 +18,7 @@ namespace Timesheeter.Core.Data
 
         //public IReadOnlyCollection<Customer> All { get { return _list; } }
         //public BindingList<Customer> All { get { return _list; } }
-        public Customer? this[long key] 
+        public Customer? this[Guid key] 
         { 
             get
             {
@@ -34,11 +34,14 @@ namespace Timesheeter.Core.Data
         //private BindingList<Customer> _list = new BindingList<Customer>();
 
 
-        public class Customer : IData, ISoftDeletable
+        public class Customer : IData, ISoftDeletable, IAudited
         {
-            [PrimaryKey, GridHidden] public long ID { get; set; }
+            [PrimaryKey, GridHidden] public Guid ID { get; set; }
             [Required, Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;
             [DisplayName("Deleted"), GridHidden] public bool Deleted { get; set; } = false;
+            [GridHidden, DisplayName("Created (UTC)")] public DateTime TOC { get; set; }
+            [GridHidden, DisplayName("Modified (UTC)")] public DateTime TOM { get; set; }
+            [GridHidden, MaxLength(Audit.MaxProcessLength), DisplayName("Modified By")] public string MOP { get; set; } = string.Empty;
 
         }
 
