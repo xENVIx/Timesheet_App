@@ -12,6 +12,14 @@
   <PropertyGroup>
     <OutputName>TimesheeterSetup</OutputName>
     <InstallerPlatform>x64</InstallerPlatform>
+
+    <!--
+      The setup wizard's text (and Windows Installer's progress and error messages) comes from
+      the UI extension's localization files. Without a culture none are used, so the wizard
+      showed placeholders like "[1]" and "[9]" instead of names. The .msi now lands in
+      bin\x64\Release\en-US\.
+    -->
+    <Cultures>en-US</Cultures>
     <Platform>x64</Platform>
 
     <!-- No .wixpdb next to the .msi: it's only debug info for building patches, never shipped. -->

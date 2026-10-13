@@ -1,4 +1,4 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <!--
@@ -11,6 +11,7 @@
   -->
   <Package Name="Timesheeter"
            Manufacturer="WeissLab"
+           Language="1033"
            Version="!(bind.FileVersion.TimesheeterExe)"
            UpgradeCode="d952c761-f408-4868-98ff-68ebc5f4746a"
            Scope="perUserOrMachine">
