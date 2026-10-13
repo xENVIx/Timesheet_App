@@ -1,4 +1,4 @@
-using LibSqlLite;
+﻿using LibSqlLite;
 using Timesheeter.Core.Data;
 
 namespace Timesheeter.DbConversion
@@ -19,12 +19,16 @@ namespace Timesheeter.DbConversion
               --replace   After a successful conversion, put the new database in the old one's place
                           (the old one is kept as <name>.before-conversion-<date>.bak)
               --force     Convert even if the database already has everything
+              --no-song   Skip "Timesheet Toxicity"
 
             The old database is only read. Close Timesheeter (and the server) first.
             """;
 
         private static int Main(string[] args)
         {
+            // So the song's ♪ shows in the Windows console too.
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             if (args.Any(a => a is "-h" or "--help" or "/?"))
             {
                 Console.WriteLine(Usage);
@@ -33,6 +37,7 @@ namespace Timesheeter.DbConversion
 
             bool replace = args.Contains("--replace", StringComparer.OrdinalIgnoreCase);
             bool force = args.Contains("--force", StringComparer.OrdinalIgnoreCase);
+            bool song = !args.Contains("--no-song", StringComparer.OrdinalIgnoreCase);
             var paths = args.Where(a => !a.StartsWith("--")).ToList();
 
             string oldPath = Path.GetFullPath(paths.ElementAtOrDefault(0) ?? DefaultDatabase());
@@ -40,6 +45,7 @@ namespace Timesheeter.DbConversion
             string newPath = Path.GetFullPath(paths.ElementAtOrDefault(1)
                 ?? Path.Combine(Path.GetDirectoryName(oldPath)!, $"{Path.GetFileNameWithoutExtension(oldPath)}.converted-{stamp}.db"));
 
+            if (song) Console.WriteLine(TimesheetToxicity.Lyrics);
             Console.WriteLine($"Timesheeter.DbConversion {typeof(Program).Assembly.GetName().Version?.ToString(2)}");
             Console.WriteLine($"  old: {oldPath}");
 
