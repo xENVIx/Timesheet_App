@@ -53,6 +53,10 @@ namespace Timesheeter.Server
                 _store.EnsureTable<Customers.Customer>();
                 _store.EnsureTable<ProjectCodes.ProjectCode>();
                 _store.EnsureTable<TimeEntries.TimeEntry>();
+
+                
+                
+
             }
             catch (Exception ex)
             {
@@ -137,6 +141,18 @@ namespace Timesheeter.Server
                 _app.UseSwagger();
                 _app.UseSwaggerUI();
             }
+
+
+            /* this is obviously wrong...?
+            _app.MapGet("/customer", (HttpContext httpContext) =>
+            {
+                var customer = Enumerable.Range(1, 5).Select(index =>
+                {
+
+                })
+            });
+            */
+
 
             /*
             _app.UseHttpsRedirection();

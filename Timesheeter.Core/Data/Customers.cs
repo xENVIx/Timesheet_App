@@ -11,6 +11,28 @@ namespace Timesheeter.Core.Data
 {
     public class Customers : DataClass<Customers.Customer>
     {
+
+        public const String TableName = nameof(Customer);
+        public static class SQL
+        {
+            public static class COLUMNS
+            {
+                public const String ID = "ID";
+                public const String NAME = "Name";
+                public const String DELETED = "Deleted";
+            }
+
+            public static class Statments
+            {
+                public static String SelectAll()
+                {
+                    return $"SELECT * FROM {TableName}";
+                }
+
+
+            }
+        }
+
         //public IReadOnlyCollection<Customer> All { get { return _list; } }
         //public BindingList<Customer> All { get { return _list; } }
         public Customer? this[long key] 

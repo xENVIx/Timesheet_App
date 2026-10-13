@@ -10,4 +10,7 @@ namespace Timesheeter.Server
 
         public string? Summary { get; set; }
     }
+
+    
+
 }
