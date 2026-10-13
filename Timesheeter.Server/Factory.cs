@@ -233,7 +233,7 @@ namespace Timesheeter.Server
                     }
                     catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
                     {
-                        return Results.Conflict($"Duplicate Key Exception");
+                        return Results.Conflict(ConflictMessage<T>(ex));
                     }
                     return Results.Created($"{endpoint}/{iData.ID}", data);
 
@@ -255,7 +255,7 @@ namespace Timesheeter.Server
                     try { return store.Update(data) ? Results.Ok(data) : Results.NotFound(); }
                     catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
                     {
-                        return Results.Conflict($"Duplicate Key Exception");
+                        return Results.Conflict(ConflictMessage<T>(ex));
                     }
                 }
                 else
@@ -267,6 +267,28 @@ namespace Timesheeter.Server
             return mapGroup;
         }
 
+
+        /// <summary>
+        /// A readable message for a SQLite constraint error (code 19), e.g. for
+        /// "UNIQUE constraint failed: Customer.Name": "A Customer with that Name already exists."
+        /// </summary>
+        private static string ConflictMessage<T>(Microsoft.Data.Sqlite.SqliteException ex)
+        {
+            string type = typeof(T).Name;
+
+            // SQLite's text, e.g. "SQLite Error 19: 'UNIQUE constraint failed: Customer.Name'."
+            var match = System.Text.RegularExpressions.Regex.Match(ex.Message, @"(\w+) constraint failed: ([^']+)");
+            if (!match.Success) return $"The {type} conflicts with existing data.";
+
+            string kind = match.Groups[1].Value;
+            var columns = match.Groups[2].Value
+                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(column => column.Contains('.') ? column[(column.LastIndexOf('.') + 1)..] : column);
+
+            return kind.Equals("UNIQUE", StringComparison.OrdinalIgnoreCase)
+                ? $"A {type} with that {string.Join(" and ", columns)} already exists."
+                : $"The {type} breaks a {kind} rule on {string.Join(", ", columns)}.";
+        }
 
         private static bool IsValid(Object item, out Dictionary<String, String[]> errors)
         {
