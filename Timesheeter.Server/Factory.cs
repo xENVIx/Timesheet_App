@@ -213,6 +213,20 @@ namespace Timesheeter.Server
 
             var mapGroup = _app.MapGroup(endpoint);
             mapGroup.MapGet("/", (SqliteStore store) => store.All<T>());
+
+            // GET /api/customers.json and /api/customers.xml: every record in that format, or with
+            // ?id=<guid> just that one (404 if there's no such record).
+            string name = endpoint.TrimEnd('/')[(endpoint.TrimEnd('/').LastIndexOf('/') + 1)..];
+            _app.MapGet($"{endpoint.TrimEnd('/')}.json", (Guid? id, SqliteStore store) =>
+                id is { } key
+                    ? store.Get<T>(key) is { } item ? Results.Json(item) : Results.NotFound()
+                    : Results.Json(store.All<T>()))
+                .WithTags(name);
+            _app.MapGet($"{endpoint.TrimEnd('/')}.xml", (Guid? id, SqliteStore store) =>
+                id is { } key
+                    ? store.Get<T>(key) is { } item ? Results.Content(XmlFormat.Write(item), XmlFormat.ContentType) : Results.NotFound()
+                    : Results.Content(XmlFormat.Write(store.All<T>(), name), XmlFormat.ContentType))
+                .WithTags(name);
             mapGroup.MapGet("{id:guid}", (Guid id, SqliteStore store) =>
                 store.Get<T>(id) is { } data ? Results.Ok(data) : Results.NotFound());
 
