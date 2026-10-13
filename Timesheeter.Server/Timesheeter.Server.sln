@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37628.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timesheeter.Server", "Timesheeter.Server.csproj", "{8946DB5C-641F-4B0B-AF2F-70333DFD8230}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timesheeter.Core", "..\Timesheeter.Core\Timesheeter.Core.csproj", "{72C35EE7-E757-78AB-5682-66B088E0B510}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8946DB5C-641F-4B0B-AF2F-70333DFD8230}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8946DB5C-641F-4B0B-AF2F-70333DFD8230}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8946DB5C-641F-4B0B-AF2F-70333DFD8230}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8946DB5C-641F-4B0B-AF2F-70333DFD8230}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72C35EE7-E757-78AB-5682-66B088E0B510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72C35EE7-E757-78AB-5682-66B088E0B510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72C35EE7-E757-78AB-5682-66B088E0B510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72C35EE7-E757-78AB-5682-66B088E0B510}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92155D09-2C24-4439-B7D0-2ABA7538E082}
+	EndGlobalSection
+EndGlobal
