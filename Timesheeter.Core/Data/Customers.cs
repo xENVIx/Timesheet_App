@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Timesheeter.Core.Interfaces;
 
 namespace Timesheeter.Core.Data
 {
@@ -13,25 +14,7 @@ namespace Timesheeter.Core.Data
     {
 
         public const String TableName = nameof(Customer);
-        public static class SQL
-        {
-            public static class COLUMNS
-            {
-                public const String ID = "ID";
-                public const String NAME = "Name";
-                public const String DELETED = "Deleted";
-            }
-
-            public static class Statments
-            {
-                public static String SelectAll()
-                {
-                    return $"SELECT * FROM {TableName}";
-                }
-
-
-            }
-        }
+        
 
         //public IReadOnlyCollection<Customer> All { get { return _list; } }
         //public BindingList<Customer> All { get { return _list; } }
@@ -51,7 +34,7 @@ namespace Timesheeter.Core.Data
         //private BindingList<Customer> _list = new BindingList<Customer>();
 
 
-        public class Customer : ISoftDeletable
+        public class Customer : IData, ISoftDeletable
         {
             [PrimaryKey, GridHidden] public long ID { get; set; }
             [Required, Unique(IgnoreCase = true)] public string Name { get; set; } = string.Empty;

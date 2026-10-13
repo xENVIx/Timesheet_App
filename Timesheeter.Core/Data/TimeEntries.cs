@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Timesheeter.Core.Interfaces;
 using static Timesheeter.Core.Data.ProjectCodes;
 
 namespace Timesheeter.Core.Data
@@ -26,7 +27,7 @@ namespace Timesheeter.Core.Data
         // Deleted time entries are left out of the app completely, the timesheet included.
         protected override bool KeepsDeleted => false;
 
-        public class TimeEntry : IValidatableObject, ISoftDeletable
+        public class TimeEntry : IData, IValidatableObject, ISoftDeletable
         {
 
             [PrimaryKey, GridHidden] public long ID { get; set; }
@@ -36,6 +37,8 @@ namespace Timesheeter.Core.Data
             [Required, DisplayName("Project Code"), GridLookup(typeof(ProjectCodes), "Code")] public long ProjectCodeID { get; set; }
             [DisplayName("Comment")] public String Comment { get; set; } = String.Empty;
             [DisplayName("Deleted"), GridHidden] public bool Deleted { get; set; } = false;
+
+
 
 
             [Ignore, DisplayName("Hours")] public Double Hours

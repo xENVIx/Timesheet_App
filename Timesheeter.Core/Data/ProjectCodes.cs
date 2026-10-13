@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Timesheeter.Core.Interfaces;
 
 namespace Timesheeter.Core.Data
 {
@@ -24,7 +25,7 @@ namespace Timesheeter.Core.Data
 
 
 
-        public class ProjectCode : ISoftDeletable
+        public class ProjectCode : IData, ISoftDeletable
         {
             [PrimaryKey, GridHidden] public long ID { get; set; }
             [Required, Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;

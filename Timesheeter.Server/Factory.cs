@@ -1,6 +1,7 @@
 ﻿using LibLogging;
 using LibSqlLite;
 using Timesheeter.Core.Data;
+using Timesheeter.Core.Interfaces;
 
 namespace Timesheeter.Server
 {
@@ -147,9 +148,12 @@ namespace Timesheeter.Server
 
             try
             {
-                InitializeCustomersEndpoint();
-                InitializeProjectCodesEndpoint();
-                InitializeTimeEntriesEndpoint();
+                InitializeEndpoint<Customers.Customer>("/api/customers", out var mapGroupCustomers);
+                InitializeEndpoint<ProjectCodes.ProjectCode>("/api/project_codes", out var mapGroupProjectCodes);
+                InitializeEndpoint<TimeEntries.TimeEntry>("/api/time_entries", out var mapGroupTimeEntries);
+                //InitializeCustomersEndpoint();
+                //InitializeProjectCodesEndpoint();
+                //InitializeTimeEntriesEndpoint();
             }
             catch (Exception ex)
             {
@@ -160,7 +164,7 @@ namespace Timesheeter.Server
             _initialized = true;
         }
 
-
+        /*
         private void InitializeCustomersEndpoint()
         {
             if (_app == null) throw new ArgumentNullException(nameof(_app));
@@ -198,16 +202,69 @@ namespace Timesheeter.Server
                 }
             });
         }
+        */
 
-        private void InitializeProjectCodesEndpoint()
+        /// <summary>
+        /// Must inherit interface IData
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="endpoint"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void InitializeEndpoint<T>(String endpoint, out RouteGroupBuilder? mapGroup) where T : class
         {
+            if (_app == null) throw new ArgumentNullException(nameof(_app));
 
+            mapGroup = _app.MapGroup(endpoint);
+            mapGroup.MapGet("/", (SqliteStore store) => store.All<T>());
+            mapGroup.MapGet("{id:long}", (long id, SqliteStore store) =>
+                store.Get<T>(id) is { } data ? Results.Ok(data) : Results.NotFound());
+
+            mapGroup.MapPost("/", (T data, LibSqlLite.SqliteStore store) =>
+            {
+                if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
+
+                if (data is IData iData)
+                {
+
+                    try
+                    {
+                        //return store.Update(customer) ? Results.Ok(customer) : Results.NotFound();
+                        store.Insert(data);
+                    }
+                    catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
+                    {
+                        return Results.Conflict($"Duplicate Key Exception");
+                    }
+                    return Results.Created($"/api/customers/{iData.ID}", data);
+
+                }
+                else
+                {
+                    return Results.NotFound($"Invalid Data Type: {typeof(T)}");
+                }
+            });
+
+
+            mapGroup.MapPut("/{id:long}", (long id, T data, SqliteStore store) =>
+            {
+                if (data is IData iData)
+                {
+
+                    iData.ID = id;
+                    if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
+                    try { return store.Update(data) ? Results.Ok(data) : Results.NotFound(); }
+                    catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
+                    {
+                        return Results.Conflict($"Duplicate Key Exception");
+                    }
+                }
+                else
+                {
+                    return Results.NotFound($"Invalid Data Type: {typeof(T)}");
+                }
+            });
         }
 
-        private void InitializeTimeEntriesEndpoint()
-        {
-
-        }
 
         private static bool IsValid(Object item, out Dictionary<String, String[]> errors)
         {
