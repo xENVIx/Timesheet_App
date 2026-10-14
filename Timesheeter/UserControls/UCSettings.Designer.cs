@@ -42,12 +42,28 @@
             label2 = new Label();
             _tbLastName = new TextBox();
             _btnSave = new Button();
+            _lblServer = new Label();
+            _lblServerUrl = new Label();
+            _tbServerUrl = new TextBox();
+            _lblApiKey = new Label();
+            _tbApiKey = new TextBox();
+            _btnSaveServer = new Button();
+            _btnTestServer = new Button();
+            _lblServerStatus = new Label();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             SuspendLayout();
             // 
             // _pnlSideBar
             // 
+            _pnlSideBar.Controls.Add(_lblServerStatus);
+            _pnlSideBar.Controls.Add(_btnTestServer);
+            _pnlSideBar.Controls.Add(_btnSaveServer);
+            _pnlSideBar.Controls.Add(_tbApiKey);
+            _pnlSideBar.Controls.Add(_lblApiKey);
+            _pnlSideBar.Controls.Add(_tbServerUrl);
+            _pnlSideBar.Controls.Add(_lblServerUrl);
+            _pnlSideBar.Controls.Add(_lblServer);
             _pnlSideBar.Controls.Add(_btnSave);
             _pnlSideBar.Controls.Add(label2);
             _pnlSideBar.Controls.Add(_tbLastName);
@@ -169,7 +185,78 @@
             _btnSave.Text = "Save";
             _btnSave.UseVisualStyleBackColor = true;
             _btnSave.Click += _btnSave_Click;
-            // 
+            //
+            // _lblServer
+            //
+            _lblServer.AutoSize = true;
+            _lblServer.Location = new Point(15, 482);
+            _lblServer.Name = "_lblServer";
+            _lblServer.Size = new Size(70, 15);
+            _lblServer.TabIndex = 12;
+            _lblServer.Text = "Sync server";
+            //
+            // _lblServerUrl
+            //
+            _lblServerUrl.AutoSize = true;
+            _lblServerUrl.Location = new Point(15, 504);
+            _lblServerUrl.Name = "_lblServerUrl";
+            _lblServerUrl.Size = new Size(85, 15);
+            _lblServerUrl.TabIndex = 13;
+            _lblServerUrl.Text = "Server address";
+            //
+            // _tbServerUrl
+            //
+            _tbServerUrl.Location = new Point(15, 522);
+            _tbServerUrl.Name = "_tbServerUrl";
+            _tbServerUrl.PlaceholderText = "https://my-server:7045";
+            _tbServerUrl.Size = new Size(266, 23);
+            _tbServerUrl.TabIndex = 14;
+            //
+            // _lblApiKey
+            //
+            _lblApiKey.AutoSize = true;
+            _lblApiKey.Location = new Point(15, 550);
+            _lblApiKey.Name = "_lblApiKey";
+            _lblApiKey.Size = new Size(48, 15);
+            _lblApiKey.TabIndex = 15;
+            _lblApiKey.Text = "API key";
+            //
+            // _tbApiKey
+            //
+            _tbApiKey.Location = new Point(15, 568);
+            _tbApiKey.Name = "_tbApiKey";
+            _tbApiKey.PlaceholderText = "tsk_...";
+            _tbApiKey.Size = new Size(266, 23);
+            _tbApiKey.TabIndex = 16;
+            _tbApiKey.UseSystemPasswordChar = true;
+            //
+            // _btnSaveServer
+            //
+            _btnSaveServer.Location = new Point(15, 600);
+            _btnSaveServer.Name = "_btnSaveServer";
+            _btnSaveServer.Size = new Size(130, 28);
+            _btnSaveServer.TabIndex = 17;
+            _btnSaveServer.Text = "Save server";
+            _btnSaveServer.UseVisualStyleBackColor = true;
+            _btnSaveServer.Click += _btnSaveServer_Click;
+            //
+            // _btnTestServer
+            //
+            _btnTestServer.Location = new Point(151, 600);
+            _btnTestServer.Name = "_btnTestServer";
+            _btnTestServer.Size = new Size(130, 28);
+            _btnTestServer.TabIndex = 18;
+            _btnTestServer.Text = "Test connection";
+            _btnTestServer.UseVisualStyleBackColor = true;
+            _btnTestServer.Click += _btnTestServer_Click;
+            //
+            // _lblServerStatus
+            //
+            _lblServerStatus.Location = new Point(15, 634);
+            _lblServerStatus.Name = "_lblServerStatus";
+            _lblServerStatus.Size = new Size(266, 45);
+            _lblServerStatus.TabIndex = 19;
+            //
             // UCSettings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -196,5 +283,13 @@
         private Label label2;
         private TextBox _tbLastName;
         private Button _btnSave;
+        private Label _lblServer;
+        private Label _lblServerUrl;
+        private TextBox _tbServerUrl;
+        private Label _lblApiKey;
+        private TextBox _tbApiKey;
+        private Button _btnSaveServer;
+        private Button _btnTestServer;
+        private Label _lblServerStatus;
     }
 }
