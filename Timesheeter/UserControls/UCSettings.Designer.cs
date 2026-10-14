@@ -48,11 +48,6 @@
             // 
             // _pnlSideBar
             // 
-            _pnlSideBar.Controls.Add(_btnSave);
-            _pnlSideBar.Controls.Add(label2);
-            _pnlSideBar.Controls.Add(_tbLastName);
-            _pnlSideBar.Controls.Add(label1);
-            _pnlSideBar.Controls.Add(_tbFirstName);
             _pnlSideBar.Controls.Add(_btnCustomAccent);
             _pnlSideBar.Controls.Add(_flpAccents);
             _pnlSideBar.Controls.Add(_lblAccent);
@@ -60,6 +55,11 @@
             _pnlSideBar.Controls.Add(_rbLightDarkNav);
             _pnlSideBar.Controls.Add(_rbLight);
             _pnlSideBar.Controls.Add(_lblTheme);
+            _pnlSideBar.Controls.Add(label1);
+            _pnlSideBar.Controls.Add(label2);
+            _pnlSideBar.Controls.Add(_tbFirstName);
+            _pnlSideBar.Controls.Add(_tbLastName);
+            _pnlSideBar.Controls.Add(_btnSave);
             // 
             // _lblTheme
             // 
@@ -128,7 +128,7 @@
             // 
             // _tbFirstName
             // 
-            _tbFirstName.Location = new Point(15, 32);
+            _tbFirstName.Location = new Point(3, 27);
             _tbFirstName.Name = "_tbFirstName";
             _tbFirstName.Size = new Size(266, 23);
             _tbFirstName.TabIndex = 7;
@@ -137,7 +137,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(15, 14);
+            label1.Location = new Point(3, 9);
             label1.Name = "label1";
             label1.Size = new Size(64, 15);
             label1.TabIndex = 8;
@@ -146,7 +146,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(15, 58);
+            label2.Location = new Point(3, 53);
             label2.Name = "label2";
             label2.Size = new Size(63, 15);
             label2.TabIndex = 10;
@@ -154,7 +154,7 @@
             // 
             // _tbLastName
             // 
-            _tbLastName.Location = new Point(15, 76);
+            _tbLastName.Location = new Point(3, 71);
             _tbLastName.Name = "_tbLastName";
             _tbLastName.Size = new Size(266, 23);
             _tbLastName.TabIndex = 9;
@@ -162,7 +162,7 @@
             // 
             // _btnSave
             // 
-            _btnSave.Location = new Point(15, 105);
+            _btnSave.Location = new Point(3, 100);
             _btnSave.Name = "_btnSave";
             _btnSave.Size = new Size(130, 28);
             _btnSave.TabIndex = 11;
