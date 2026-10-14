@@ -11,23 +11,12 @@ namespace Timesheeter.Server
 
         private WebApplication? _app;
         private volatile bool _initialized = false;
-        private LibSqlLite.SqliteStore? _store;
-
-        /// <summary>
-        /// Where the database and its backups live: the TIMESHEETER_SERVER_DATA environment variable if
-        /// set (e.g. /var/lib/timesheeter on a Linux box), otherwise Documents\Timersheeter.Server.
-        /// </summary>
+        private LibSqlLite.SqliteStore? _store;/// <summary>Where the database and its backups live (also shown on the About screen).</summary>
         internal static readonly String DataFolder =
-            Environment.GetEnvironmentVariable("TIMESHEETER_SERVER_DATA") is { Length: > 0 } configured
-                ? configured
-                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Timersheeter.Server");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Timersheeter.Server");
 
         private Logger? _logger;
         private CancellationTokenSource _cts;
-        private ApiKeys? _apiKeys;
-
-        // True when the command line was a "keys" command: it has run, and there's no server to start.
-        private bool _commandOnly;
 
         public Factory()
         {
@@ -73,24 +62,6 @@ namespace Timesheeter.Server
                 _logger.Error($"Exception Ensuring Tables Exist");
                 _logger.Exception(ex);
                 throw;
-            }
-
-            _apiKeys = new ApiKeys(_store);
-
-            // "Timesheeter.Server keys ..." manages API keys and exits.
-            if (KeyCommands.TryRun(args, _apiKeys))
-            {
-                _commandOnly = true;
-                _initialized = true;
-                return;
-            }
-
-            // Nothing can get in without a key, so the very first start makes one. It's printed once
-            // to the console only (never the log file, which outlives the console).
-            if (_apiKeys.Active().Count == 0)
-            {
-                KeyCommands.PrintNewKey("default", _apiKeys.Create("default"));
-                _logger.Info("Created the first API key, 'default' (printed to the console).");
             }
 
             // make a backup if the file already existed...
@@ -157,27 +128,9 @@ namespace Timesheeter.Server
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                // An "Authorize" button in Swagger UI, to paste a key in for trying requests.
-                var scheme = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    Name = ApiKeys.HeaderName,
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-                    Description = "The API key, e.g. tsk_...",
-                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                    {
-                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                        Id = "ApiKey",
-                    },
-                };
-                options.AddSecurityDefinition("ApiKey", scheme);
-                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement { [scheme] = [] });
-            });
+            builder.Services.AddSwaggerGen();
 
             builder.Services.AddSingleton(_store);
-            builder.Services.AddSingleton(_apiKeys);
 
             _app = builder.Build();
 
@@ -189,25 +142,6 @@ namespace Timesheeter.Server
                 _app.UseSwagger();
                 _app.UseSwaggerUI();
             }
-
-            // Every /api request needs a valid key in the X-Api-Key header; without one it gets 401
-            // and nothing else runs. The key's name goes along with the request (for MOP).
-            var apiKeys = _apiKeys;
-            _app.Use(async (context, next) =>
-            {
-                if (context.Request.Path.StartsWithSegments("/api"))
-                {
-                    var key = apiKeys.Find(context.Request.Headers[ApiKeys.HeaderName]);
-                    if (key == null)
-                    {
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await context.Response.WriteAsJsonAsync(new { error = $"A valid API key is required in the {ApiKeys.HeaderName} header." });
-                        return;
-                    }
-                    context.Items[KeyNameItem] = key.Name;
-                }
-                await next(context);
-            });
 
             try
             {
@@ -288,9 +222,9 @@ namespace Timesheeter.Server
                 store.Get<T>(id) is { } data ? Respond(request, data) : Results.NotFound());
 
             // POST: an ID from the client is kept (devices create their own GUIDs); none gets a new one.
-            mapGroup.MapPost("/", (T data, HttpContext context, LibSqlLite.SqliteStore store) =>
+            mapGroup.MapPost("/", (T data, LibSqlLite.SqliteStore store) =>
             {
-                StampIfMissing(data, existing: null, context);
+                StampIfMissing(data, existing: null);
                 if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
 
                 
@@ -310,13 +244,13 @@ namespace Timesheeter.Server
             });
 
 
-            mapGroup.MapPut("/{id:guid}", (Guid id, T data, HttpContext context, SqliteStore store) =>
+            mapGroup.MapPut("/{id:guid}", (Guid id, T data, SqliteStore store) =>
             {
 
                 data.ID = id;
                 var existing = store.Get<T>(id);
                 if (existing == null) return Results.NotFound();
-                StampIfMissing(data, existing, context);
+                StampIfMissing(data, existing);
                 if (!IsValid(data, out var errors)) return Results.ValidationProblem(errors);
                 try { return store.Update(data) ? Results.Ok(data) : Results.NotFound(); }
                 catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
@@ -342,29 +276,17 @@ namespace Timesheeter.Server
         private static IResult Respond<T>(HttpRequest request, T item) where T : class =>
             WantsXml(request) ? Results.Content(XmlFormat.Write(item), XmlFormat.ContentType) : Results.Json(item);
 
-        /// <summary>HttpContext.Items entry holding the name of the API key the request used.</summary>
-        private const string KeyNameItem = "ApiKeyName";
-
         /// <summary>
         /// TOC / TOM / MOP for a record written through the API. A device that sends them (it made the
-        /// change, so it knows when and where) is kept as is; a request without them is stamped here,
-        /// with MOP naming the API key used, e.g. "Timesheeter.Server 1.0.0 @ nas (key: laptop)".
+        /// change, so it knows when and where) is kept as is; a request without them is stamped here.
         /// An update keeps the stored TOC unless the request has one.
         /// </summary>
-        private static void StampIfMissing(object data, object? existing, HttpContext context)
+        private static void StampIfMissing(object data, object? existing)
         {
             if (data is not IAudited audited) return;
 
             if (audited.TOC == default && existing is IAudited stored) audited.TOC = stored.TOC;
-            if (audited.TOM == default || string.IsNullOrWhiteSpace(audited.MOP))
-            {
-                Audit.Stamp(data, created: existing == null);
-                if (context.Items[KeyNameItem] is string keyName)
-                {
-                    string mop = $"{audited.MOP} (key: {keyName})";
-                    audited.MOP = mop.Length <= Audit.MaxProcessLength ? mop : mop[..Audit.MaxProcessLength];
-                }
-            }
+            if (audited.TOM == default || string.IsNullOrWhiteSpace(audited.MOP)) Audit.Stamp(data, created: existing == null);
         }
 
         /// <summary>
@@ -409,8 +331,6 @@ namespace Timesheeter.Server
         {
             if (!_initialized)
                 throw new Exception($"Factory is not initialized");
-
-            if (_commandOnly) return;
 
 
             if (_app == null)
