@@ -77,9 +77,6 @@ namespace Timesheeter.UserControls
             _tbFirstName.Text = _settings.Name.FirstName;
             _tbLastName.Text = _settings.Name.LastName;
 
-            _tbServerUrl.Text = _settings.ServerUrl;
-            _tbApiKey.Text = SecretProtector.Unprotect(_settings.ServerApiKeyProtected);
-
 
             if (_tbFirstName.Text.Length <= 0 || _tbLastName.Text.Length <= 0)
             {
@@ -185,33 +182,6 @@ namespace Timesheeter.UserControls
 
 
 
-        }
-
-        // The key is stored encrypted for this Windows user (SecretProtector), never as plain text.
-        private void _btnSaveServer_Click(object? sender, EventArgs e)
-        {
-            if (_settings == null) return;
-
-            _settings.ServerUrl = _tbServerUrl.Text;
-            _settings.ServerApiKeyProtected = SecretProtector.Protect(_tbApiKey.Text.Trim());
-            _tbServerUrl.Text = _settings.ServerUrl;
-
-            _lblServerStatus.Text = _settings.Save() ? "Saved." : "Could not save the server settings.";
-        }
-
-        private async void _btnTestServer_Click(object? sender, EventArgs e)
-        {
-            _btnTestServer.Enabled = false;
-            _lblServerStatus.Text = "Connecting...";
-            try
-            {
-                string? problem = await SyncServer.TestAsync(_tbServerUrl.Text.Trim(), _tbApiKey.Text.Trim());
-                _lblServerStatus.Text = problem ?? "Connected: the server accepted the key.";
-            }
-            finally
-            {
-                _btnTestServer.Enabled = true;
-            }
         }
     }
 }

@@ -21,15 +21,6 @@ namespace Timesheeter.Core.Data
             public String LastName { get; set; } = "";
             public ThemeMode ThemeMode { get; set; } = ThemeMode.LightWithDarkNavigation;
             public int AccentArgb { get; set; } = DefaultAccentArgb;
-
-            /// <summary>The Timesheeter server to sync with, e.g. https://nas:7045; empty for none.</summary>
-            public String ServerUrl { get; set; } = "";
-
-            /// <summary>
-            /// The server's API key, encrypted by the app (never stored as plain text). Core only keeps
-            /// it; how it's protected is up to the app (Windows uses DPAPI for the current user).
-            /// </summary>
-            public String ServerApiKeyProtected { get; set; } = "";
         }
 
         // Theme.AccentPresets[0] ("Blue"); the theme itself lives in the WinForms app.
@@ -69,20 +60,6 @@ namespace Timesheeter.Core.Data
         }
             
 
-
-        /// <summary>The sync server's address, trimmed, without a trailing slash; empty for none.</summary>
-        public String ServerUrl
-        {
-            get => _setting.ServerUrl;
-            set => _setting.ServerUrl = (value ?? "").Trim().TrimEnd('/');
-        }
-
-        /// <summary>The sync server's API key as the app encrypted it (see <see cref="Setting.ServerApiKeyProtected"/>).</summary>
-        public String ServerApiKeyProtected
-        {
-            get => _setting.ServerApiKeyProtected;
-            set => _setting.ServerApiKeyProtected = value ?? "";
-        }
 
         public Color Accent
         {
