@@ -29,6 +29,7 @@ namespace Timesheeter.Core.Data
         {
             [PrimaryKey, GridHidden] public Guid ID { get; set; }
             [Required, Unique(IgnoreCase = true), DisplayName("Project Code")] public string Code { get; set; } = string.Empty;
+            [DisplayName("Short Code")] public string ShortCode { get; set; } = String.Empty;
             [Required, DisplayName("Customer"), GridLookup(typeof(Customers), "Name"), References(typeof(Customers.Customer))] public Guid CustomerID { get; set; }
             [DisplayName("Project Name")] public String ProjectName { get; set; } = string.Empty;
             [DisplayName("Description")] public String Description { get; set; } = string.Empty;

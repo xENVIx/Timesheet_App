@@ -164,6 +164,7 @@ namespace Timesheeter.UserControls
             String projPurpose = "";
             String description = "";
             String location = "";
+            String shortCode = "";
 
 
 
@@ -180,6 +181,9 @@ namespace Timesheeter.UserControls
                 projPurpose = projCode.ProjectName;
                 description = projCode.Description;
                 location = projCode.Location;
+                shortCode = 
+                    projCode.ShortCode == string.Empty || projCode.ShortCode == "" ? 
+                    projCode.Code : projCode.ShortCode;
             }
             else
             {
@@ -216,6 +220,7 @@ namespace Timesheeter.UserControls
                 description,
                 customerName,
                 location,
+                shortCode,
                 _weekEntries))
             {
                 MessageBox.Show(this, $"Could Not Generate Report");

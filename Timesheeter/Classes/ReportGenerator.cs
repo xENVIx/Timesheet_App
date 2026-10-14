@@ -27,6 +27,7 @@ namespace Timesheeter.Classes
             String description,
             String customerName,
             String location,
+            String shortCode,
             IReadOnlyList<TimeEntries.TimeEntry> _reportEntries,
             LibLogging.ILoggerApp? logger = null
         )
@@ -116,7 +117,7 @@ namespace Timesheeter.Classes
                 dlg.AddExtension = true;
                 dlg.FileName =
                     $"{String.Format(fileDateFormat, monday.Year, monday.Month, monday.Day)}_" +
-                    $"{projectCode}_" +
+                    $"{shortCode}_" +
                     $"{customerName}_" +
                     $"Timesheet_" +
                     $"{firstName}_{lastName}" +
