@@ -1,4 +1,4 @@
-
+﻿
 namespace Timesheeter.Server
 {
     public class Program
@@ -12,9 +12,12 @@ namespace Timesheeter.Server
             if (!factory.Initialize(args))
             {
 
-                Console.WriteLine($"Press Any Key To Exit");
-                Console.ReadKey();
-                //Console.Read();
+                // Only when someone can press a key: ReadKey throws when input is redirected (scripts, scheduled tasks).
+                if (!Console.IsInputRedirected)
+                {
+                    Console.WriteLine($"Press Any Key To Exit");
+                    Console.ReadKey();
+                }
 
                 return;
             }

@@ -100,7 +100,7 @@ namespace Timesheeter.UserControls
 
             var details = _serverSettings.ServerDetails;
             _tbServer.Text = details.address;
-            _tbPort.Text = details.port.ToString();
+            _tbPort.Text = details.port > 0 ? details.port.ToString() : ""; // blank until a server is set up
             _tbSecret.Text = details.secret;
 
         }
@@ -237,20 +237,29 @@ namespace Timesheeter.UserControls
             if (_serverSettings == null) return;
 
 
-            if (_tbServer.Text.Length <= 0 || _tbPort.Text.Length <= 0 || _tbSecret.Text.Length <= 0) return;
+            if (_tbServer.Text.Length <= 0 || _tbPort.Text.Length <= 0 || _tbSecret.Text.Length <= 0)
+            {
+                MessageBox.Show(this, $"Enter the Server, Port and Secret before saving.");
+                return;
+            }
 
             int iPort = -1;
 
-            if (!int.TryParse(_tbPort.Text, out iPort)) return;
-
-            if (iPort <= 0) return;
+            if (!int.TryParse(_tbPort.Text, out iPort) || iPort <= 0 || iPort > 65535)
+            {
+                MessageBox.Show(this, $"The Port must be a number from 1 to 65535.");
+                return;
+            }
 
             var details = _serverSettings.ServerDetails;
             details.port = iPort;
             details.address = _tbServer.Text;
             details.secret = _tbSecret.Text;
             _serverSettings.ServerDetails = details;
-            _serverSettings.Save();
+            if (!_serverSettings.Save())
+            {
+                MessageBox.Show(this, $"Could Not Save the Server Settings.");
+            }
 
 
         }

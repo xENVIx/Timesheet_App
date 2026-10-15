@@ -19,7 +19,7 @@ namespace Timesheeter.Server
         public class APIKey : IData, ISoftDeletable, IAudited
         {
             [PrimaryKey, GridHidden] public Guid ID { get; set; }
-            [Required, Unique(IgnoreCase = true)] public byte[] Key { get; set; }
+            [Required, Unique] public byte[] Key { get; set; } = Array.Empty<byte>();
             [Required, Unique(IgnoreCase = true)] public String Secret { get; set; } = string.Empty;
 
             [DisplayName("Deleted")] public bool Deleted { get; set; } = false;

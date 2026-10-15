@@ -195,7 +195,34 @@ namespace Timesheeter.Server
 
         private void DeleteApiKey(String[] args)
         {
+            if (args.Length != 2)
+            {
+                Console.WriteLine($"Invalid Argument Format.\n--deleteKey \"<secret>\"");
+                return;
+            }
 
+            if (_apiKeys == null)
+            {
+                Console.WriteLine($"Couldn't Delete API Key: {nameof(_apiKeys)} is null");
+                return;
+            }
+
+            String secret = args[1].Trim();
+            var key = _apiKeys.Active.FirstOrDefault(x => String.Compare(x.Secret, secret, StringComparison.InvariantCultureIgnoreCase) == 0);
+
+            if (key == null)
+            {
+                Console.WriteLine($"No API Key With Secret \"{secret}\".  Use --viewKeys to see the registered secrets.");
+                return;
+            }
+
+            if (!_apiKeys.Delete(key))
+            {
+                Console.WriteLine($"Failed To Delete API Key");
+                return;
+            }
+
+            Console.WriteLine($"Deleted API Key With Secret \"{key.Secret}\".");
         }
 
         private void ViewApiKeys(String[] args)
@@ -205,8 +232,13 @@ namespace Timesheeter.Server
                 Console.WriteLine($"Proper Argument Usage\n" +
                     $"--viewKeys\n" +
                     $"Displays all registered secrets.  API Keys cannot be viewed again, if you need a new one you must generate a new set of data.");
+                return;
+            }
 
-
+            if (_apiKeys == null)
+            {
+                Console.WriteLine($"Couldn't Read API Keys: {nameof(_apiKeys)} is null");
+                return;
             }
 
             foreach (var key in _apiKeys.Active)
@@ -224,7 +256,7 @@ namespace Timesheeter.Server
             }
             // args 1 should be the secret
             String secret = args[1].Trim();
-            String apiKey = GenerateApiKey();
+            String apiKey = ApiKeyUtility.GenerateApiKey();
             if (secret.Length <= 0 || apiKey.Length <= 0)
             {
                 Console.WriteLine($"Secret or API Key Generation Failed");
@@ -240,36 +272,41 @@ namespace Timesheeter.Server
                     return;
                 }
 
-                APIKeys.APIKey? apiKeyEnter = new APIKeys.APIKey();
+                var oldKey = _apiKeys.All.FirstOrDefault(x => String.Compare(x.Secret, secret, StringComparison.InvariantCultureIgnoreCase) == 0);
 
-                if (_apiKeys.All.ToList().Exists(x => String.Compare(x.Secret, secret, StringComparison.InvariantCultureIgnoreCase) == 0))
+                if (oldKey != null)
                 {
-                    // key exists just in deleted state... undelete...
-                    var oldKey = _apiKeys.All.Where(x => String.Compare(x.Secret, secret, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault();
-
-                    if (oldKey.Deleted)
-                    {
-                        apiKeyEnter = oldKey;
-                    }
-                    else
+                    if (!oldKey.Deleted)
                     {
                         Console.WriteLine($"Secret Already Exists.  Enter a new one and try again.");
                         return;
                     }
+
+                    // key exists just in deleted state... undelete it with the new key.
+                    // Restore updates the existing row; Save would try to insert it again.
+                    byte[] oldHash = oldKey.Key;
+                    oldKey.Key = ApiKeyUtility.HashApiKey(apiKey);
+
+                    if (!_apiKeys.Restore(oldKey))
+                    {
+                        oldKey.Key = oldHash;
+                        Console.WriteLine($"Failed To Save New API Key");
+                        return;
+                    }
                 }
-
-                if (apiKeyEnter == null)
+                else
                 {
-                    apiKeyEnter = new APIKeys.APIKey();
-                }
+                    var apiKeyEnter = new APIKeys.APIKey
+                    {
+                        Secret = secret,
+                        Key = ApiKeyUtility.HashApiKey(apiKey),
+                    };
 
-                apiKeyEnter.Secret = secret;
-                apiKeyEnter.Key = ApiKeyUtility.HashApiKey(apiKey);
-
-                if (!_apiKeys.Save(apiKeyEnter))
-                {
-                    Console.WriteLine($"Failed To Save New API Key");
-                    return;
+                    if (!_apiKeys.Save(apiKeyEnter))
+                    {
+                        Console.WriteLine($"Failed To Save New API Key");
+                        return;
+                    }
                 }
 
                 Console.WriteLine($"Secret: {secret}\nAPI Key: {apiKey}\nCopy For Your Records... The API Key Can Not Be Viewed Again!");
@@ -457,12 +494,6 @@ namespace Timesheeter.Server
 
             _app.Run();
         }
-        public static string GenerateApiKey()
-        {
-            byte[] bytes = RandomNumberGenerator.GetBytes(32);
-            return Convert.ToBase64String(bytes);
-        }
-
         public static class ApiKeyUtility
         {
             public static string GenerateApiKey()

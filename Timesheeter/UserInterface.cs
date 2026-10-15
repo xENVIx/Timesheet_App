@@ -30,11 +30,14 @@ namespace Timesheeter
         {
             try
             {
-                _ucMain.PostInit(_factory);
+                _ucMain.PostInit(_factory, _logger);
             }
             catch (Exception ex)
             {
+                // A page that failed to load would hit its missing data later, so close instead of carrying on.
                 MessageBox.Show($"Exception While Loading the Interface\n{ex.Message}");
+                Close();
+                return;
             }
             // Styles every control now, and any added later.
             Theme.Apply(this);

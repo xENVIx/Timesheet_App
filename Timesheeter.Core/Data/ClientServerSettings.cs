@@ -3,13 +3,12 @@ using LibSqlLite;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Timesheeter.Core.Data
 {
     /// <summary>
-    /// User preferences, saved in the app's database as a single row.
+    /// Whether and how the app connects to a Timesheeter server, saved in the app's database as a single row.
     /// </summary>
     public class ClientServerSettings
     {
@@ -64,7 +63,8 @@ namespace Timesheeter.Core.Data
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                if (_logger != null) _logger.Error($"Exception Saving Server Settings", ex);
+                else Console.WriteLine(ex.ToString());
                 return false;
             }
         }
