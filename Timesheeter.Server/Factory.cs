@@ -80,6 +80,10 @@ namespace Timesheeter.Server
                 }
 
             }
+            else
+            {
+                Console.WriteLine($"Run the server with the argument --commands to see the server command options.");
+            }
 
 
 
@@ -188,9 +192,20 @@ namespace Timesheeter.Server
                 case "--generateApi": GenerateApiKey(args); return false;
                 case "--viewKeys": ViewApiKeys(args); return false;
                 case "--deleteKey": DeleteApiKey(args); return false;
+                case "--commands": ShowCommands(); return false;
             }
 
             return true;
+        }
+
+        private void ShowCommands()
+        {
+            Console.WriteLine($"Server Commands (each one runs and exits without starting the server)\n" +
+                $"--generateApi \"<secret>\"    Generates a new API Key for the secret.  The API Key is shown once only.\n" +
+                $"--viewKeys                  Displays all registered secrets.\n" +
+                $"--deleteKey \"<secret>\"      Deletes the API Key for the secret.\n" +
+                $"--commands                  Shows this list.\n" +
+                $"\nRun without a command to start the server.");
         }
 
         private void DeleteApiKey(String[] args)
