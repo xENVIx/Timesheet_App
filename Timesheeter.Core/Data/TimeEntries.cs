@@ -74,6 +74,8 @@ namespace Timesheeter.Core.Data
 
         public TimeEntries(SqliteStore dataStore, ILoggerApp? logger) : base(dataStore, logger)
         {
+
+            /*
             _dataStore.EnsureTable<TimeEntry>();
 
             // Deleted entries stay in the database but are never loaded (see KeepsDeleted), so every
@@ -82,6 +84,7 @@ namespace Timesheeter.Core.Data
             {
                 AddLoaded(timeEntry);
             }
+            */
 
             // Entries are always shown newest first, by date then start time.
             SetSort("Date desc, TimeStart desc");

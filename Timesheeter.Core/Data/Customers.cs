@@ -48,12 +48,14 @@ namespace Timesheeter.Core.Data
 
         public Customers(SqliteStore dataStore, ILoggerApp? logger) : base(dataStore, logger) 
         {
+            /*
             _dataStore.EnsureTable<Customer>();
 
             foreach (var customer in _dataStore.All<Customer>())
             {
                 AddLoaded(customer);
             }
+            */
         }
 
         /// <summary>The customer named <paramref name="name"/> (deleted or not), other than <paramref name="except"/>.</summary>

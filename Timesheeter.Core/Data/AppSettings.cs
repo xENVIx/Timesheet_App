@@ -21,6 +21,8 @@ namespace Timesheeter.Core.Data
             public String LastName { get; set; } = "";
             public ThemeMode ThemeMode { get; set; } = ThemeMode.LightWithDarkNavigation;
             public int AccentArgb { get; set; } = DefaultAccentArgb;
+
+            
         }
 
         // Theme.AccentPresets[0] ("Blue"); the theme itself lives in the WinForms app.

@@ -48,12 +48,14 @@ namespace Timesheeter.Core.Data
 
         public ProjectCodes(SqliteStore dataStore, ILoggerApp? logger) : base(dataStore, logger)
         {
+            /*
             _dataStore.EnsureTable<ProjectCode>();
 
             foreach (var proj in _dataStore.All<ProjectCode>())
             {
                 AddLoaded(proj);
             }
+            */
         }
 
         /// <summary>The project code with this code (deleted or not), other than <paramref name="except"/>.</summary>

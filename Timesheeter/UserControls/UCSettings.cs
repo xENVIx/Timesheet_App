@@ -16,6 +16,7 @@ namespace Timesheeter.UserControls
     public partial class UCSettings : UCSubPage
     {
         private AppSettings? _settings;
+        private ClientServerSettings? _serverSettings;
 
         // True while the controls are being set from the saved settings, so that doesn't count as a change.
         private bool _loading;
@@ -59,6 +60,9 @@ namespace Timesheeter.UserControls
             _settings = _factory.GetData<AppSettings>();
             if (_settings == null) throw new ArgumentNullException(nameof(_settings));
 
+            _serverSettings = _factory.GetData<ClientServerSettings>();
+            if (_serverSettings == null) throw new ArgumentNullException(nameof(_serverSettings));
+
             _loading = true;
             try
             {
@@ -82,6 +86,23 @@ namespace Timesheeter.UserControls
             {
                 MessageBox.Show(this, $"First Name And / Or Last Name Not Entered - Head Over to the Settings Page to Enter Them!");
             }
+
+            _chkbUseServer.Checked = _serverSettings.UseServer;
+
+            _tbApi.Enabled = _chkbUseServer.Checked;
+            _tbServer.Enabled = _chkbUseServer.Checked;
+            _tbSecret.Enabled = _chkbUseServer.Checked;
+            _tbPort.Enabled = _chkbUseServer.Checked;
+            _btnSaveServer.Enabled = _chkbUseServer.Checked;
+            _accordionPanelSettings.Expanded = _chkbUseServer.Checked;
+            _btnTest.Enabled = _chkbUseServer.Checked;
+
+
+            var details = _serverSettings.ServerDetails;
+            _tbServer.Text = details.address;
+            _tbPort.Text = details.port.ToString();
+            _tbSecret.Text = details.secret;
+
         }
 
         private void _themeMode_CheckedChanged(object? sender, EventArgs e)
@@ -136,8 +157,8 @@ namespace Timesheeter.UserControls
         private void CheckNamesEnableSave()
         {
             if (_settings == null) return;
-            if ((_settings.Name.FirstName != _tbFirstName.Text || _settings.Name.LastName != _tbLastName.Text) && 
-                _tbFirstName.Text.Length > 0 && 
+            if ((_settings.Name.FirstName != _tbFirstName.Text || _settings.Name.LastName != _tbLastName.Text) &&
+                _tbFirstName.Text.Length > 0 &&
                 _tbLastName.Text.Length > 0)
             {
                 _btnSave.Enabled = true;
@@ -154,7 +175,7 @@ namespace Timesheeter.UserControls
         {
             if (_settings == null) return;
             CheckNamesEnableSave();
-            
+
         }
 
         private void _tbLastName_TextChanged(object sender, EventArgs e)
@@ -180,6 +201,56 @@ namespace Timesheeter.UserControls
 
             _btnSave.Enabled = false;
 
+
+
+        }
+
+        private void _chkbUseServer_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_serverSettings == null) return;
+
+
+            _tbApi.Enabled = _chkbUseServer.Checked;
+            _tbServer.Enabled = _chkbUseServer.Checked;
+            _tbSecret.Enabled = _chkbUseServer.Checked;
+            _tbPort.Enabled = _chkbUseServer.Checked;
+            _btnSaveServer.Enabled = _chkbUseServer.Checked;
+            //_accordionPanelSettings.Expanded = _chkbUseServer.Checked;
+            _btnTest.Enabled = _chkbUseServer.Checked;
+
+
+
+
+            if (_serverSettings.UseServer != _chkbUseServer.Checked)
+            {
+                _serverSettings.UseServer = _chkbUseServer.Checked;
+                _serverSettings.Save();
+            }
+
+
+        }
+
+        private void _btnSaveServer_Click(object sender, EventArgs e)
+        {
+
+
+            if (_serverSettings == null) return;
+
+
+            if (_tbServer.Text.Length <= 0 || _tbPort.Text.Length <= 0 || _tbSecret.Text.Length <= 0) return;
+
+            int iPort = -1;
+
+            if (!int.TryParse(_tbPort.Text, out iPort)) return;
+
+            if (iPort <= 0) return;
+
+            var details = _serverSettings.ServerDetails;
+            details.port = iPort;
+            details.address = _tbServer.Text;
+            details.secret = _tbSecret.Text;
+            _serverSettings.ServerDetails = details;
+            _serverSettings.Save();
 
 
         }

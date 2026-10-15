@@ -28,8 +28,14 @@ namespace Timesheeter
 
         private void UserInterface_Load(object? sender, EventArgs e)
         {
-            _ucMain.PostInit(_factory);
-
+            try
+            {
+                _ucMain.PostInit(_factory);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Exception While Loading the Interface\n{ex.Message}");
+            }
             // Styles every control now, and any added later.
             Theme.Apply(this);
         }

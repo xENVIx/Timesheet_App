@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
 using Timesheeter.Core.Lib;
+using static Timesheeter.Core.Data.Customers;
 using static Timesheeter.Core.Data.ProjectCodes;
 
 namespace Timesheeter.Core.Data
@@ -36,6 +37,17 @@ namespace Timesheeter.Core.Data
 
             // The active list holds the same items; the filter hides the deleted ones.
             if (typeof(ISoftDeletable).IsAssignableFrom(typeof(T))) _active.Filter = "Deleted = false";
+
+
+
+
+            _dataStore.EnsureTable<T>();
+
+            foreach (var data in _dataStore.All<T>())
+            {
+                AddLoaded(data);
+            }
+
         }
 
         /// <summary>

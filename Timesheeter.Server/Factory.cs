@@ -1,13 +1,17 @@
 ﻿using LibLogging;
 using LibSqlLite;
+using System.Security.Cryptography;
+using System.Text;
 using Timesheeter.Core.Data;
 using Timesheeter.Core.Interfaces;
-
 namespace Timesheeter.Server
 {
+    
+
     public class Factory
     {
 
+        
 
         private WebApplication? _app;
         private volatile bool _initialized = false;
@@ -18,12 +22,15 @@ namespace Timesheeter.Server
         private Logger? _logger;
         private CancellationTokenSource _cts;
 
+
+        private APIKeys? _apiKeys;
         public Factory()
         {
             _cts = new CancellationTokenSource();
+
         }
 
-        public void Initialize(string[] args)
+        public bool Initialize(string[] args)
         {
             /* initialize database...
             */
@@ -53,7 +60,7 @@ namespace Timesheeter.Server
                 _store.EnsureTable<ProjectCodes.ProjectCode>();
                 _store.EnsureTable<TimeEntries.TimeEntry>();
 
-                
+                _apiKeys = new APIKeys(_store, _logger);
                 
 
             }
@@ -63,6 +70,18 @@ namespace Timesheeter.Server
                 _logger.Exception(ex);
                 throw;
             }
+
+            // go through the arguments here...
+            if (args.Length > 0)
+            {
+                if (!ArgumentProcessor(args))
+                {
+                    return false;
+                }
+
+            }
+
+
 
             // make a backup if the file already existed...
             // Backed up through the open store rather than copying the .db file: changes from the
@@ -157,6 +176,106 @@ namespace Timesheeter.Server
             }
 
             _initialized = true;
+
+            return _initialized;
+        }
+
+        private bool ArgumentProcessor(String[] args)
+        {
+            System.Threading.Thread.Sleep(10000);
+            switch (args[0].Trim())
+            {
+                case "--generateApi": GenerateApiKey(args); return false;
+                case "--viewKeys": ViewApiKeys(args); return false;
+                case "--deleteKey": DeleteApiKey(args); return false;
+            }
+
+            return true;
+        }
+
+        private void DeleteApiKey(String[] args)
+        {
+
+        }
+
+        private void ViewApiKeys(String[] args)
+        {
+            if (args.Length > 1)
+            {
+                Console.WriteLine($"Proper Argument Usage\n" +
+                    $"--viewKeys\n" +
+                    $"Displays all registered secrets.  API Keys cannot be viewed again, if you need a new one you must generate a new set of data.");
+
+
+            }
+
+            foreach (var key in _apiKeys.Active)
+            {
+                Console.WriteLine($"Secret: {key.Secret} | TOC: {key.TOC} | TOM: {key.TOM} | MOP: {key.MOP}");
+            }
+        }
+
+        private void GenerateApiKey(String[] args)
+        {
+            if (args.Length != 2)
+            {
+                Console.WriteLine($"Invalid Argument Format.\n--generateApi \"<secret>\"");
+                return;
+            }
+            // args 1 should be the secret
+            String secret = args[1].Trim();
+            String apiKey = GenerateApiKey();
+            if (secret.Length <= 0 || apiKey.Length <= 0)
+            {
+                Console.WriteLine($"Secret or API Key Generation Failed");
+            }
+            else
+            {
+
+
+
+                if (_apiKeys == null)
+                {
+                    Console.WriteLine($"Couldn't Write New API Key: {nameof(_apiKeys)} is null");
+                    return;
+                }
+
+                APIKeys.APIKey? apiKeyEnter = new APIKeys.APIKey();
+
+                if (_apiKeys.All.ToList().Exists(x => String.Compare(x.Secret, secret, StringComparison.InvariantCultureIgnoreCase) == 0))
+                {
+                    // key exists just in deleted state... undelete...
+                    var oldKey = _apiKeys.All.Where(x => String.Compare(x.Secret, secret, StringComparison.InvariantCultureIgnoreCase) == 0).FirstOrDefault();
+
+                    if (oldKey.Deleted)
+                    {
+                        apiKeyEnter = oldKey;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Secret Already Exists.  Enter a new one and try again.");
+                        return;
+                    }
+                }
+
+                if (apiKeyEnter == null)
+                {
+                    apiKeyEnter = new APIKeys.APIKey();
+                }
+
+                apiKeyEnter.Secret = secret;
+                apiKeyEnter.Key = ApiKeyUtility.HashApiKey(apiKey);
+
+                if (!_apiKeys.Save(apiKeyEnter))
+                {
+                    Console.WriteLine($"Failed To Save New API Key");
+                    return;
+                }
+
+                Console.WriteLine($"Secret: {secret}\nAPI Key: {apiKey}\nCopy For Your Records... The API Key Can Not Be Viewed Again!");
+            }
+
+            return;
         }
 
         /*
@@ -338,7 +457,42 @@ namespace Timesheeter.Server
 
             _app.Run();
         }
+        public static string GenerateApiKey()
+        {
+            byte[] bytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(bytes);
+        }
 
+        public static class ApiKeyUtility
+        {
+            public static string GenerateApiKey()
+            {
+                byte[] keyBytes = RandomNumberGenerator.GetBytes(32);
+
+                return Convert.ToBase64String(keyBytes)
+                    .TrimEnd('=')
+                    .Replace('+', '-')
+                    .Replace('/', '_');
+            }
+
+            public static byte[] HashApiKey(string apiKey)
+            {
+                byte[] keyBytes = Encoding.UTF8.GetBytes(apiKey);
+                return SHA256.HashData(keyBytes);
+            }
+
+            public static bool ValidateApiKey(
+                string suppliedApiKey,
+                byte[] storedHash)
+            {
+                byte[] suppliedHash = HashApiKey(suppliedApiKey);
+
+                return CryptographicOperations.FixedTimeEquals(
+                    suppliedHash,
+                    storedHash
+                );
+            }
+        }
 
     }
 }

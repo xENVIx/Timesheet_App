@@ -9,6 +9,8 @@ using Timesheeter.Lib;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;
 using System.Drawing.Text;
+using Microsoft.Extensions.Logging;
+using LibLogging;
 
 namespace Timesheeter.UserControls
 {
@@ -113,14 +115,15 @@ namespace Timesheeter.UserControls
 
         }
 
-        public void PostInit(IDataFactory factory)
+        public void PostInit(IDataFactory factory, ILoggerApp? logger = null)
         {
-            _ucNewProjectCode.PostInit(factory);
-            _ucCustomers.PostInit(factory);
-            _ucTimeEntries.PostInit(factory);
-            _ucTimesheet.PostInit(factory);
-            _ucCreateTimesheet.PostInit(factory);
-            _ucSettings.PostInit(factory);
+            
+            _ucNewProjectCode.PostInit(factory, logger);
+            _ucCustomers.PostInit(factory, logger);
+            _ucTimeEntries.PostInit(factory, logger);
+            _ucTimesheet.PostInit(factory, logger);
+            _ucCreateTimesheet.PostInit(factory, logger);
+            _ucSettings.PostInit(factory, logger);
         }
 
         private void ToggleScreen<T>()

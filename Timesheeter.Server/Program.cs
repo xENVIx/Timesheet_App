@@ -6,8 +6,18 @@ namespace Timesheeter.Server
         public static void Main(string[] args)
         {
 
+            
+
             Factory factory = new Factory();
-            factory.Initialize(args);
+            if (!factory.Initialize(args))
+            {
+
+                Console.WriteLine($"Press Any Key To Exit");
+                Console.ReadKey();
+                //Console.Read();
+
+                return;
+            }
             factory.Run();
         }
     }
