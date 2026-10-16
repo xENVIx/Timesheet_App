@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Timesheeter.Classes;
 using Timesheeter.Core.Data;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;

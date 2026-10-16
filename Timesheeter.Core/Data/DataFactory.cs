@@ -18,7 +18,6 @@ namespace Timesheeter.Core.Data
         private ProjectCodes? _projectCodes;
         private TimeEntries? _timeEntries;
         private AppSettings? _appSettings;
-        private ClientServerSettings? _serverSettings;
 
 
         private ILoggerApp? _logger;
@@ -34,7 +33,6 @@ namespace Timesheeter.Core.Data
             _projectCodes = new ProjectCodes(_store, logger);
             _timeEntries = new TimeEntries(_store, logger);
             _appSettings = new AppSettings(_store, logger);
-            _serverSettings = new ClientServerSettings(_store, logger);
 
         }
 
@@ -53,8 +51,6 @@ namespace Timesheeter.Core.Data
                     return _timeEntries != null ? (T)(object)_timeEntries : default(T);
                 case Type t when t == typeof(AppSettings):
                     return _appSettings != null ? (T)(object)_appSettings : default(T);
-                case Type t when t == typeof(ClientServerSettings):
-                    return _serverSettings != null ? (T)(object)_serverSettings : default(T);
                 default: return default(T);
 
 
@@ -69,7 +65,6 @@ namespace Timesheeter.Core.Data
             else if (dataType == typeof(ProjectCodes)) return _projectCodes;
             else if (dataType == typeof(TimeEntries)) return _timeEntries;
             else if (dataType == typeof(AppSettings)) return _appSettings;
-            else if (dataType == typeof(ClientServerSettings)) return _serverSettings;
             else return null;
 
         }
@@ -85,8 +80,7 @@ namespace Timesheeter.Core.Data
                 nameof(Customers),
                 nameof(ProjectCodes),
                 nameof(TimeEntries),
-                nameof(AppSettings),
-                nameof(ClientServerSettings)
+                nameof(AppSettings)
             }.ToArray();
 
 

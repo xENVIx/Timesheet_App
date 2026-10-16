@@ -4,15 +4,14 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
-
-
 using System.Security.Cryptography;
 
-
-namespace Timesheeter.Core.Data
+namespace Timesheeter.Classes
 {
     /// <summary>
     /// Whether and how the app connects to a Timesheeter server, saved in the app's database as a single row.
+    /// Lives in the WinForms app rather than Core: the API key is protected with Windows DPAPI
+    /// (ProtectedData), which only exists on Windows, and Core has to run on Linux too.
     /// </summary>
     public class ClientServerSettings
     {
@@ -49,20 +48,35 @@ namespace Timesheeter.Core.Data
         { 
             get 
             {
-                String apiKey = Encoding.UTF8.GetString(ProtectedData.Unprotect(_setting.ServerAPIKeyStored, null, DataProtectionScope.CurrentUser));
-                return (_setting.ServerAddress, _setting.ServerPort, apiKey, _setting.ServerAPISecret);
+                return (_setting.ServerAddress, _setting.ServerPort, ReadApiKey(), _setting.ServerAPISecret);
             } 
             set
             {
                 _setting.ServerAddress = value.address;
                 _setting.ServerPort = value.port;
-                byte[] stored = ProtectedData.Protect(Encoding.UTF8.GetBytes(value.apiKey), null, DataProtectionScope.CurrentUser);
-                _setting.ServerAPIKeyStored = stored;
+                // No key is always stored as null, never as an encrypted empty string.
+                _setting.ServerAPIKeyStored = String.IsNullOrEmpty(value.apiKey)
+                    ? null
+                    : ProtectedData.Protect(Encoding.UTF8.GetBytes(value.apiKey), null, DataProtectionScope.CurrentUser);
                 _setting.ServerAPISecret = value.secret;
             }
         }
 
-
+        /// <summary>The API key, or "" when none is saved or it can't be read here.</summary>
+        private String ReadApiKey()
+        {
+            if (_setting.ServerAPIKeyStored == null || _setting.ServerAPIKeyStored.Length == 0) return "";
+            try
+            {
+                return Encoding.UTF8.GetString(ProtectedData.Unprotect(_setting.ServerAPIKeyStored, null, DataProtectionScope.CurrentUser));
+            }
+            catch (CryptographicException ex)
+            {
+                // Saved by another Windows user or on another PC (e.g. a restored backup): it has to be entered again.
+                _logger?.Error($"Stored API Key Can't Be Read Here", ex);
+                return "";
+            }
+        }
 
         public bool Save()
         {

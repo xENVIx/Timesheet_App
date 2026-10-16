@@ -18,7 +18,7 @@ namespace Timesheeter
         //private TimeEntries _timeEntries;
         //private AppSettings _settings;
 
-        private DataFactory _dataFactory;
+        private Classes.AppDataFactory _dataFactory;
         private readonly System.Windows.Forms.Timer _timer;
         private CancellationTokenSource _cts;
 
@@ -118,7 +118,10 @@ namespace Timesheeter
             _settings = new AppSettings(_store);
             */
 
-            _dataFactory = new DataFactory(_store);
+            // Server settings stay in the app: the API key is protected with Windows-only DPAPI.
+            _dataFactory = new Classes.AppDataFactory(
+                new DataFactory(_store),
+                new Classes.ClientServerSettings(_store, _logger));
 
             // Before any window exists, so the first paint already uses the saved look.
             // Done here rather than in Core's DataFactory: the theme is WinForms-only.
