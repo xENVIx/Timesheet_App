@@ -36,7 +36,8 @@ namespace Timesheeter.Elements
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            if (!Theme.IsDesignTime(this)) Forms.FrmAbout.ShowAbout(FindForm());
+            // The About window slides out of this button.
+            if (!Theme.IsDesignTime(this)) Forms.FrmAbout.ShowAbout(FindForm(), RectangleToScreen(ClientRectangle));
         }
 
         protected override void OnKeyUp(KeyEventArgs e)

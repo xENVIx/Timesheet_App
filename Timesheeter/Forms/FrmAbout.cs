@@ -27,12 +27,26 @@ namespace Timesheeter.Forms
             ".NET and Windows Forms (MIT License, Microsoft)",
         });
 
+        private const int OpenMs = 300;
+        private const int CloseMs = 200;
+        private const int FrameMs = 15;
+
         private readonly Bitmap? _logo;
 
-        /// <summary>Shows the About dialog over <paramref name="owner"/>.</summary>
-        public static void ShowAbout(IWin32Window? owner)
+        // Where the window grows from (the About button, in screen coordinates); null = its own center.
+        private Rectangle? _from;
+        private readonly System.Windows.Forms.Timer _animation = new() { Interval = FrameMs };
+        private bool _closing;      // the shrink is running
+        private bool _closeAnimated; // the shrink has finished, so the next close really closes
+
+        /// <summary>
+        /// Shows the About dialog over <paramref name="owner"/>. It slides and fades in from
+        /// <paramref name="from"/> (screen coordinates, e.g. the About button) to the center of the owner.
+        /// </summary>
+        public static void ShowAbout(IWin32Window? owner, Rectangle? from = null)
         {
             using var about = new FrmAbout();
+            about._from = from;
             Theme.Apply(about);
             about.ShowDialog(owner);
         }
@@ -44,7 +58,7 @@ namespace Timesheeter.Forms
             MaximizeBox = false;
             MinimizeBox = false;
             ShowInTaskbar = false;
-            StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.Manual; // placed by the opening animation
             AutoScaleMode = AutoScaleMode.None;
             Font = new Font("Segoe UI", 9f);
             ClientSize = new Size(S(460), S(430));
@@ -145,6 +159,91 @@ namespace Timesheeter.Forms
 
         private int S(int logical) => LogicalToDeviceUnits(logical);
 
+        #region Open and close animation
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            // Where it ends up: the center of the app (or of the screen without one), kept on screen.
+            Rectangle area = Owner?.Bounds ?? Screen.FromPoint(Cursor.Position).WorkingArea;
+            var target = new Rectangle(
+                area.Left + (area.Width - Width) / 2,
+                area.Top + (area.Height - Height) / 2,
+                Width, Height);
+            Rectangle screen = Screen.FromRectangle(area).WorkingArea;
+            target.X = Math.Max(screen.Left, Math.Min(target.X, screen.Right - target.Width));
+            target.Y = Math.Max(screen.Top, Math.Min(target.Y, screen.Bottom - target.Height));
+
+            Rectangle start = _from ?? Shrunk(target);
+
+            // Set before the window first appears, so it never flashes at full size.
+            Opacity = 0;
+            Bounds = start;
+
+            Animate(start, target, 0, 1, OpenMs, EaseOut, done: null);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            if (e.Cancel || _closeAnimated) return;
+
+            // Only animate closes the user asked for (Close button, Esc, the X), not e.g. Windows shutting down.
+            if (e.CloseReason is not (CloseReason.UserClosing or CloseReason.None)) return;
+
+            // Stay open while shrinking, then close for real.
+            e.Cancel = true;
+            if (_closing) return;
+            _closing = true;
+
+            Animate(Bounds, Shrunk(Bounds), Opacity, 0, CloseMs, EaseIn, done: () =>
+            {
+                _closeAnimated = true;
+                Close();
+            });
+        }
+
+        /// <summary>A tiny rectangle at the center of <paramref name="r"/>; Windows keeps a captioned window
+        /// at least its minimum size, which the fade hides.</summary>
+        private static Rectangle Shrunk(Rectangle r) =>
+            new(r.Left + r.Width / 2, r.Top + r.Height / 2, 1, 1);
+
+        private static double EaseOut(double t) => 1 - Math.Pow(1 - t, 3); // fast start, gentle stop
+        private static double EaseIn(double t) => t * t * t;                // gentle start, fast finish
+
+        /// <summary>Moves and resizes the window from <paramref name="from"/> to <paramref name="to"/> while fading.</summary>
+        private void Animate(Rectangle from, Rectangle to, double opacityFrom, double opacityTo, int ms,
+            Func<double, double> ease, Action? done)
+        {
+            _animation.Stop();
+            _animation.Tick -= _animationTick;
+
+            var start = DateTime.UtcNow;
+            _animationTick = (s, e) =>
+            {
+                double t = Math.Min(1, (DateTime.UtcNow - start).TotalMilliseconds / ms);
+                double k = ease(t);
+
+                Bounds = new Rectangle(
+                    Lerp(from.X, to.X, k), Lerp(from.Y, to.Y, k),
+                    Lerp(from.Width, to.Width, k), Lerp(from.Height, to.Height, k));
+                Opacity = opacityFrom + (opacityTo - opacityFrom) * k;
+
+                if (t < 1) return;
+                _animation.Stop();
+                done?.Invoke();
+            };
+            _animation.Tick += _animationTick;
+            _animation.Start();
+        }
+
+        private EventHandler? _animationTick;
+
+        private static int Lerp(int a, int b, double k) => (int)Math.Round(a + (b - a) * k);
+
+        #endregion
+
         /// <summary>The app's version, e.g. "1.0.0" (without the build's "+commit" suffix).</summary>
         private static string AppVersion()
         {
@@ -172,7 +271,11 @@ namespace Timesheeter.Forms
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) _logo?.Dispose();
+            if (disposing)
+            {
+                _logo?.Dispose();
+                _animation.Dispose();
+            }
             base.Dispose(disposing);
         }
     }
