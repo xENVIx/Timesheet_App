@@ -51,6 +51,9 @@ namespace Timesheeter.UserControls
 
             _btnSave.Enabled = false;
 
+            // The API key shows as dots, like a password.
+            _tbApi.UseSystemPasswordChar = true;
+
             Theme.Changed += (s, e) => MarkSelectedSwatch();
         }
 
@@ -103,6 +106,7 @@ namespace Timesheeter.UserControls
             _tbServer.Text = details.address;
             _tbPort.Text = details.port > 0 ? details.port.ToString() : ""; // blank until a server is set up
             _tbSecret.Text = details.secret;
+            _tbApi.Text = details.apiKey;
 
         }
 
@@ -238,9 +242,9 @@ namespace Timesheeter.UserControls
             if (_serverSettings == null) return;
 
 
-            if (_tbServer.Text.Length <= 0 || _tbPort.Text.Length <= 0 || _tbSecret.Text.Length <= 0)
+            if (_tbServer.Text.Length <= 0 || _tbPort.Text.Length <= 0 || _tbSecret.Text.Length <= 0 || _tbApi.Text.Trim().Length <= 0)
             {
-                MessageBox.Show(this, $"Enter the Server, Port and Secret before saving.");
+                MessageBox.Show(this, $"Enter the Server, Port, API Key and Secret before saving.");
                 return;
             }
 
@@ -256,6 +260,7 @@ namespace Timesheeter.UserControls
             details.port = iPort;
             details.address = _tbServer.Text;
             details.secret = _tbSecret.Text;
+            details.apiKey = _tbApi.Text.Trim(); // a pasted key often brings a space or line break along
             _serverSettings.ServerDetails = details;
             if (!_serverSettings.Save())
             {
