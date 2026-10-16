@@ -17,7 +17,8 @@
       The setup wizard's text (and Windows Installer's progress and error messages) comes from
       the UI extension's localization files. Without a culture none are used, so the wizard
       showed placeholders like "[1]" and "[9]" instead of names. The .msi now lands in
-      bin\x64\Release\en-US\.
+      bin\x64\Release\en-US\. Timesheeter.en-us.wxl blanks the progress screen's "File: [1], ..."
+      details, which WixUI never fills in.
     -->
     <Cultures>en-US</Cultures>
     <Platform>x64</Platform>
