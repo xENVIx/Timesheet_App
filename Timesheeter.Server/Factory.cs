@@ -186,7 +186,7 @@ namespace Timesheeter.Server
 
         private bool ArgumentProcessor(String[] args)
         {
-            System.Threading.Thread.Sleep(10000);
+            //System.Threading.Thread.Sleep(10000);
             switch (args[0].Trim())
             {
                 case "--generateApi": GenerateApiKey(args); return false;
@@ -279,8 +279,6 @@ namespace Timesheeter.Server
             else
             {
 
-
-
                 if (_apiKeys == null)
                 {
                     Console.WriteLine($"Couldn't Write New API Key: {nameof(_apiKeys)} is null");
@@ -330,45 +328,6 @@ namespace Timesheeter.Server
             return;
         }
 
-        /*
-        private void InitializeCustomersEndpoint()
-        {
-            if (_app == null) throw new ArgumentNullException(nameof(_app));
-
-            var customers = _app.MapGroup("/api/customers");
-            customers.MapGet("/", (SqliteStore store) => store.All<Customers.Customer>());
-            customers.MapGet("{id:long}", (long id, SqliteStore store) =>
-                store.Get<Customers.Customer>(id) is { } customer ? Results.Ok(customer) : Results.NotFound());
-
-            customers.MapPost("/", (Customers.Customer customer, LibSqlLite.SqliteStore store) =>
-            {
-                if (!IsValid(customer, out var errors)) return Results.ValidationProblem(errors);
-
-                try
-                {
-                    //return store.Update(customer) ? Results.Ok(customer) : Results.NotFound();
-                    store.Insert(customer);
-                }
-                catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
-                {
-                    return Results.Conflict($"A customer named \'{customer.Name}\' already exists.");
-                }
-                return Results.Created($"/api/customers/{customer.ID}", customer);
-            });
-
-
-            customers.MapPut("/{id:long}", (long id, Customers.Customer customer, SqliteStore store) =>
-            {
-                customer.ID = id;
-                if (!IsValid(customer, out var errors)) return Results.ValidationProblem(errors);
-                try { return store.Update(customer) ? Results.Ok(customer) : Results.NotFound(); }
-                catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
-                {
-                    return Results.Conflict($"A customer named \'{customer.Name}\' already exists.");
-                }
-            });
-        }
-        */
 
         /// <summary>
         /// Must inherit interface IData

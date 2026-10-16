@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+
+using System.Security.Cryptography;
+
+
 namespace Timesheeter.Core.Data
 {
     /// <summary>
@@ -20,6 +24,7 @@ namespace Timesheeter.Core.Data
             public String ServerAddress { get; set; } = "";
             public int ServerPort { get; set; }
             public String ServerAPISecret { get; set; } = "";
+            public byte[]? ServerAPIKeyStored { get; set; }
 
 
         }
@@ -40,19 +45,24 @@ namespace Timesheeter.Core.Data
 
 
         public bool UseServer { get { return _setting.UseServer; } set { _setting.UseServer = value; } }
-        public (String address, int port, String secret) ServerDetails 
+        public (String address, int port, String apiKey, String secret) ServerDetails 
         { 
             get 
             {
-                return (_setting.ServerAddress, _setting.ServerPort, _setting.ServerAPISecret);
+                String apiKey = Encoding.UTF8.GetString(ProtectedData.Unprotect(_setting.ServerAPIKeyStored, null, DataProtectionScope.CurrentUser));
+                return (_setting.ServerAddress, _setting.ServerPort, apiKey, _setting.ServerAPISecret);
             } 
             set
             {
                 _setting.ServerAddress = value.address;
                 _setting.ServerPort = value.port;
+                byte[] stored = ProtectedData.Protect(Encoding.UTF8.GetBytes(value.apiKey), null, DataProtectionScope.CurrentUser);
+                _setting.ServerAPIKeyStored = stored;
                 _setting.ServerAPISecret = value.secret;
             }
         }
+
+
 
         public bool Save()
         {
