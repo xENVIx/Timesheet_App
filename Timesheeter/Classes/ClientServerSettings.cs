@@ -15,7 +15,7 @@ namespace Timesheeter.Classes
     /// </summary>
     public class ClientServerSettings
     {
-        [Table("ServerSettings")]
+        [Table("ClientServerSettings")]
         public class Setting
         {
             [PrimaryKey] public long ID { get; set; }
