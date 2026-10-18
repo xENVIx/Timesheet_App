@@ -19,10 +19,40 @@ namespace Timesheeter.Core.Data
         IBindingList Active { get; }
     }
 
-    
+
+    public class ItemEventArgs<T> : EventArgs
+    {
+
+        public readonly T? Item;
+        public readonly EChangeType ChangeType;
+
+        public ItemEventArgs(T? item, EChangeType changeType)
+        {
+            Item = item;
+            ChangeType = changeType;
+        }
+
+
+
+    }
+
+    public enum EChangeType
+    {
+        INSERT, // brand new...
+        UPDATE, // update old...
+        UPSERT, // could be new or update old
+        DELETED, 
+        RESTORED,
+
+
+    }
 
     public abstract class DataClass<T> : DataBase, IDataClass where T : class
     {
+
+        public event EventHandler<ItemEventArgs<T>> ItemChanged;
+
+
 
         protected ILoggerApp? _logger { get; private set; }
 
@@ -96,9 +126,21 @@ namespace Timesheeter.Core.Data
             if (!IsValid(item)) return false;
             Audit.Stamp(item, created: false);
 
-            try { return _dataStore.Update(item);  } 
-            catch (Exception ex) { Console.WriteLine($"Exception: {ex.Message}"); return false; }
-            
+            try 
+            {
+                if (!_dataStore.Update(item))
+                    return false;
+            } 
+            catch (Exception ex) 
+            { 
+                Console.WriteLine($"Exception: {ex.Message}"); 
+                return false; 
+            }
+
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.UPDATE));
+            return true;
+
+
         }
 
         public void Reload(T item)
@@ -146,6 +188,8 @@ namespace Timesheeter.Core.Data
                 return false;
             }
 
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.DELETED));
+
             if (KeepsDeleted)
             {
                 Reposition(item);
@@ -168,6 +212,9 @@ namespace Timesheeter.Core.Data
         protected bool MergeInto<TRef>(T renamed, T target, DataClass<TRef> references, string referenceProperty)
             where TRef : class
         {
+
+            // bweiss TODO somewhere in here we need to call on ItemChanged event... one for Deleted and one for Updated or Inserted or something...? help...
+
             var idProperty = typeof(T).GetProperty("ID")!;
             object fromId = idProperty.GetValue(renamed)!;
             object toId = idProperty.GetValue(target)!;
@@ -227,6 +274,8 @@ namespace Timesheeter.Core.Data
                 references.Reposition(reference);
             }
 
+
+
             Reposition(target);
             Reposition(renamed);
             return true;
@@ -248,6 +297,8 @@ namespace Timesheeter.Core.Data
                 return false;
             }
 
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.RESTORED));
+
             Reposition(item);
             return true;
         }
@@ -266,6 +317,10 @@ namespace Timesheeter.Core.Data
                 Console.WriteLine(ex.ToString());
                 return false;
             }
+
+
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.INSERT));
+
             _list.Add(item);
             _active.Add(item);
             return true;

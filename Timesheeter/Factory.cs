@@ -30,6 +30,8 @@ namespace Timesheeter
 
         private ServerConnect? _server;
 
+        private ServerManager? _serverManager;
+
         internal Factory()
         {
 
@@ -125,6 +127,8 @@ namespace Timesheeter
             _dataFactory = new Classes.AppDataFactory(
                 new DataFactory(_store),
                 new Classes.ClientServerSettings(_store, _logger));
+
+            _serverManager = new ServerManager(_dataFactory, _logger);
 
             // Before any window exists, so the first paint already uses the saved look.
             // Done here rather than in Core's DataFactory: the theme is WinForms-only.
