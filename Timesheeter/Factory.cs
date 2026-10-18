@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Timesheeter.Classes;
 using Timesheeter.Core.Data;
 
 namespace Timesheeter
@@ -26,6 +27,8 @@ namespace Timesheeter
         /// <summary>Where the database and its backups live (also shown on the About screen).</summary>
         internal static readonly String DataFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Timersheeter");
+
+        private ServerConnect? _server;
 
         internal Factory()
         {
@@ -60,7 +63,7 @@ namespace Timesheeter
             // last session can still be in the -wal file, which a file copy would leave out.
             if (existingDatabase)
             {
-                
+
                 DateTime dateNow = DateTime.Now;
                 String backupPath = Path.Combine(timeSheeterPath, "backups");
                 if (!Directory.Exists(backupPath))
@@ -86,7 +89,7 @@ namespace Timesheeter
                                     dateNow.Minute,
                                     dateNow.Second
                                 )
-                                
+
                             )
                         ),
                         ".bak"
@@ -131,18 +134,18 @@ namespace Timesheeter
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 10000;
             _timer.Tick += _timer_Tick;
-            
+
             _timer.Start();
 
-            
+
 
             String getAssembly = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.Contains("Timesheet.xlsx")).First() ?? "";
-            if (getAssembly.Length <= 0) throw new Exception($"FATALITY ||\\\\||//|| Error Pulling Template Timesheet from Assembly - Project Report Creation Impossible");       
+            if (getAssembly.Length <= 0) throw new Exception($"FATALITY ||\\\\||//|| Error Pulling Template Timesheet from Assembly - Project Report Creation Impossible");
         }
 
         private void _timer_Tick(object? sender, EventArgs e)
         {
-            
+
         }
 
         internal void Run(Forms.FrmSplash? splash = null)
@@ -156,6 +159,16 @@ namespace Timesheeter
             Environment.Exit(0);
         }
 
+
+        public void TestServerConnection(ClientServerSettings.Setting setting)
+        {
+
+        }
+
+        public void EstablishServerConnection()
+        {
+
+        }
 
     }
 }

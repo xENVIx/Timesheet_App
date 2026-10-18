@@ -8,13 +8,12 @@ namespace Timesheeter
     public partial class UserInterface : Form
     {
 
-
-        private IDataFactory _factory;
+        private IDataFactory _datFactory;
         private ILoggerApp? _logger;
-        public UserInterface(IDataFactory factory, ILoggerApp? logger)
+        public UserInterface(IDataFactory datFactory, ILoggerApp? logger)
         {
             InitializeComponent();
-            _factory = factory;
+            _datFactory = datFactory;
             _logger = logger;
 
             using (var iconStream = typeof(UserInterface).Assembly.GetManifestResourceStream("Timesheeter.ico"))
@@ -30,7 +29,7 @@ namespace Timesheeter
         {
             try
             {
-                _ucMain.PostInit(_factory, _logger);
+                _ucMain.PostInit(_datFactory, _logger);
             }
             catch (Exception ex)
             {

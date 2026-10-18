@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography;
+using Timesheeter.Core.Data;
 
 namespace Timesheeter.Classes
 {
@@ -13,7 +14,7 @@ namespace Timesheeter.Classes
     /// Lives in the WinForms app rather than Core: the API key is protected with Windows DPAPI
     /// (ProtectedData), which only exists on Windows, and Core has to run on Linux too.
     /// </summary>
-    public class ClientServerSettings
+    public class ClientServerSettings : DataBase
     {
         [Table("ClientServerSettings")]
         public class Setting
@@ -34,6 +35,10 @@ namespace Timesheeter.Classes
         private readonly SqliteStore _dataStore;
         private readonly Setting _setting;
         private ILoggerApp? _logger;
+
+        private Classes.ServerConnect? _server;
+
+
         public ClientServerSettings(SqliteStore dataStore, ILoggerApp? logger)
         {
             _dataStore = dataStore;
@@ -92,5 +97,23 @@ namespace Timesheeter.Classes
                 return false;
             }
         }
+
+
+        public void TestConnection()
+        {
+            
+            if (_server == null)
+            {
+                _server = new ServerConnect(this);
+            }
+
+
+
+
+        }
+
+
     }
+
+
 }

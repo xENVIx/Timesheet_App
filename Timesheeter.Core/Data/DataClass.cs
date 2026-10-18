@@ -21,7 +21,7 @@ namespace Timesheeter.Core.Data
 
     
 
-    public abstract class DataClass<T> : IDataClass where T : class
+    public abstract class DataClass<T> : DataBase, IDataClass where T : class
     {
 
         protected ILoggerApp? _logger { get; private set; }

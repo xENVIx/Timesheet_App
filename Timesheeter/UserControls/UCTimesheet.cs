@@ -33,11 +33,11 @@ namespace Timesheeter.UserControls
 
         protected override void PostInit()
         {
-            if (_factory == null) throw new ArgumentNullException(nameof(_factory));
+            if (_datFactory == null) throw new ArgumentNullException(nameof(_datFactory));
 
             // Subscribed before the grid's first build, so the chart starts with this week's hours.
             _dgvTimesheet.WeekTotalsChanged += (s, totals) => _chartTimesheet.ShowTotals(totals);
-            _dgvTimesheet.PostInit(_factory);
+            _dgvTimesheet.PostInit(_datFactory);
             _dgvTimesheet.SetStartDate(DateOnly.FromDateTime(_datePicker.Value));
 
             _initializedFull = true;

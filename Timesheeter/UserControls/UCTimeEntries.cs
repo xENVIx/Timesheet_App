@@ -21,15 +21,15 @@ namespace Timesheeter.UserControls
 
         protected override void PostInit()
         {
-            if (_factory == null)
+            if (_datFactory == null)
             {
-                throw new ArgumentNullException(nameof(_factory));
+                throw new ArgumentNullException(nameof(_datFactory));
             }
 
-            _cbProjCodes.PostInit(_factory.GetData<ProjectCodes>(), _factory.GetData<Customers>());
-            _dgvTimeEntries.PostInit(_factory.GetData<TimeEntries>(), _factory);
+            _cbProjCodes.PostInit(_datFactory.GetData<ProjectCodes>(), _datFactory.GetData<Customers>());
+            _dgvTimeEntries.PostInit(_datFactory.GetData<TimeEntries>(), _datFactory);
 
-            _deleteBar.PostInit(_dgvTimeEntries, _factory.GetData<TimeEntries>()!, "time entry", "time entries");
+            _deleteBar.PostInit(_dgvTimeEntries, _datFactory.GetData<TimeEntries>()!, "time entry", "time entries");
 
             // Default to a one hour entry starting now.
 
@@ -39,9 +39,9 @@ namespace Timesheeter.UserControls
 
         private void _btnAdd_Click(object sender, EventArgs e)
         {
-            if (_factory == null) throw new ArgumentNullException(nameof(_factory));
+            if (_datFactory == null) throw new ArgumentNullException(nameof(_datFactory));
 
-            var timeEntries = _factory.GetData<TimeEntries>();
+            var timeEntries = _datFactory.GetData<TimeEntries>();
             if (timeEntries == null) throw new Exception("Failed to retrieve time entries factory");
 
             var entry = new TimeEntries.TimeEntry()

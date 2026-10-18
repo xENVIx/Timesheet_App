@@ -11,8 +11,8 @@ namespace Timesheeter.Core.Data
     public class DataFactory : Interfaces.IDataFactory
     {
 
-        
-        
+
+        //public List<DataBase> Data { get; set; } = new List<DataBase>();
         
         private Customers? _customers;
         private ProjectCodes? _projectCodes;
@@ -33,7 +33,6 @@ namespace Timesheeter.Core.Data
             _projectCodes = new ProjectCodes(_store, logger);
             _timeEntries = new TimeEntries(_store, logger);
             _appSettings = new AppSettings(_store, logger);
-
         }
 
 

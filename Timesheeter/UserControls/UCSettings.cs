@@ -59,12 +59,13 @@ namespace Timesheeter.UserControls
 
         protected override void PostInit()
         {
-            if (_factory == null) throw new ArgumentNullException(nameof(_factory));
 
-            _settings = _factory.GetData<AppSettings>();
+            if (_datFactory == null) throw new ArgumentNullException(nameof(_datFactory));
+
+            _settings = _datFactory.GetData<AppSettings>();
             if (_settings == null) throw new ArgumentNullException(nameof(_settings));
 
-            _serverSettings = _factory.GetData<ClientServerSettings>();
+            _serverSettings = _datFactory.GetData<ClientServerSettings>();
             if (_serverSettings == null) throw new ArgumentNullException(nameof(_serverSettings));
 
             _loading = true;

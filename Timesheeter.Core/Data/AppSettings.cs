@@ -11,7 +11,7 @@ namespace Timesheeter.Core.Data
     /// <summary>
     /// User preferences, saved in the app's database as a single row.
     /// </summary>
-    public class AppSettings
+    public class AppSettings : DataBase
     {
         [Table("AppSettings")]
         public class Setting

@@ -41,24 +41,24 @@ namespace Timesheeter.UserControls
 
         protected override void PostInit()
         {
-            if (_factory == null)
+            if (_datFactory == null)
             {
-                throw new ArgumentNullException(nameof(_factory));
+                throw new ArgumentNullException(nameof(_datFactory));
             }
 
 
-            _timeEntries = _factory.GetData<TimeEntries>();
-            _projectCodes = _factory.GetData<ProjectCodes>();
+            _timeEntries = _datFactory.GetData<TimeEntries>();
+            _projectCodes = _datFactory.GetData<ProjectCodes>();
 
             // Its own binding context: controls bound to the same list in one window otherwise share a
             // "current item", so another page's project selection would move this one (and undo -1).
             _cbProjects.BindingContext = new BindingContext();
-            _cbProjects.PostInit(_projectCodes, _factory.GetData<Customers>());
+            _cbProjects.PostInit(_projectCodes, _datFactory.GetData<Customers>());
             // PostInit binds every project code; show only the selected week's instead.
             _cbProjects.DataSource = _weekProjects;
             _weekProjects.Sort = "Code";
 
-            _dgvTimeEntries.PostInit(_timeEntries, _factory);
+            _dgvTimeEntries.PostInit(_timeEntries, _datFactory);
             // Show only this page's filtered list (empty until a project is picked).
             _dgvTimeEntries.DataSource = _weekEntries;
 
@@ -175,7 +175,7 @@ namespace Timesheeter.UserControls
             if (item is ProjectCodes.ProjectCode projCode)
             {
                 code = projCode.Code;
-                customerName = _factory?.GetData<Customers>()?[projCode.CustomerID]?.Name ?? "";
+                customerName = _datFactory?.GetData<Customers>()?[projCode.CustomerID]?.Name ?? "";
 
 
                 projPurpose = projCode.ProjectName;
@@ -192,7 +192,7 @@ namespace Timesheeter.UserControls
                 return;
             }
 
-            var names = _factory?.GetData<AppSettings>()?.Name ?? null;
+            var names = _datFactory?.GetData<AppSettings>()?.Name ?? null;
 
             if (names == null)
             {

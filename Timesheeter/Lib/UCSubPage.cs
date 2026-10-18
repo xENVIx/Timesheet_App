@@ -19,7 +19,7 @@ namespace Timesheeter.Lib
 
         
         public bool Selected = false;
-        protected IDataFactory? _factory;
+        protected IDataFactory? _datFactory;
         protected ILoggerApp? _logger;
 
         protected int MinSplitterX { get; set; } = 250;
@@ -51,9 +51,9 @@ namespace Timesheeter.Lib
             throw new NotImplementedException($"PostInit must be implemented");
         }
 
-        public void PostInit(IDataFactory factory, ILoggerApp? logger = null)
+        public void PostInit(IDataFactory datFactory, ILoggerApp? logger = null)
         {
-            _factory = factory;
+            _datFactory = datFactory;
             _logger = logger;
 
             try
