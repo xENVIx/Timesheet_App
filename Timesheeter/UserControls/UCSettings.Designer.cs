@@ -254,6 +254,7 @@
             _btnTest.TabIndex = 10;
             _btnTest.Text = "Test Connection...";
             _btnTest.UseVisualStyleBackColor = true;
+            _btnTest.Click += _btnTest_Click;
             // 
             // _btnSaveServer
             // 

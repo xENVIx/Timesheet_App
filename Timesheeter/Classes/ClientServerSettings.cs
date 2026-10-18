@@ -99,15 +99,16 @@ namespace Timesheeter.Classes
         }
 
 
-        public void TestConnection()
+        public ServerConnect.TestResults? TestConnection()
         {
             
             if (_server == null)
             {
                 _server = new ServerConnect(this);
+                return _server.TestConnection();
             }
 
-
+            return null;
 
 
         }

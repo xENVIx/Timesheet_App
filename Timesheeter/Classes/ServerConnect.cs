@@ -16,6 +16,13 @@ namespace Timesheeter.Classes
         private readonly string serverAddress;
         private readonly int serverPort;
 
+        public enum EServerTestResults
+        {
+            SUCCESS,
+            FAILURE,
+            EXCEPTION
+        }
+
         public ServerConnect(ClientServerSettings svrSettings)
         {
             var details = svrSettings.ServerDetails;
@@ -27,10 +34,51 @@ namespace Timesheeter.Classes
         }
 
 
-        public void TestConnection()
+        public TestResults TestConnection()
         {
 
-            
+            EServerTestResults status = EServerTestResults.FAILURE;
+            Exception? retExc = null;
+            String message = String.Empty;
+
+            try
+            {
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                retExc = ex;
+                status = EServerTestResults.EXCEPTION;
+            }
+
+
+            return new TestResults(status, message, retExc);
+
+
+        }
+
+
+        public class TestResults
+        {
+
+
+
+            public EServerTestResults ResultsStatus { get; private set; }
+            public String Message { get; private set; } = String.Empty;
+            public Exception? Ex { get; private set; } = null;
+
+
+            public TestResults(EServerTestResults results, String message, Exception? ex = null)
+            {
+
+                ResultsStatus = results;
+                Message = message;
+                Ex = ex;
+
+            }
 
 
 

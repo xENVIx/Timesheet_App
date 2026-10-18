@@ -55,6 +55,9 @@ namespace Timesheeter.UserControls
             _tbApi.UseSystemPasswordChar = true;
 
             Theme.Changed += (s, e) => MarkSelectedSwatch();
+
+            _pnlGrid.Visible = false;
+            _pnlSideBar.Dock = DockStyle.Fill;
         }
 
         protected override void PostInit()
@@ -266,6 +269,71 @@ namespace Timesheeter.UserControls
             if (!_serverSettings.Save())
             {
                 MessageBox.Show(this, $"Could Not Save the Server Settings.");
+            }
+
+
+        }
+
+        private void _btnTest_Click(object sender, EventArgs e)
+        {
+
+            if (_serverSettings == null)
+            {
+                MessageBox.Show($"Unknown error occured when testing connection");
+                return;
+            }
+
+            try
+            {
+
+                var testRez = _serverSettings.TestConnection();
+
+                if (testRez == null)
+                {
+                    MessageBox.Show($"Test Unsuccessful - Unknown Reason - Check Logs");
+                    return;
+                }
+                else
+                {
+
+                    if (testRez.ResultsStatus == ServerConnect.EServerTestResults.SUCCESS)
+                    {
+
+                        MessageBox.Show($"Connection Successful");
+                        return;
+
+                    }
+                    else if (testRez.ResultsStatus == ServerConnect.EServerTestResults.FAILURE)
+                    {
+                        String reason = testRez.Message.Length <= 0 ? "Unknown Reason - Check Logs" : testRez.Message;
+                        MessageBox.Show($"Connection Unsuccessful with {reason}");
+                        return;
+                    }
+                    else if (testRez.ResultsStatus == ServerConnect.EServerTestResults.EXCEPTION)
+                    {
+                       
+                        if (testRez.Ex == null)
+                        {
+                            MessageBox.Show($"Test Returned Unknown Exception");
+                            return;
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Connection Unsuccessful With Exception: \n{testRez.Ex}");
+                            return;
+                        }
+                    }
+
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Test Connection Exception:\n{ex.Message}");
+                _logger?.Exception(ex);
+                return;
             }
 
 
