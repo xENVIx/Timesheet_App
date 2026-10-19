@@ -23,13 +23,14 @@ namespace Timesheeter.Classes
             EXCEPTION
         }
 
-        public ServerConnect(ClientServerSettings svrSettings)
+        public ServerConnect(String webAddr, int port, String key, String secret)
         {
-            var details = svrSettings.ServerDetails;
-            apiKey = details.apiKey;
-            apiSecret = details.secret;
-            serverAddress = details.address;
-            serverPort = details.port;
+            //var details = svrSettings.ServerDetails;
+            apiKey = key;
+            apiSecret = secret;
+            serverAddress = webAddr;
+            serverPort = port;
+
 
         }
 

@@ -36,7 +36,6 @@ namespace Timesheeter.Classes
         private readonly Setting _setting;
         private ILoggerApp? _logger;
 
-        private Classes.ServerConnect? _server;
 
 
         public ClientServerSettings(SqliteStore dataStore, ILoggerApp? logger)
@@ -99,19 +98,6 @@ namespace Timesheeter.Classes
         }
 
 
-        public ServerConnect.TestResults? TestConnection()
-        {
-            
-            if (_server == null)
-            {
-                _server = new ServerConnect(this);
-                return _server.TestConnection();
-            }
-
-            return null;
-
-
-        }
 
 
     }

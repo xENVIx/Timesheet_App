@@ -27,10 +27,56 @@ namespace Timesheeter.Classes
             var timeEntries = _data.GetData<TimeEntries>() ?? throw new Exception("Reference To TimeEntries Returned Null");
 
 
-            customers.All.ListChanged += All_ListChanged;
-            
+            //customers.All.ListChanged += All_ListChanged;
+            customers.ItemChanged += ItemChanged;
+            projectCodes.ItemChanged += ItemChanged;
+            timeEntries.ItemChanged += ItemChanged;
         }
 
+        private void ItemChanged<T>(object? sender, ItemEventArgs<T> e) where T : class
+        {
+
+            if (e.Item == null)
+            {
+                _logger?.Warn($"Item Changed But Data Not Handled");
+                return;
+            }
+
+            if (e.Item is IData data)
+            {
+                _logger?.Verbose($"{typeof(T)} Changed: {data.ID} - {e.ChangeType.ToString()}");
+            
+
+
+
+                if (e.Item is Customers.Customer customer)
+                {
+                    _logger?.Verbose($"Customer Name: {customer.Name}");
+                }
+                else if (e.Item is ProjectCodes.ProjectCode projectCode)
+                {
+                    _logger?.Verbose($"Project Code: {projectCode.Code}");
+                }
+                else if (e.Item is TimeEntries.TimeEntry timeEntry)
+                {
+                    _logger?.Verbose($"Time Entry Changed...");
+                }
+                else
+                {
+                    _logger?.Error($"Unknown Type Change! {typeof(T)}");
+                    return;
+                }
+            }
+            else
+            {
+                _logger?.Error($"Uknown Data Type: {typeof(T)}");
+                return;
+            }
+
+
+        }
+
+        /*
         private void All_ListChanged(object? sender, System.ComponentModel.ListChangedEventArgs e)
         {
 
@@ -41,5 +87,6 @@ namespace Timesheeter.Classes
             }
 
         }
+        */
     }
 }

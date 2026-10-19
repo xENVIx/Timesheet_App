@@ -10,6 +10,7 @@ using Timesheeter.Core.Data;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;
 using Timesheeter.Lib;
+using Windows.UI.WebUI;
 
 namespace Timesheeter.UserControls
 {
@@ -18,6 +19,10 @@ namespace Timesheeter.UserControls
     {
         private AppSettings? _settings;
         private ClientServerSettings? _serverSettings;
+
+
+        //private bool _serverSettingsChanged = false;
+        //private bool _serverTestSuccess = false;
 
         // True while the controls are being set from the saved settings, so that doesn't count as a change.
         private bool _loading;
@@ -286,7 +291,28 @@ namespace Timesheeter.UserControls
             try
             {
 
-                var testRez = _serverSettings.TestConnection();
+                //var testRez = _serverSettings.TestConnection();
+
+                //ServerConnect serverConnect = new ServerConnect(_serverSettings);
+
+                // get settings from this page... not saved yet....
+
+                String address = _tbServer.Text;
+                String port = _tbPort.Text;
+                int iPort = -1;
+                if (!int.TryParse(port, out iPort) || iPort < 1)
+                {
+                    MessageBox.Show($"Port Must Be Numeric > 0");
+                    return;
+                }
+
+                String apiKey = _tbApi.Text;
+                String secret = _tbSecret.Text;
+
+                ServerConnect testServer = new ServerConnect(address, iPort, apiKey, secret);
+                
+                var testRez = testServer.TestConnection();
+
 
                 if (testRez == null)
                 {

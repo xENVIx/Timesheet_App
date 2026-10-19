@@ -50,7 +50,7 @@ namespace Timesheeter.Core.Data
     public abstract class DataClass<T> : DataBase, IDataClass where T : class
     {
 
-        public event EventHandler<ItemEventArgs<T>> ItemChanged;
+        public event EventHandler<ItemEventArgs<T>>? ItemChanged;
 
 
 
@@ -213,8 +213,6 @@ namespace Timesheeter.Core.Data
             where TRef : class
         {
 
-            // bweiss TODO somewhere in here we need to call on ItemChanged event... one for Deleted and one for Updated or Inserted or something...? help...
-
             var idProperty = typeof(T).GetProperty("ID")!;
             object fromId = idProperty.GetValue(renamed)!;
             object toId = idProperty.GetValue(target)!;
@@ -261,7 +259,12 @@ namespace Timesheeter.Core.Data
             {
                 property.SetValue(renamed, property.GetValue(original));
             }
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(renamed, EChangeType.DELETED));
 
+            // The merge target: brought back if it was deleted, updated either way.
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(target, targetWasDeleted ? EChangeType.RESTORED : EChangeType.UPDATE));
+
+            // Every reference that got moved over changed too, same as any other update to it.
             foreach (var reference in references.All.Unfiltered.ToList())
             {
                 if (!Equals(refProperty.GetValue(reference), fromId)) continue;
@@ -271,10 +274,9 @@ namespace Timesheeter.Core.Data
                     audited.TOM = now;
                     audited.MOP = Audit.Process;
                 }
+                references.ItemChanged?.Invoke(references, new ItemEventArgs<TRef>(reference, EChangeType.UPDATE));
                 references.Reposition(reference);
             }
-
-
 
             Reposition(target);
             Reposition(renamed);
