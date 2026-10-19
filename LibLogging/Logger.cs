@@ -31,7 +31,7 @@ namespace LibLogging
     //**//******************************************************************************//**//
     //**//******************************************************************************//**//
 
-    public class Logger : ILoggerApp, IDisposable
+    public class Logger : ILogger, ILoggerApp, IDisposable
     {
 
         #region VARIABLES

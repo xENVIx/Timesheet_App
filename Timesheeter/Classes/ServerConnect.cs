@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Timesheeter.Classes
 {
@@ -44,15 +46,31 @@ namespace Timesheeter.Classes
 
             try
             {
+                _httpClient = new HttpClient();
 
+                var signature = Core.Lib.Security.ComputeSignature(apiKey, apiSecret);
 
+                _httpClient.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+                _httpClient.DefaultRequestHeaders.Add("X-Signature", signature);
 
-
+                HttpResponseMessage response = _httpClient.GetAsync(String.Concat(serverAddress, ":", serverPort.ToString(), "/api/test")).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    status = EServerTestResults.SUCCESS;
+                }
             }
             catch (Exception ex)
             {
                 retExc = ex;
                 status = EServerTestResults.EXCEPTION;
+            }
+            finally
+            {
+                if (_httpClient != null)
+                {
+                    
+                    _httpClient.Dispose();
+                }
             }
 
 
@@ -60,6 +78,7 @@ namespace Timesheeter.Classes
 
 
         }
+
 
 
         public class TestResults

@@ -1,9 +1,11 @@
 ﻿using LibLogging;
 using LibSqlLite;
+using Microsoft.AspNetCore.DataProtection;
 using System.Security.Cryptography;
 using System.Text;
 using Timesheeter.Core.Data;
 using Timesheeter.Core.Interfaces;
+using static Timesheeter.Server.APIKeys;
 namespace Timesheeter.Server
 {
     
@@ -35,7 +37,7 @@ namespace Timesheeter.Server
             /* initialize database...
             */
             _logger = new Logger("Timesheeter.Server", LogLevel.Trace, _cts.Token, true);
-
+            _logger.Run();
 
             String timeSheeterPath = DataFolder;
 
@@ -166,12 +168,78 @@ namespace Timesheeter.Server
                 _app.UseSwaggerUI();
             }
 
+            
+
             try
             {
                 var mapGroupCustomers       = MapCRUD   <Customers.Customer>       ("/api/customers");
                 var mapGroupProjectCodes    = MapCRUD   <ProjectCodes.ProjectCode> ("/api/project_codes");
                 var mapGroupTimeEntries     = MapCRUD   <TimeEntries.TimeEntry>    ("/api/time_entries");
+
+
+                var mapGroupTest = _app.MapGroup("/api/test");
+
+                // GET /api/customers and /api/customers/{id}: JSON, or XML when the request's Accept header
+                // asks for it (Accept: application/xml).
+                string name = "/api/test".TrimEnd('/')[("/api/test".TrimEnd('/').LastIndexOf('/') + 1)..];
+                mapGroupTest.MapGet("/", (HttpRequest request) => 
+                {
+                    _logger?.Verbose($"Test Received");
+
+
+                    foreach ( var header in request.Headers)
+                    {
+                        _logger?.Verbose($"Header: {header.Key} || {header.Value}");
+                    }
+
+                    // get the API key...
+                    if (!request.Headers.TryGetValue("X-API-Key", out var key) || !request.Headers.TryGetValue("X-Signature", out var signature))
+                    {
+                        Results.Unauthorized();
+                        return;
+                    }
+
+                    if (_apiKeys.Active.ToList().Exists(x => x.Key == key))
+                    {
+                        // compute the HMAC and COMPARE to sent SIGNATURE...
+                        String secret = _apiKeys.Active.Where(x => x.Key == key).First().Secret;
+
+                        var sig = Core.Lib.Security.ComputeSignature(key!, secret);
+
+                        if (sig == null)
+                        {
+                            Results.Unauthorized();
+                            return;
+                        }
+
+
+                        if (String.Compare(sig, signature) == 0)
+                        {
+                            Results.Json("Success!");
+                            return;
+                        }
+                        else
+                        {
+                            Results.Unauthorized();
+                            return;
+                        }
+
+                    }
+                    else
+                    {
+                        Results.Unauthorized();
+                        return;
+                    }
+
+
+
+                        Results.Json("Success!");
+                    //Results.Json("Success!");
+                });
+
                 
+
+
             }
             catch (Exception ex)
             {
@@ -466,6 +534,8 @@ namespace Timesheeter.Server
             if (_app == null)
                 throw new ArgumentNullException(nameof(_app));
 
+
+            
             _app.Run();
         }
         public static class ApiKeyUtility
