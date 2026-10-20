@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Timesheeter.Core.Data;
-using Timesheeter.Core.Interfaces;
+
+using LibInterfaces;
 
 namespace Timesheeter.Classes
 {

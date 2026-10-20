@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Timesheeter.Core.Data;
-using Timesheeter.Core.Interfaces;
+
+using LibInterfaces;
 
 namespace Timesheeter.Classes
 {

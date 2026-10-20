@@ -13,6 +13,8 @@ using Timesheeter.Forms;
 using Timesheeter.Core.Lib;
 using Timesheeter.Lib;
 
+using LibInterfaces;
+
 namespace Timesheeter.UserControls
 {
 

@@ -4,7 +4,8 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text;
 using Timesheeter.Core.Data;
-using Timesheeter.Core.Interfaces;
+
+using LibInterfaces;
 
 using Timesheeter.Lib;
 

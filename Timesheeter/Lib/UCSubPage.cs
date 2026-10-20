@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-using Timesheeter.Core.Interfaces;
+using LibInterfaces;
 using Timesheeter.Core.Lib;
 
 namespace Timesheeter.Lib

@@ -6,9 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using LibInterfaces;
+
 namespace Timesheeter.Core.Data
 {
-    public class DataFactory : Interfaces.IDataFactory
+    public class DataFactory : IDataFactory
     {
 
 

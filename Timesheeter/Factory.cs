@@ -19,7 +19,7 @@ namespace Timesheeter
         //private TimeEntries _timeEntries;
         //private AppSettings _settings;
 
-        private Classes.AppDataFactory _dataFactory;
+        private AppDataFactory _dataFactory;
         private readonly System.Windows.Forms.Timer _timer;
         private CancellationTokenSource _cts;
 

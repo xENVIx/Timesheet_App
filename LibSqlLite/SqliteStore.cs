@@ -1,9 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using Dapper;
 using LibLogging;
+
 using LibSqlLite.Schema;
 using LibSqlLite.TypeHandlers;
 using Microsoft.Data.Sqlite;
+
+using LibInterfaces;
 
 namespace LibSqlLite;
 
@@ -12,7 +15,7 @@ namespace LibSqlLite;
 /// class shape via reflection; new properties become new columns automatically. See the
 /// project's CLAUDE.md for the full class-to-table mapping conventions.
 /// </summary>
-public sealed class SqliteStore : IDisposable
+public sealed class SqliteStore : IDataStore, IDisposable
 {
     private readonly SqliteConnection _connection;
 
@@ -386,46 +389,55 @@ public sealed class SqliteStore : IDisposable
     /// Runs <paramref name="work"/> atomically. Calls made on the passed-in store (which is this
     /// instance) enlist in the same transaction. Rolls back entirely if <paramref name="work"/> throws.
     /// </summary>
-    public void InTransaction(Action<SqliteStore> work)
+    public void InTransaction<T>(Action<T> workRef) where T : class
     {
-        ArgumentNullException.ThrowIfNull(work);
 
-        if (_ambientTransaction is not null)
+        if (workRef is Action<SqliteStore> work)
         {
-            work(this);
-            return;
-        }
 
-        _lock.Wait();
-        try
-        {
-            using var tx = _connection.BeginTransaction();
-            _ambientTransaction = tx;
-            var pendingEnsured = new HashSet<Type>();
-            _pendingEnsuredTables = pendingEnsured;
-            try
+            ArgumentNullException.ThrowIfNull(work);
+
+            if (_ambientTransaction is not null)
             {
                 work(this);
-                tx.Commit();
-                foreach (var type in pendingEnsured)
-                {
-                    _ensuredTables[type] = 0;
-                }
+                return;
             }
-            catch
+
+            _lock.Wait();
+            try
             {
-                tx.Rollback();
-                throw;
+                using var tx = _connection.BeginTransaction();
+                _ambientTransaction = tx;
+                var pendingEnsured = new HashSet<Type>();
+                _pendingEnsuredTables = pendingEnsured;
+                try
+                {
+                    work(this);
+                    tx.Commit();
+                    foreach (var type in pendingEnsured)
+                    {
+                        _ensuredTables[type] = 0;
+                    }
+                }
+                catch
+                {
+                    tx.Rollback();
+                    throw;
+                }
+                finally
+                {
+                    _ambientTransaction = null;
+                    _pendingEnsuredTables = null;
+                }
             }
             finally
             {
-                _ambientTransaction = null;
-                _pendingEnsuredTables = null;
+                _lock.Release();
             }
         }
-        finally
+        else
         {
-            _lock.Release();
+            throw new Exception($"Invalid Type: {typeof(T)}");
         }
     }
 

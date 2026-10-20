@@ -3,6 +3,8 @@ using LibSqlLite.Schema;
 using LibSqlLite.TypeHandlers;
 using Microsoft.Data.Sqlite;
 
+using LibInterfaces;
+
 namespace LibSqlLite;
 
 /// <summary>What <see cref="SqliteConverter.Convert"/> did.</summary>

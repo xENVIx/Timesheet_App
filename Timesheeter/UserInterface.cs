@@ -1,5 +1,6 @@
 ﻿using Timesheeter.Lib;
-using Timesheeter.Core.Interfaces;
+
+using LibInterfaces;
 using Microsoft.Extensions.Logging;
 using LibLogging;
 

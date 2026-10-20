@@ -3,14 +3,15 @@ using LibSqlLite;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Timesheeter.Core.Data;
-using Timesheeter.Core.Interfaces;
 
-namespace Timesheeter.Server
+using LibInterfaces;
+
+namespace Timesheeter.Server.Classes
 {
     public class APIKeys : DataClass<APIKeys.APIKey>
     {
 
-        public APIKeys(LibSqlLite.SqliteStore store, ILoggerApp? logger) : base(store, logger)
+        public APIKeys(IDataStore store, ILoggerApp? logger) : base(store, logger)
         {
 
         }
@@ -20,7 +21,7 @@ namespace Timesheeter.Server
         {
             [PrimaryKey, GridHidden] public Guid ID { get; set; }
             [Required, Unique] public byte[] Key { get; set; } = Array.Empty<byte>();
-            [Required, Unique(IgnoreCase = true)] public String Secret { get; set; } = string.Empty;
+            [Required, Unique(IgnoreCase = true)] public string Secret { get; set; } = string.Empty;
 
             [DisplayName("Deleted")] public bool Deleted { get; set; } = false;
             [DisplayName("Created (UTC)")] public DateTime TOC { get; set; }

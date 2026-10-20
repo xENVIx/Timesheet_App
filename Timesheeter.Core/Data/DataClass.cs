@@ -11,6 +11,8 @@ using Timesheeter.Core.Lib;
 using static Timesheeter.Core.Data.Customers;
 using static Timesheeter.Core.Data.ProjectCodes;
 
+using LibInterfaces;
+
 namespace Timesheeter.Core.Data
 {
     public interface IDataClass
@@ -56,9 +58,9 @@ namespace Timesheeter.Core.Data
 
         protected ILoggerApp? _logger { get; private set; }
 
-        protected SqliteStore _dataStore;
+        protected IDataStore _dataStore;
 
-        public DataClass(SqliteStore dataStore, ILoggerApp? logger)
+        public DataClass(IDataStore dataStore, ILoggerApp? logger)
         {
             _dataStore = dataStore;
             _list = new BindingListView<T>();
@@ -236,7 +238,7 @@ namespace Timesheeter.Core.Data
             var now = DateTime.UtcNow;
             try
             {
-                _dataStore.InTransaction(store =>
+                _dataStore.InTransaction<SqliteStore>(store =>
                 {
                     // The moved references changed too, so they get this modification's stamp.
                     string stamp = referencesAudited ? ", [TOM] = @now, [MOP] = @mop" : "";

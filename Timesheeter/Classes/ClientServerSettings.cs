@@ -7,6 +7,8 @@ using System.Text;
 using System.Security.Cryptography;
 using Timesheeter.Core.Data;
 
+using LibInterfaces;
+
 namespace Timesheeter.Classes
 {
     /// <summary>

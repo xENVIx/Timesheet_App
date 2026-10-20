@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 
 using Microsoft.Extensions.Logging;
 
+using LibInterfaces;
+
 namespace LibLogging
 {
 
