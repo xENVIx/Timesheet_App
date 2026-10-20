@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The setup wizard's progress screen showed each step's details template as-is, e.g.
+  "Copying new files File: [1], Directory: [9], Size: [6]": WixUI's progress dialog has no place
+  that fills those [n] values in. Blanking the templates leaves just the step, e.g. "Copying new files".
+  Overrides the strings of the same name in WixToolset.UI.wixext (picked up automatically, like any .wxl).
+-->
+<WixLocalization Culture="en-US" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="ProgressTextInstallFilesTemplate" Value="" />
+  <String Id="ProgressTextInstallAdminPackageTemplate" Value="" />
+  <String Id="ProgressTextCreateShortcutsTemplate" Value="" />
+  <String Id="ProgressTextPublishComponentsTemplate" Value="" />
+  <String Id="ProgressTextPublishFeaturesTemplate" Value="" />
+  <String Id="ProgressTextRegisterClassInfoTemplate" Value="" />
+  <String Id="ProgressTextRegisterExtensionInfoTemplate" Value="" />
+  <String Id="ProgressTextRegisterMIMEInfoTemplate" Value="" />
+  <String Id="ProgressTextRegisterProgIdInfoTemplate" Value="" />
+  <String Id="ProgressTextAllocateRegistrySpaceTemplate" Value="" />
+  <String Id="ProgressTextAppSearchTemplate" Value="" />
+  <String Id="ProgressTextBindImageTemplate" Value="" />
+  <String Id="ProgressTextCreateFoldersTemplate" Value="" />
+  <String Id="ProgressTextDeleteServicesTemplate" Value="" />
+  <String Id="ProgressTextDuplicateFilesTemplate" Value="" />
+  <String Id="ProgressTextFindRelatedProductsTemplate" Value="" />
+  <String Id="ProgressTextInstallServicesTemplate" Value="" />
+  <String Id="ProgressTextMigrateFeatureStatesTemplate" Value="" />
+  <String Id="ProgressTextMoveFilesTemplate" Value="" />
+  <String Id="ProgressTextPatchFilesTemplate" Value="" />
+  <String Id="ProgressTextRegisterComPlusTemplate" Value="" />
+  <String Id="ProgressTextRegisterFontsTemplate" Value="" />
+  <String Id="ProgressTextRegisterProductTemplate" Value="" />
+  <String Id="ProgressTextRegisterTypeLibrariesTemplate" Value="" />
+  <String Id="ProgressTextRegisterUserTemplate" Value="" />
+  <String Id="ProgressTextRemoveDuplicateFilesTemplate" Value="" />
+  <String Id="ProgressTextRemoveEnvironmentStringsTemplate" Value="" />
+  <String Id="ProgressTextRemoveExistingProductsTemplate" Value="" />
+  <String Id="ProgressTextRemoveFilesTemplate" Value="" />
+  <String Id="ProgressTextRemoveFoldersTemplate" Value="" />
+  <String Id="ProgressTextRemoveIniValuesTemplate" Value="" />
+  <String Id="ProgressTextRemoveRegistryValuesTemplate" Value="" />
+  <String Id="ProgressTextRemoveShortcutsTemplate" Value="" />
+  <String Id="ProgressTextSelfRegModulesTemplate" Value="" />
+  <String Id="ProgressTextSelfUnregModulesTemplate" Value="" />
+  <String Id="ProgressTextStartServicesTemplate" Value="" />
+  <String Id="ProgressTextStopServicesTemplate" Value="" />
+  <String Id="ProgressTextUnpublishComponentsTemplate" Value="" />
+  <String Id="ProgressTextUnpublishFeaturesTemplate" Value="" />
+  <String Id="ProgressTextUnregisterClassInfoTemplate" Value="" />
+  <String Id="ProgressTextUnregisterComPlusTemplate" Value="" />
+  <String Id="ProgressTextUnregisterExtensionInfoTemplate" Value="" />
+  <String Id="ProgressTextUnregisterFontsTemplate" Value="" />
+  <String Id="ProgressTextUnregisterMIMEInfoTemplate" Value="" />
+  <String Id="ProgressTextUnregisterProgIdInfoTemplate" Value="" />
+  <String Id="ProgressTextUnregisterTypeLibrariesTemplate" Value="" />
+  <String Id="ProgressTextWriteEnvironmentStringsTemplate" Value="" />
+  <String Id="ProgressTextWriteIniValuesTemplate" Value="" />
+  <String Id="ProgressTextWriteRegistryValuesTemplate" Value="" />
+  <String Id="ProgressTextGenerateScriptTemplate" Value="" />
+  <String Id="ProgressTextInstallSFPCatalogFileTemplate" Value="" />
+  <String Id="ProgressTextMsiPublishAssembliesTemplate" Value="" />
+  <String Id="ProgressTextMsiUnpublishAssembliesTemplate" Value="" />
+  <String Id="ProgressTextRollbackTemplate" Value="" />
+  <String Id="ProgressTextRollbackCleanupTemplate" Value="" />
+  <String Id="ProgressTextUnmoveFilesTemplate" Value="" />
+</WixLocalization>

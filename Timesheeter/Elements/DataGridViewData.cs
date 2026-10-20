@@ -66,6 +66,10 @@ namespace Timesheeter.Elements
             // Unbound columns (e.g. the time entries page's delete checkboxes) aren't data to save.
             if (string.IsNullOrEmpty(Columns[e.ColumnIndex].DataPropertyName)) return;
 
+            // CellEndEdit fires just from entering and leaving edit mode (e.g. opening a dropdown),
+            // even when the value picked is the same one the cell already had. Nothing to save then.
+            if (Equals(_valueBeforeEdit, Rows[e.RowIndex].Cells[e.ColumnIndex].FormattedValue)) return;
+
             // The grid has already written the edited value into the bound object.
             if (Rows[e.RowIndex].DataBoundItem is not T item) return;
 
@@ -115,6 +119,41 @@ namespace Timesheeter.Elements
         /// edit ends); otherwise null.
         /// </summary>
         protected virtual Func<bool>? MergeOnRename(T item) => null;
+
+        // The record's properties in the order they're declared in its class.
+        private static readonly List<string> PropertyOrder = typeof(T).GetProperties()
+            .OrderBy(p => p.MetadataToken)
+            .Select(p => p.Name)
+            .ToList();
+
+        protected override void OnDataBindingComplete(DataGridViewBindingCompleteEventArgs e)
+        {
+            base.OnDataBindingComplete(e);
+            ApplyColumnOrder();
+        }
+
+        /// <summary>
+        /// Shows the columns in the order their properties are declared in the record class, with
+        /// unbound columns (e.g. the delete checkboxes) last. Columns are created at different times
+        /// (lookup columns before binding, the rest when the grid is first shown, extra columns later),
+        /// which otherwise leaves them out of order.
+        /// </summary>
+        private void ApplyColumnOrder()
+        {
+            var ordered = Columns.Cast<DataGridViewColumn>()
+                .OrderBy(column =>
+                {
+                    int index = PropertyOrder.IndexOf(column.DataPropertyName);
+                    return index < 0 ? int.MaxValue : index;
+                })
+                .ThenBy(column => column.Index)
+                .ToList();
+
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                ordered[i].DisplayIndex = i;
+            }
+        }
 
         protected override void OnColumnAdded(DataGridViewColumnEventArgs e)
         {
@@ -179,6 +218,7 @@ namespace Timesheeter.Elements
             if (Rows[rowIndex].Cells[columnIndex] is not DataGridViewComboBoxCell cell) return;
 
             var itemType = ListBindingHelper.GetListItemType(source.All);
+            if (itemType == null) return;
             var valueOf = TypeDescriptor.GetProperties(itemType)[column.ValueMember];
             if (valueOf == null) return;
 
@@ -201,6 +241,26 @@ namespace Timesheeter.Elements
             if (Columns[columnIndex] is not DataGridViewComboBoxColumn column) return;
             if (!_lookupSources.ContainsKey(column.Name)) return;
             if (Rows[rowIndex].Cells[columnIndex] is DataGridViewComboBoxCell cell) cell.DataSource = column.DataSource;
+        }
+
+        /// <summary>
+        /// A lookup column (Customer, Project Code, ...) saves the moment a choice is picked, instead
+        /// of waiting for the user to leave the cell the way a typed value does: there's nothing left
+        /// to type, so the pick is already final.
+        /// </summary>
+        /// <remarks>
+        /// Goes through <see cref="IsCurrentCellDirty"/> rather than hooking the editing control's own
+        /// SelectedIndexChanged directly: that control is pooled and reused for every lookup cell in the
+        /// grid, and ending the edit from inside its own event (even deferred) left the column stuck
+        /// mid-edit until some other cell was clicked into. This is the documented, framework-sanctioned
+        /// hook for committing before the cell is left (the same one a DataGridViewCheckBoxColumn uses),
+        /// so the grid's own edit lifecycle stays in charge of it instead of us reaching into the control.
+        /// </remarks>
+        protected override void OnCurrentCellDirtyStateChanged(EventArgs e)
+        {
+            base.OnCurrentCellDirtyStateChanged(e);
+
+            if (IsCurrentCellDirty && CurrentCell is DataGridViewComboBoxCell) EndEdit();
         }
 
         #region Column slide

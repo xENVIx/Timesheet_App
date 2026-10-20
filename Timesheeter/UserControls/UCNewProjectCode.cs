@@ -20,16 +20,16 @@ namespace Timesheeter.UserControls
 
         protected override void PostInit()
         {
-            if (_factory == null)
+            if (_datFactory == null)
             {
-                throw new ArgumentNullException(nameof(_factory));
+                throw new ArgumentNullException(nameof(_datFactory));
             }
 
-            _cbCustomer.PostInit(_factory.GetData<Customers>());
-            _projCodesDgv.PostInit(_factory.GetData<ProjectCodes>(), _factory);
+            _cbCustomer.PostInit(_datFactory.GetData<Customers>());
+            _projCodesDgv.PostInit(_datFactory.GetData<ProjectCodes>(), _datFactory);
 
-            var timeEntries = _factory.GetData<TimeEntries>();
-            _deleteBar.PostInit(_projCodesDgv, _factory.GetData<ProjectCodes>()!, "project code", "project codes", codes =>
+            var timeEntries = _datFactory.GetData<TimeEntries>();
+            _deleteBar.PostInit(_projCodesDgv, _datFactory.GetData<ProjectCodes>()!, "project code", "project codes", codes =>
             {
                 // Time entries keep showing a deleted code (and the timesheets keep their hours).
                 var ids = codes.Select(c => c.ID).ToHashSet();
@@ -58,7 +58,7 @@ namespace Timesheeter.UserControls
             }
 
 
-            var custs = _factory!.GetData<Customers>();
+            var custs = _datFactory!.GetData<Customers>();
             if (custs == null) throw new ArgumentNullException(nameof(custs));
 
 
@@ -100,7 +100,7 @@ namespace Timesheeter.UserControls
                 Description = projDescription,
             };
 
-            var projCodesFactory = _factory.GetData<ProjectCodes>();
+            var projCodesFactory = _datFactory.GetData<ProjectCodes>();
             if (projCodesFactory == null) throw new Exception($"Failed to retrieve project codes factory");
 
             // Re-adding a deleted code brings that project code back with the details just entered

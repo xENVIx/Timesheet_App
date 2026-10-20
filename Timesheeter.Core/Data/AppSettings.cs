@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿using LibLogging;
 using LibSqlLite;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
 
 namespace Timesheeter.Core.Data
 {
     /// <summary>
     /// User preferences, saved in the app's database as a single row.
     /// </summary>
-    public class AppSettings
+    public class AppSettings : DataBase
     {
         [Table("AppSettings")]
         public class Setting
@@ -20,6 +21,8 @@ namespace Timesheeter.Core.Data
             public String LastName { get; set; } = "";
             public ThemeMode ThemeMode { get; set; } = ThemeMode.LightWithDarkNavigation;
             public int AccentArgb { get; set; } = DefaultAccentArgb;
+
+            
         }
 
         // Theme.AccentPresets[0] ("Blue"); the theme itself lives in the WinForms app.
@@ -30,12 +33,13 @@ namespace Timesheeter.Core.Data
 
         private readonly SqliteStore _dataStore;
         private readonly Setting _setting;
-
-        public AppSettings(SqliteStore dataStore)
+        private ILoggerApp? _logger;
+        public AppSettings(SqliteStore dataStore, ILoggerApp? logger)
         {
             _dataStore = dataStore;
             _dataStore.EnsureTable<Setting>();
             _setting = _dataStore.Get<Setting>(SettingsId) ?? new Setting { Id = SettingsId };
+            _logger = logger;
         }
 
         public ThemeMode ThemeMode

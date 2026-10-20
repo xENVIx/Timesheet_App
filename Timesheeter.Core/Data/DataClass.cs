@@ -1,4 +1,6 @@
-﻿using LibSqlLite;
+﻿using LibLogging;
+using LibSqlLite;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
 using Timesheeter.Core.Lib;
+using static Timesheeter.Core.Data.Customers;
 using static Timesheeter.Core.Data.ProjectCodes;
 
 namespace Timesheeter.Core.Data
@@ -16,19 +19,65 @@ namespace Timesheeter.Core.Data
         IBindingList Active { get; }
     }
 
-    public abstract class DataClass<T> : IDataClass where T : class
+
+    public class ItemEventArgs<T> : EventArgs
     {
+
+        public readonly T? Item;
+        public readonly EChangeType ChangeType;
+
+        public ItemEventArgs(T? item, EChangeType changeType)
+        {
+            Item = item;
+            ChangeType = changeType;
+        }
+
+
+
+    }
+
+    public enum EChangeType
+    {
+        INSERT, // brand new...
+        UPDATE, // update old...
+        UPSERT, // could be new or update old
+        DELETED, 
+        RESTORED,
+
+
+    }
+
+    public abstract class DataClass<T> : DataBase, IDataClass where T : class
+    {
+
+        public event EventHandler<ItemEventArgs<T>>? ItemChanged;
+
+
+
+        protected ILoggerApp? _logger { get; private set; }
 
         protected SqliteStore _dataStore;
 
-        public DataClass(SqliteStore dataStore)
+        public DataClass(SqliteStore dataStore, ILoggerApp? logger)
         {
             _dataStore = dataStore;
             _list = new BindingListView<T>();
             _active = new BindingListView<T>();
+            _logger = logger;
 
             // The active list holds the same items; the filter hides the deleted ones.
             if (typeof(ISoftDeletable).IsAssignableFrom(typeof(T))) _active.Filter = "Deleted = false";
+
+
+
+
+            _dataStore.EnsureTable<T>();
+
+            foreach (var data in _dataStore.All<T>())
+            {
+                AddLoaded(data);
+            }
+
         }
 
         /// <summary>
@@ -75,10 +124,23 @@ namespace Timesheeter.Core.Data
         public bool Update(T item)
         {
             if (!IsValid(item)) return false;
+            Audit.Stamp(item, created: false);
 
-            try { return _dataStore.Update(item);  } 
-            catch (Exception ex) { Console.WriteLine($"Exception: {ex.Message}"); return false; }
-            
+            try 
+            {
+                if (!_dataStore.Update(item))
+                    return false;
+            } 
+            catch (Exception ex) 
+            { 
+                Console.WriteLine($"Exception: {ex.Message}"); 
+                return false; 
+            }
+
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.UPDATE));
+            return true;
+
+
         }
 
         public void Reload(T item)
@@ -113,6 +175,7 @@ namespace Timesheeter.Core.Data
             if (item is not ISoftDeletable deletable) throw new NotSupportedException($"{typeof(T).Name} can't be deleted.");
 
             deletable.Deleted = true;
+            Audit.Stamp(item, created: false);
 
             // Not validated like Update: a record with an invalid value can still be deleted.
             bool saved;
@@ -124,6 +187,8 @@ namespace Timesheeter.Core.Data
                 deletable.Deleted = false;
                 return false;
             }
+
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.DELETED));
 
             if (KeepsDeleted)
             {
@@ -147,6 +212,7 @@ namespace Timesheeter.Core.Data
         protected bool MergeInto<TRef>(T renamed, T target, DataClass<TRef> references, string referenceProperty)
             where TRef : class
         {
+
             var idProperty = typeof(T).GetProperty("ID")!;
             object fromId = idProperty.GetValue(renamed)!;
             object toId = idProperty.GetValue(target)!;
@@ -161,12 +227,21 @@ namespace Timesheeter.Core.Data
             bool targetWasDeleted = targetDeletable.Deleted;
             originalDeletable.Deleted = true;
             targetDeletable.Deleted = false;
+            Audit.Stamp(original, created: false);
+            Audit.Stamp(target, created: false);
+
+            // Keys as the store writes them (a GUID as lowercase text), since these go in as plain parameters.
+            object Key(object id) => id is Guid guid ? guid.ToString("D") : id;
+            bool referencesAudited = typeof(IAudited).IsAssignableFrom(typeof(TRef));
+            var now = DateTime.UtcNow;
             try
             {
                 _dataStore.InTransaction(store =>
                 {
-                    store.Execute($"UPDATE [{refTable}] SET [{referenceProperty}] = @to WHERE [{referenceProperty}] = @from",
-                        new { to = toId, from = fromId });
+                    // The moved references changed too, so they get this modification's stamp.
+                    string stamp = referencesAudited ? ", [TOM] = @now, [MOP] = @mop" : "";
+                    store.Execute($"UPDATE [{refTable}] SET [{referenceProperty}] = @to{stamp} WHERE [{referenceProperty}] = @from",
+                        new { to = Key(toId), from = Key(fromId), now = now.ToString("O"), mop = Audit.Process });
 
                     if (!IsValid(target) || !store.Update(target) || !store.Update(original))
                         throw new InvalidOperationException("Could not save the merge.");
@@ -184,11 +259,22 @@ namespace Timesheeter.Core.Data
             {
                 property.SetValue(renamed, property.GetValue(original));
             }
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(renamed, EChangeType.DELETED));
 
+            // The merge target: brought back if it was deleted, updated either way.
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(target, targetWasDeleted ? EChangeType.RESTORED : EChangeType.UPDATE));
+
+            // Every reference that got moved over changed too, same as any other update to it.
             foreach (var reference in references.All.Unfiltered.ToList())
             {
                 if (!Equals(refProperty.GetValue(reference), fromId)) continue;
                 refProperty.SetValue(reference, toId);
+                if (reference is IAudited audited)
+                {
+                    audited.TOM = now;
+                    audited.MOP = Audit.Process;
+                }
+                references.ItemChanged?.Invoke(references, new ItemEventArgs<TRef>(reference, EChangeType.UPDATE));
                 references.Reposition(reference);
             }
 
@@ -213,6 +299,8 @@ namespace Timesheeter.Core.Data
                 return false;
             }
 
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.RESTORED));
+
             Reposition(item);
             return true;
         }
@@ -220,6 +308,7 @@ namespace Timesheeter.Core.Data
         public bool Save(T item)
         {
             if (!IsValid(item)) return false;
+            Audit.Stamp(item, created: true);
 
             try
             {
@@ -230,6 +319,10 @@ namespace Timesheeter.Core.Data
                 Console.WriteLine(ex.ToString());
                 return false;
             }
+
+
+            ItemChanged?.Invoke(this, new ItemEventArgs<T>(item, EChangeType.INSERT));
+
             _list.Add(item);
             _active.Add(item);
             return true;

@@ -32,10 +32,14 @@
             _dgvTimesheet = new Timesheeter.Elements.TimesheetDataGridView();
             label1 = new Label();
             _chartTimesheet = new Timesheeter.Elements.TimesheetChart();
+            panel1 = new Panel();
+            _rbDate = new RadioButton();
+            _rbHours = new RadioButton();
             _pnlElements.SuspendLayout();
             _pnlSideBar.SuspendLayout();
             _pnlGrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_dgvTimesheet).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // _pnlElements
@@ -52,6 +56,7 @@
             // _pnlGrid
             // 
             _pnlGrid.Controls.Add(_dgvTimesheet);
+            _pnlGrid.Controls.Add(panel1);
             _pnlGrid.Size = new Size(573, 539);
             // 
             // _datePicker
@@ -78,7 +83,7 @@
             _dgvTimesheet.Name = "_dgvTimesheet";
             _dgvTimesheet.ReadOnly = true;
             _dgvTimesheet.RowHeadersVisible = false;
-            _dgvTimesheet.Size = new Size(573, 539);
+            _dgvTimesheet.Size = new Size(573, 510);
             _dgvTimesheet.TabIndex = 2;
             // 
             // label1
@@ -98,6 +103,39 @@
             _chartTimesheet.Size = new Size(298, 255);
             _chartTimesheet.TabIndex = 4;
             // 
+            // panel1
+            // 
+            panel1.Controls.Add(_rbDate);
+            panel1.Controls.Add(_rbHours);
+            panel1.Dock = DockStyle.Bottom;
+            panel1.Location = new Point(0, 510);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(573, 29);
+            panel1.TabIndex = 3;
+            // 
+            // _rbDate
+            // 
+            _rbDate.AutoSize = true;
+            _rbDate.Location = new Point(73, 5);
+            _rbDate.Name = "_rbDate";
+            _rbDate.Size = new Size(52, 19);
+            _rbDate.TabIndex = 1;
+            _rbDate.Text = "Time";
+            _rbDate.UseVisualStyleBackColor = true;
+            // 
+            // _rbHours
+            // 
+            _rbHours.AutoSize = true;
+            _rbHours.Checked = true;
+            _rbHours.Location = new Point(10, 5);
+            _rbHours.Name = "_rbHours";
+            _rbHours.Size = new Size(57, 19);
+            _rbHours.TabIndex = 0;
+            _rbHours.TabStop = true;
+            _rbHours.Text = "Hours";
+            _rbHours.UseVisualStyleBackColor = true;
+            _rbHours.CheckedChanged += _rbHours_CheckedChanged;
+            // 
             // UCTimesheet
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -109,6 +147,8 @@
             _pnlSideBar.PerformLayout();
             _pnlGrid.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvTimesheet).EndInit();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -117,5 +157,8 @@
         private Elements.TimesheetDataGridView _dgvTimesheet;
         private Label label1;
         private Elements.TimesheetChart _chartTimesheet;
+        private Panel panel1;
+        private RadioButton _rbHours;
+        private RadioButton _rbDate;
     }
 }

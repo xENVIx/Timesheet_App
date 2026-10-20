@@ -8,6 +8,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- Icon of the .exe in Explorer and the taskbar. -->
     <ApplicationIcon>Resources\Timesheeter.ico</ApplicationIcon>
+    <!-- The app's version; the installer (Timesheeter.Installer) takes its version from here too.
+         Bump it for each release so a new installer upgrades the installed app. -->
+    <Version>1.2.1</Version>
+    <!-- Shown in the exe's Properties > Details. -->
+    <Company>WeissLab</Company>
+    <Product>Timesheeter</Product>
+    <Title>Timesheeter</Title>
+    <Description>Timesheeting App to help keep track of worked hours.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,13 +26,14 @@
     <!-- Embedded too, so the main window can use every size (the title bar wants 16/20/24px). -->
     <EmbeddedResource Include="Resources\Timesheeter.ico" LogicalName="Timesheeter.ico" />
     <EmbeddedResource Include="Timesheet_Template_Excel\Timesheet.xlsx">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.1" />
     <PackageReference Include="ScottPlot.WinForms" Version="5.1.59" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>

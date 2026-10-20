@@ -7,7 +7,7 @@ namespace Timesheeter.Lib
 {
     /// <summary>
     /// Fades a control in or out. WinForms controls have no opacity, so this blends the control's
-    /// colours between its parent's background and their themed values.
+    /// colors between its parent's background and their themed values.
     /// </summary>
     public static class Fade
     {
@@ -27,7 +27,7 @@ namespace Timesheeter.Lib
             public Cursor? Cursor { get; init; }
         }
 
-        /// <summary>The colours to fade to or from (Theme.Apply styles hidden controls too).</summary>
+        /// <summary>The colors to fade to or from (Theme.Apply styles hidden controls too).</summary>
         /// <remarks>
         /// A flat button paints MouseOverBackColor / MouseDownBackColor instead of BackColor while the
         /// mouse is over it, e.g. a Cancel button fading out right after it was clicked, so those fade too.
@@ -44,7 +44,7 @@ namespace Timesheeter.Lib
         /// <summary>Makes <paramref name="control"/> visible and fades it in from its parent's background.</summary>
         public static void In(Control control)
         {
-            // Fading in while still fading out: carry on from the colours it had before.
+            // Fading in while still fading out: carry on from the colors it had before.
             var themed = Stop(control) ?? Capture(control);
 
             Apply(control, themed, 0);
@@ -68,7 +68,7 @@ namespace Timesheeter.Lib
             Run(control, themed, fadingOut: true, t => 1 - t, () =>
             {
                 control.Visible = false;
-                // Hidden with its normal colours, ready to be shown (or faded in) again.
+                // Hidden with its normal colors, ready to be shown (or faded in) again.
                 Apply(control, themed, 1);
             });
         }
@@ -79,7 +79,7 @@ namespace Timesheeter.Lib
             return new(control.BackColor, control.ForeColor, flat?.BorderColor, flat?.MouseOverBackColor, flat?.MouseDownBackColor);
         }
 
-        /// <summary>Sets the colours <paramref name="amount"/> (0-1) of the way from the parent's background to <paramref name="themed"/>.</summary>
+        /// <summary>Sets the colors <paramref name="amount"/> (0-1) of the way from the parent's background to <paramref name="themed"/>.</summary>
         private static void Apply(Control control, Colors themed, double amount)
         {
             Color from = control.Parent?.BackColor ?? themed.Back;
@@ -101,7 +101,7 @@ namespace Timesheeter.Lib
             }
         }
 
-        /// <param name="amountAt">Maps eased progress (0-1) to how far the colours are from the background.</param>
+        /// <param name="amountAt">Maps eased progress (0-1) to how far the colors are from the background.</param>
         private static void Run(Control control, Colors themed, bool fadingOut, Func<double, double> amountAt, Action finish)
         {
             Cursor? cursor = null;
@@ -141,7 +141,7 @@ namespace Timesheeter.Lib
             timer.Start();
         }
 
-        /// <summary>Stops a running fade, returning the themed colours it was fading between.</summary>
+        /// <summary>Stops a running fade, returning the themed colors it was fading between.</summary>
         private static Colors? Stop(Control control)
         {
             if (!_running.TryGetValue(control, out var running)) return null;

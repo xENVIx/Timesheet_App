@@ -1,7 +1,9 @@
-﻿using System;
+﻿using LibLogging;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Timesheeter.Classes;
 using Timesheeter.Core.Data;
 
 namespace Timesheeter
@@ -17,16 +19,31 @@ namespace Timesheeter
         //private TimeEntries _timeEntries;
         //private AppSettings _settings;
 
-        private DataFactory _dataFactory;
+        private Classes.AppDataFactory _dataFactory;
         private readonly System.Windows.Forms.Timer _timer;
+        private CancellationTokenSource _cts;
 
+        private readonly Logger _logger;
+        /// <summary>Where the database and its backups live (also shown on the About screen).</summary>
+        internal static readonly String DataFolder =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Timersheeter");
+
+        private ServerConnect? _server;
+
+        private ServerManager? _serverManager;
 
         internal Factory()
         {
 
+            _cts = new CancellationTokenSource();
+            _logger = new LibLogging.Logger(
+                "Timesheeter",
+                Microsoft.Extensions.Logging.LogLevel.Trace,
+                _cts.Token,
+                true);
 
-            String documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            String timeSheeterPath = Path.Combine(documentsPath, "Timersheeter");
+
+            String timeSheeterPath = DataFolder;
 
             if (!Directory.Exists(timeSheeterPath))
             {
@@ -41,14 +58,14 @@ namespace Timesheeter
             // Checked before opening: opening creates the file, and a brand new database needs no backup.
             bool existingDatabase = File.Exists(dbFile);
 
-            _store = new LibSqlLite.SqliteStore(dbFile);
+            _store = new LibSqlLite.SqliteStore(dbFile, _logger);
 
             // make a backup if the file already existed...
             // Backed up through the open store rather than copying the .db file: changes from the
             // last session can still be in the -wal file, which a file copy would leave out.
             if (existingDatabase)
             {
-                
+
                 DateTime dateNow = DateTime.Now;
                 String backupPath = Path.Combine(timeSheeterPath, "backups");
                 if (!Directory.Exists(backupPath))
@@ -74,7 +91,7 @@ namespace Timesheeter
                                     dateNow.Minute,
                                     dateNow.Second
                                 )
-                                
+
                             )
                         ),
                         ".bak"
@@ -106,7 +123,12 @@ namespace Timesheeter
             _settings = new AppSettings(_store);
             */
 
-            _dataFactory = new DataFactory(_store);
+            // Server settings stay in the app: the API key is protected with Windows-only DPAPI.
+            _dataFactory = new Classes.AppDataFactory(
+                new DataFactory(_store),
+                new Classes.ClientServerSettings(_store, _logger));
+
+            _serverManager = new ServerManager(_dataFactory, _logger);
 
             // Before any window exists, so the first paint already uses the saved look.
             // Done here rather than in Core's DataFactory: the theme is WinForms-only.
@@ -116,74 +138,41 @@ namespace Timesheeter
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 10000;
             _timer.Tick += _timer_Tick;
-            
+
             _timer.Start();
 
-            
+
 
             String getAssembly = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.Contains("Timesheet.xlsx")).First() ?? "";
-            if (getAssembly.Length <= 0) throw new Exception($"Error Pulling Template Timesheet from Assembly - Project Report Creation Impossible");       }
+            if (getAssembly.Length <= 0) throw new Exception($"FATALITY ||\\\\||//|| Error Pulling Template Timesheet from Assembly - Project Report Creation Impossible");
+        }
 
         private void _timer_Tick(object? sender, EventArgs e)
         {
-            
+
         }
 
-
-        /*
-        public T? GetData<T>()
+        internal void Run(Forms.FrmSplash? splash = null)
         {
+            var ui = new UserInterface(_dataFactory, _logger);
+            splash?.CloseWhenShown(ui);
 
-            switch (typeof(T))
-            { 
-                case Type t when t == typeof(Customers):
-                    return (T)(object)_customers;
-                case Type t when t == typeof(ProjectCodes):
-                    return (T)(object)_projectCodes;
-                case Type t when t == typeof(TimeEntries):
-                    return (T)(object)_timeEntries;
-                case Type t when t == typeof(AppSettings):
-                    return (T)(object)_settings;
-                // just some easter eggs for fun, not really needed
-                case Type t when t == typeof(float):
-                    return (T)(object)8008135f;
-                case Type t when t == typeof(string):
-                    return (T)(object)"8======D";
-                // end easter eggs
-                default: return default(T);
-
-                 
-            }
-            
-        } */
-
-
-        /*public Object? GetData(Type dataType)
-        {
-
-            if (dataType == typeof(Customers)) return _customers;
-            else if (dataType == typeof(ProjectCodes)) return _projectCodes;
-            else if (dataType == typeof(TimeEntries)) return _timeEntries;
-            else if (dataType == typeof(AppSettings)) return _settings;
-            else return null;
-
-        } */
-
-        
-        
-
-        internal void Run()
-        {
-
-
-
-
-            Application.Run(new UserInterface(_dataFactory));
+            Application.Run(ui);
 
             _store.Dispose();
             Environment.Exit(0);
         }
 
+
+        public void TestServerConnection(ClientServerSettings.Setting setting)
+        {
+
+        }
+
+        public void EstablishServerConnection()
+        {
+
+        }
 
     }
 }

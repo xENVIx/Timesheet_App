@@ -21,16 +21,16 @@ namespace Timesheeter.UserControls
 
         protected override void PostInit()
         {
-            if (_factory == null)
+            if (_datFactory == null)
             {
-                throw new ArgumentNullException(nameof(_factory));
+                throw new ArgumentNullException(nameof(_datFactory));
             }
 
             //_cbCustomer.PostInit(_factory.GetData<Customers>());
-            _custDgv.PostInit(_factory.GetData<Customers>(), _factory);
+            _custDgv.PostInit(_datFactory.GetData<Customers>(), _datFactory);
 
-            var projectCodes = _factory.GetData<ProjectCodes>();
-            _deleteBar.PostInit(_custDgv, _factory.GetData<Customers>()!, "customer", "customers", customers =>
+            var projectCodes = _datFactory.GetData<ProjectCodes>();
+            _deleteBar.PostInit(_custDgv, _datFactory.GetData<Customers>()!, "customer", "customers", customers =>
             {
                 // Project codes keep showing a deleted customer's name; just say how many there are.
                 var ids = customers.Select(c => c.ID).ToHashSet();
@@ -49,9 +49,9 @@ namespace Timesheeter.UserControls
                 return;
             }    
 
-            if (_factory == null) throw new ArgumentNullException(nameof(_factory));
+            if (_datFactory == null) throw new ArgumentNullException(nameof(_datFactory));
 
-            var customers = _factory.GetData<Customers>();
+            var customers = _datFactory.GetData<Customers>();
             if (customers != null)
             {
 

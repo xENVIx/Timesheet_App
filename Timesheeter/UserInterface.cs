@@ -1,17 +1,20 @@
 ﻿using Timesheeter.Lib;
 using Timesheeter.Core.Interfaces;
+using Microsoft.Extensions.Logging;
+using LibLogging;
 
 namespace Timesheeter
 {
     public partial class UserInterface : Form
     {
 
-
-        private IDataFactory _factory;
-        public UserInterface(IDataFactory factory)
+        private IDataFactory _datFactory;
+        private ILoggerApp? _logger;
+        public UserInterface(IDataFactory datFactory, ILoggerApp? logger)
         {
             InitializeComponent();
-            _factory = factory;
+            _datFactory = datFactory;
+            _logger = logger;
 
             using (var iconStream = typeof(UserInterface).Assembly.GetManifestResourceStream("Timesheeter.ico"))
             {
@@ -24,8 +27,17 @@ namespace Timesheeter
 
         private void UserInterface_Load(object? sender, EventArgs e)
         {
-            _ucMain.PostInit(_factory);
-
+            try
+            {
+                _ucMain.PostInit(_datFactory, _logger);
+            }
+            catch (Exception ex)
+            {
+                // A page that failed to load would hit its missing data later, so close instead of carrying on.
+                MessageBox.Show($"Exception While Loading the Interface\n{ex.Message}");
+                Close();
+                return;
+            }
             // Styles every control now, and any added later.
             Theme.Apply(this);
         }

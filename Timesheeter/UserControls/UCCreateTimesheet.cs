@@ -41,24 +41,24 @@ namespace Timesheeter.UserControls
 
         protected override void PostInit()
         {
-            if (_factory == null)
+            if (_datFactory == null)
             {
-                throw new ArgumentNullException(nameof(_factory));
+                throw new ArgumentNullException(nameof(_datFactory));
             }
 
 
-            _timeEntries = _factory.GetData<TimeEntries>();
-            _projectCodes = _factory.GetData<ProjectCodes>();
+            _timeEntries = _datFactory.GetData<TimeEntries>();
+            _projectCodes = _datFactory.GetData<ProjectCodes>();
 
             // Its own binding context: controls bound to the same list in one window otherwise share a
             // "current item", so another page's project selection would move this one (and undo -1).
             _cbProjects.BindingContext = new BindingContext();
-            _cbProjects.PostInit(_projectCodes, _factory.GetData<Customers>());
+            _cbProjects.PostInit(_projectCodes, _datFactory.GetData<Customers>());
             // PostInit binds every project code; show only the selected week's instead.
             _cbProjects.DataSource = _weekProjects;
             _weekProjects.Sort = "Code";
 
-            _dgvTimeEntries.PostInit(_timeEntries, _factory);
+            _dgvTimeEntries.PostInit(_timeEntries, _datFactory);
             // Show only this page's filtered list (empty until a project is picked).
             _dgvTimeEntries.DataSource = _weekEntries;
 
@@ -90,7 +90,7 @@ namespace Timesheeter.UserControls
             if (_timeEntries == null || _projectCodes == null) return;
 
             var (monday, sunday) = SelectedWeek();
-            long? previous = _cbProjects.SelectedValue is long id ? id : null;
+            Guid? previous = _cbProjects.SelectedValue is Guid id ? id : null;
 
             var workedCodeIds = _timeEntries.All.Unfiltered
                 .Where(entry => entry.Date >= monday && entry.Date <= sunday)
@@ -107,7 +107,7 @@ namespace Timesheeter.UserControls
                 }
 
                 // Adding items makes the combo box select the first one; select the previous project or none.
-                int index = previous is long keep ? IndexOfProject(keep) : -1;
+                int index = previous is Guid keep ? IndexOfProject(keep) : -1;
                 _cbProjects.SelectedIndex = index;
                 if (index < 0) _cbProjects.Text = "";
             }
@@ -119,7 +119,7 @@ namespace Timesheeter.UserControls
             ShowSelectedWeek();
         }
 
-        private int IndexOfProject(long projectCodeId)
+        private int IndexOfProject(Guid projectCodeId)
         {
             for (int i = 0; i < _weekProjects.Count; i++)
             {
@@ -138,7 +138,7 @@ namespace Timesheeter.UserControls
         {
             _weekEntries.Clear();
 
-            if (_timeEntries == null || _cbProjects.SelectedValue is not long projectCodeId) return;
+            if (_timeEntries == null || _cbProjects.SelectedValue is not Guid projectCodeId) return;
 
             var (monday, sunday) = SelectedWeek();
 
@@ -164,6 +164,7 @@ namespace Timesheeter.UserControls
             String projPurpose = "";
             String description = "";
             String location = "";
+            String shortCode = "";
 
 
 
@@ -174,12 +175,15 @@ namespace Timesheeter.UserControls
             if (item is ProjectCodes.ProjectCode projCode)
             {
                 code = projCode.Code;
-                customerName = _factory?.GetData<Customers>()?[projCode.CustomerID]?.Name ?? "";
+                customerName = _datFactory?.GetData<Customers>()?[projCode.CustomerID]?.Name ?? "";
 
 
                 projPurpose = projCode.ProjectName;
                 description = projCode.Description;
                 location = projCode.Location;
+                shortCode = 
+                    projCode.ShortCode == string.Empty || projCode.ShortCode == "" ? 
+                    projCode.Code : projCode.ShortCode;
             }
             else
             {
@@ -188,7 +192,7 @@ namespace Timesheeter.UserControls
                 return;
             }
 
-            var names = _factory?.GetData<AppSettings>()?.Name ?? null;
+            var names = _datFactory?.GetData<AppSettings>()?.Name ?? null;
 
             if (names == null)
             {
@@ -216,6 +220,7 @@ namespace Timesheeter.UserControls
                 description,
                 customerName,
                 location,
+                shortCode,
                 _weekEntries))
             {
                 MessageBox.Show(this, $"Could Not Generate Report");

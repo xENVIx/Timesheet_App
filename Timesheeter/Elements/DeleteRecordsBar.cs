@@ -109,7 +109,7 @@ namespace Timesheeter.Elements
 
         private void CancelClicked()
         {
-            // Clicked again while it's fading out: it's already cancelled.
+            // Clicked again while it's fading out: it's already canceled.
             if (Fade.IsFadingOut(_btnCancel)) return;
             ExitDeleteMode();
         }

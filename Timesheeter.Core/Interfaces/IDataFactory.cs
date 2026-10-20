@@ -7,7 +7,7 @@ namespace Timesheeter.Core.Interfaces
 {
     public interface IDataFactory
     {
-        
+        //public List<DataBase> Data { get; set; }
         public T? GetData<T>();
         public Object? GetData(Type dataType);
 

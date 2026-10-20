@@ -1,4 +1,4 @@
-
+﻿
 
 namespace Timesheeter
 {
@@ -15,8 +15,12 @@ namespace Timesheeter
             ApplicationConfiguration.Initialize();
 
 
+            // Up while the database and data load (the Factory constructor) and the main window
+            // builds its pages; it fades out once the main window is on screen.
+            var splash = Forms.FrmSplash.ShowNow();
+
             Factory factory = new Factory();
-            factory.Run();
+            factory.Run(splash);
 
         }
 

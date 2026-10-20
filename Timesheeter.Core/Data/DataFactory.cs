@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LibLogging;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,27 +11,28 @@ namespace Timesheeter.Core.Data
     public class DataFactory : Interfaces.IDataFactory
     {
 
-        
-        
+
+        //public List<DataBase> Data { get; set; } = new List<DataBase>();
         
         private Customers? _customers;
         private ProjectCodes? _projectCodes;
         private TimeEntries? _timeEntries;
         private AppSettings? _appSettings;
-        
-        
-        
-        private LibSqlLite.SqliteStore _store;
 
-        public DataFactory(LibSqlLite.SqliteStore store)
+
+        private ILoggerApp? _logger;
+        private LibSqlLite.SqliteStore _store;
+        
+
+        public DataFactory(LibSqlLite.SqliteStore store, ILoggerApp? logger = null)
         {
             _store = store;
+            _logger = logger;
 
-            _customers = new Data.Customers(_store);
-            _projectCodes = new ProjectCodes(_store);
-            _timeEntries = new TimeEntries(_store);
-            _appSettings = new AppSettings(_store); 
-
+            _customers = new Customers(_store, logger);
+            _projectCodes = new ProjectCodes(_store, logger);
+            _timeEntries = new TimeEntries(_store, logger);
+            _appSettings = new AppSettings(_store, logger);
         }
 
 

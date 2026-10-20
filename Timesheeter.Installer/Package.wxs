@@ -1,0 +1,85 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <!--
+    Scope perUserOrMachine + WixUI_Advanced: setup asks whether to install just for the current
+    user (no admin rights, into %LocalAppData%\Programs\Timesheeter) or for everyone on the PC
+    (admin, into Program Files\Timesheeter).
+
+    The version comes from Timesheeter.exe (its <Version> in Timesheeter.csproj). The UpgradeCode
+    must never change: it's how a newer .msi finds and replaces the installed one.
+  -->
+  <Package Name="Timesheeter"
+           Manufacturer="WeissLab"
+           Language="1033"
+           Version="!(bind.FileVersion.TimesheeterExe)"
+           UpgradeCode="d952c761-f408-4868-98ff-68ebc5f4746a"
+           Scope="perUserOrMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Timesheeter is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Icon in Add/Remove Programs and on the shortcut. -->
+    <Icon Id="AppIcon.ico" SourceFile="$(var.AppIcon)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+
+    <!-- Setup wizard: welcome + license, just me / everyone, folder, install, finish. -->
+    <Property Id="ApplicationFolderName" Value="Timesheeter" />
+    <Property Id="WixAppFolder" Value="WixPerUserFolder" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <ui:WixUI Id="WixUI_Advanced" />
+
+    <!-- The default per-user folder is %LocalAppData%\Apps; use Programs like other apps do, and
+         the 64-bit Program Files for everyone. -->
+    <SetProperty Id="WixPerUserFolder" Value="[LocalAppDataFolder]Programs\[ApplicationFolderName]"
+                 After="WixSetDefaultPerUserFolder" Sequence="both" />
+    <SetProperty Id="WixPerMachineFolder" Value="[ProgramFiles64Folder][ApplicationFolderName]"
+                 After="WixSetDefaultPerMachineFolder" Sequence="both" />
+
+    <!-- "Launch Timesheeter" checkbox on the last page. -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Timesheeter" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#TimesheeterExe]" />
+    <CustomAction Id="LaunchApplication" DllEntry="WixShellExec" Impersonate="yes" BinaryRef="Wix4UtilCA_X64" />
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed" />
+    </UI>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="APPLICATIONFOLDER" Name="Timesheeter" />
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="Timesheeter">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+    <!-- Everything dotnet publish produced (the app plus .NET itself). -->
+    <ComponentGroup Id="AppFiles" Directory="APPLICATIONFOLDER">
+      <Component>
+        <!-- Name given explicitly: without it, WiX names the file after the Source text as written,
+             bind path and all ("!(bindpath.App)Timesheeter.exe"). -->
+        <File Id="TimesheeterExe" Name="Timesheeter.exe" Source="!(bindpath.App)Timesheeter.exe" KeyPath="yes" />
+      </Component>
+      <Files Include="!(bindpath.App)**">
+        <Exclude Files="!(bindpath.App)Timesheeter.exe" />
+      </Files>
+    </ComponentGroup>
+
+    <!-- Start menu shortcut. Your data stays in Documents\Timersheeter; uninstalling doesn't touch it. -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut">
+        <Shortcut Id="TimesheeterStartMenu"
+                  Name="Timesheeter"
+                  Description="Track and report your hours"
+                  Target="[#TimesheeterExe]"
+                  WorkingDirectory="APPLICATIONFOLDER"
+                  Icon="AppIcon.ico" />
+        <RegistryValue Root="HKMU" Key="Software\Timesheeter" Name="StartMenuShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+  </Package>
+</Wix>

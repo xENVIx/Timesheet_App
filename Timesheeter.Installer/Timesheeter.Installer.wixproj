@@ -1,0 +1,59 @@
+﻿<Project Sdk="WixToolset.Sdk/5.0.2">
+  <!--
+    Builds TimesheeterSetup.msi: publishes the app (self-contained, so the PC needs nothing else)
+    into obj\, then packs that folder. Build on Windows:
+      dotnet build Timesheeter.Installer -c Release
+    The .msi lands in bin\x64\Release\. Its version is the app's <Version> in Timesheeter.csproj;
+    bump that for every release so installing the new .msi upgrades the old one in place.
+
+    WiX 5 on purpose: WiX 6 and later come with FireGiant's Open Source Maintenance Fee terms for
+    commercial use; WiX 5 is plain MS-RL.
+  -->
+  <PropertyGroup>
+    <OutputName>TimesheeterSetup</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+
+    <!--
+      The setup wizard's text (and Windows Installer's progress and error messages) comes from
+      the UI extension's localization files. Without a culture none are used, so the wizard
+      showed placeholders like "[1]" and "[9]" instead of names. The .msi now lands in
+      bin\x64\Release\en-US\. Timesheeter.en-us.wxl blanks the progress screen's "File: [1], ..."
+      details, which WixUI never fills in.
+    -->
+    <Cultures>en-US</Cultures>
+    <Platform>x64</Platform>
+
+    <!-- No .wixpdb next to the .msi: it's only debug info for building patches, never shipped. -->
+    <SuppressPdbOutput>true</SuppressPdbOutput>
+
+    <AppProject>$(MSBuildThisFileDirectory)..\Timesheeter\Timesheeter.csproj</AppProject>
+    <AppPublishDir>$(MSBuildThisFileDirectory)obj\$(Configuration)\app\</AppPublishDir>
+
+    <DefineConstants>AppIcon=$(MSBuildThisFileDirectory)..\Timesheeter\Resources\Timesheeter.ico</DefineConstants>
+
+    <!--
+      Per-user-or-machine packages put shortcuts and registry values in places the standard
+      validation (written for one or the other) complains about; these are expected here.
+    -->
+    <SuppressIces>ICE38;ICE43;ICE57;ICE64;ICE91</SuppressIces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets Package.wxs refer to the published files as !(bindpath.App). -->
+    <BindPath Include="$(AppPublishDir)" BindName="App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+  <!--
+    Publish the app as ordinary files (not single-file): an installed app starts quickly, without
+    unpacking a bundle on every launch.
+  -->
+  <Target Name="PublishApp" BeforeTargets="BeforeBuild">
+    <RemoveDir Directories="$(AppPublishDir)" />
+    <Exec Command="dotnet publish &quot;$(AppProject)&quot; -c $(Configuration) -r win-x64 --self-contained true -p:PublishSingleFile=false -p:PublishReadyToRun=true -p:EnableWindowsTargeting=true -o &quot;$(AppPublishDir.TrimEnd('\'))&quot;" />
+  </Target>
+</Project>

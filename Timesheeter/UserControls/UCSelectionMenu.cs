@@ -9,6 +9,8 @@ using Timesheeter.Lib;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;
 using System.Drawing.Text;
+using Microsoft.Extensions.Logging;
+using LibLogging;
 
 namespace Timesheeter.UserControls
 {
@@ -77,6 +79,14 @@ namespace Timesheeter.UserControls
             Theme.SetRole(_panelNav, ThemeRole.Navigation);
             Theme.SetActiveNavigationButton(_btnTimeSheet);
 
+            // The round "i" for About, pinned to the bottom-left of the nav bar. It isn't a Button,
+            // so ResizePanelButtons and the nav button styling don't stretch or restyle it.
+            var about = new Elements.AboutButton { Name = "_btnAbout" };
+            about.Size = new Size(LogicalToDeviceUnits(28), LogicalToDeviceUnits(28));
+            about.Location = new Point(LogicalToDeviceUnits(10), _panelNav.ClientSize.Height - about.Height - LogicalToDeviceUnits(10));
+            about.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            _panelNav.Controls.Add(about);
+
 
             _actionList = new Dictionary<string, Action>()
             {
@@ -105,14 +115,15 @@ namespace Timesheeter.UserControls
 
         }
 
-        public void PostInit(IDataFactory factory)
+        public void PostInit(IDataFactory factory, ILoggerApp? logger = null)
         {
-            _ucNewProjectCode.PostInit(factory);
-            _ucCustomers.PostInit(factory);
-            _ucTimeEntries.PostInit(factory);
-            _ucTimesheet.PostInit(factory);
-            _ucCreateTimesheet.PostInit(factory);
-            _ucSettings.PostInit(factory);
+            
+            _ucNewProjectCode.PostInit(factory, logger);
+            _ucCustomers.PostInit(factory, logger);
+            _ucTimeEntries.PostInit(factory, logger);
+            _ucTimesheet.PostInit(factory, logger);
+            _ucCreateTimesheet.PostInit(factory, logger);
+            _ucSettings.PostInit(factory, logger);
         }
 
         private void ToggleScreen<T>()

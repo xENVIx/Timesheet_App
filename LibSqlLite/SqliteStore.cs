@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Dapper;
+using LibLogging;
 using LibSqlLite.Schema;
 using LibSqlLite.TypeHandlers;
 using Microsoft.Data.Sqlite;
@@ -47,9 +48,13 @@ public sealed class SqliteStore : IDisposable
         set => _pendingEnsuredTablesLocal.Value = value;
     }
 
+    private ILoggerApp? _logger;
+
     /// <summary>Opens (creating if necessary) a SQLite database at <paramref name="databasePath"/>.</summary>
-    public SqliteStore(string databasePath)
+    public SqliteStore(string databasePath, ILoggerApp? logger = null)
     {
+        _logger = logger;
+
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
         TypeHandlerRegistration.Ensure();
 
@@ -97,14 +102,14 @@ public sealed class SqliteStore : IDisposable
     }
 
     /// <summary>Opens a database at %AppData%/{appName}/{fileName}.</summary>
-    public static SqliteStore ForApp(string appName, string fileName = "data.db")
+    public static SqliteStore ForApp(string appName, string fileName = "data.db", ILoggerApp? logger = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(appName);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
 
         var path = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName, fileName);
-        return new SqliteStore(path);
+        return new SqliteStore(path, logger);
     }
 
     /// <summary>Creates the table for <typeparamref name="T"/> if missing and adds any new columns.</summary>
@@ -489,7 +494,10 @@ public sealed class SqliteStore : IDisposable
 
     private EntityInfo GetEntity(Type type) => _entities.GetOrAdd(type, EntityInfo.Build);
 
-    private void EnsureTableCore(Type type)
+    private void EnsureTableCore(Type type) => EnsureTableCore(type, null);
+
+    /// <param name="visiting">Types already on the way here, so classes that refer to each other don't loop.</param>
+    private void EnsureTableCore(Type type, HashSet<Type>? visiting)
     {
         if (_ensuredTables.ContainsKey(type))
         {
@@ -497,6 +505,14 @@ public sealed class SqliteStore : IDisposable
         }
 
         var entity = GetEntity(type);
+
+        // Tables this one refers to first, so its foreign keys have something to point at.
+        visiting ??= new HashSet<Type>();
+        visiting.Add(type);
+        foreach (var fk in entity.ForeignKeyColumns)
+        {
+            if (!visiting.Contains(fk.References!.Type)) EnsureTableCore(fk.References.Type, visiting);
+        }
         RunInLock(tx =>
         {
             var pending = _pendingEnsuredTables;
@@ -525,7 +541,11 @@ public sealed class SqliteStore : IDisposable
         });
     }
 
-    private async Task EnsureTableCoreAsync(Type type, CancellationToken cancellationToken)
+    private Task EnsureTableCoreAsync(Type type, CancellationToken cancellationToken) =>
+        EnsureTableCoreAsync(type, null, cancellationToken);
+
+    /// <param name="visiting">Types already on the way here, so classes that refer to each other don't loop.</param>
+    private async Task EnsureTableCoreAsync(Type type, HashSet<Type>? visiting, CancellationToken cancellationToken)
     {
         if (_ensuredTables.ContainsKey(type))
         {
@@ -533,6 +553,15 @@ public sealed class SqliteStore : IDisposable
         }
 
         var entity = GetEntity(type);
+
+        // Tables this one refers to first, so its foreign keys have something to point at.
+        visiting ??= new HashSet<Type>();
+        visiting.Add(type);
+        foreach (var fk in entity.ForeignKeyColumns)
+        {
+            if (!visiting.Contains(fk.References!.Type))
+                await EnsureTableCoreAsync(fk.References.Type, visiting, cancellationToken).ConfigureAwait(false);
+        }
         await RunInLockAsync(async tx =>
         {
             var pending = _pendingEnsuredTables;

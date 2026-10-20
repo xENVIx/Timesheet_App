@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
 using System.Text;
 using LibSqlLite.TypeHandlers;
@@ -19,7 +19,13 @@ internal sealed class ColumnInfo
     public required string SqliteType { get; init; }
     public required bool IsNullable { get; init; }
     public required bool IsKey { get; init; }
+
+    /// <summary>The foreign key this column is, from <see cref="ReferencesAttribute"/>; null if none.</summary>
+    public ForeignKeyInfo? References { get; init; }
 }
+
+/// <summary>A column's foreign key: the referenced class, its table and its primary key column.</summary>
+internal sealed record ForeignKeyInfo(Type Type, string Table, string KeyColumn);
 
 /// <summary>
 /// Cached reflection metadata and pre-built SQL for a type stored via <see cref="SqliteStore"/>.
@@ -43,6 +49,9 @@ internal sealed class EntityInfo
     public required string DeleteByIdSql { get; init; }
     public required string DeleteAllSql { get; init; }
     public required IReadOnlyList<string> CreateUniqueIndexSql { get; init; }
+
+    /// <summary>The foreign keys this table's CREATE TABLE declares, one per [References] column.</summary>
+    public IEnumerable<ColumnInfo> ForeignKeyColumns => Columns.Where(c => c.References is not null);
 
     public bool IsKeyDefault(object? keyValue)
     {
@@ -100,6 +109,7 @@ internal sealed class EntityInfo
             {
                 TypeMap.TryGetSqliteType(p.PropertyType, out var sqliteType);
                 var isKey = p == keyProperty;
+                var referenced = isKey ? null : p.GetCustomAttribute<ReferencesAttribute>()?.Type;
                 return new ColumnInfo
                 {
                     Property = p,
@@ -107,6 +117,11 @@ internal sealed class EntityInfo
                     SqliteType = keyKind == PrimaryKeyKind.AutoIncrementInteger && isKey ? "INTEGER" : sqliteType,
                     IsNullable = !isKey && TypeMap.IsNullableColumn(p.PropertyType),
                     IsKey = isKey,
+                    References = referenced is null
+                        ? null
+                        : referenced == type
+                            ? new ForeignKeyInfo(type, tableName, keyProperty.Name) // refers to its own table
+                            : ForeignKeyOf(referenced),
                 };
             })
             .ToList();
@@ -137,6 +152,19 @@ internal sealed class EntityInfo
         };
     }
 
+    // Only the referenced table's name and key: building its full EntityInfo here would recurse
+    // forever for two classes that refer to each other.
+    private static ForeignKeyInfo ForeignKeyOf(Type referenced)
+    {
+        var table = referenced.GetCustomAttribute<TableAttribute>()?.Name ?? referenced.Name;
+        var properties = referenced.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var key = properties.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyAttribute>() is not null)
+            ?? properties.FirstOrDefault(p => string.Equals(p.Name, "Id", StringComparison.OrdinalIgnoreCase))
+            ?? throw new InvalidOperationException(
+                $"[References(typeof({referenced.Name}))]: '{referenced.FullName}' has no primary key.");
+        return new ForeignKeyInfo(referenced, table, key.Name);
+    }
+
     private static string BuildCreateTableSql(
         string tableName, IReadOnlyList<ColumnInfo> columns, ColumnInfo keyColumn, PrimaryKeyKind keyKind)
     {
@@ -152,9 +180,13 @@ internal sealed class EntityInfo
                     : $"  [{c.Name}] {c.SqliteType} PRIMARY KEY NOT NULL";
             }
 
-            return c.IsNullable
+            var definition = c.IsNullable
                 ? $"  [{c.Name}] {c.SqliteType}"
                 : $"  [{c.Name}] {c.SqliteType} NOT NULL DEFAULT {DefaultLiteral(c)}";
+
+            return c.References is { } fk
+                ? $"{definition} REFERENCES [{fk.Table}]([{fk.KeyColumn}])"
+                : definition;
         });
 
         sb.Append(string.Join(",\n", definitions));

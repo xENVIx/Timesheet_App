@@ -1,4 +1,4 @@
-# LibSqlLite
+﻿# LibSqlLite
 
 A small, reusable C# class library that lets any app persist plain C# classes to a local SQLite database **without hand-writing table definitions or column lists**. The C# class is the schema. Tables are created from classes via reflection, new properties become new columns automatically, and CRUD operations are generic.
 
@@ -156,6 +156,8 @@ All in namespace `LibSqlLite`:
 - `[Ignore]`: property-level, excludes from storage
 - `[PrimaryKey]`: property-level, marks the key when it isn't named `Id`
 - `[Unique]` / `[Unique(IgnoreCase = true)]`: property-level, creates `UX_{Table}_{Column}` via `CREATE UNIQUE INDEX IF NOT EXISTS` (with `COLLATE NOCASE` when `IgnoreCase`). Ignored on the key. Created in `EnsureTable` after columns are added, so it also applies to existing tables; it's never dropped or altered afterwards.
+
+- `[References(typeof(Other))]`: property-level, a real foreign key (`REFERENCES [OtherTable]([OtherKey])` in `CREATE TABLE`) to `Other`'s primary key. `EnsureTable` creates the referenced table first. SQLite can't add a foreign key to an existing table, so an existing table keeps working without it until the database is converted deliberately with `SqliteConverter.Convert(source, destination, logger, types)`: it creates the new file from the current classes, copies every row across (keys and AUTOINCREMENT counters kept, extra tables copied as they are), and runs `PRAGMA foreign_key_check`. The old file is only read. Orphan rows or duplicates fail the conversion (no new file is left) and are listed in `ConversionResult.Problems`. It also converts number keys to `Guid` keys when a class's key changed to `Guid`: each row gets a new GUID (via a temp old→new map) and every `[References]` column pointing at that table is translated to match. `SqliteConverter.SchemaChanges(path, types)` lists what a conversion would change.
 
 Keep attributes as the only customization mechanism in v1. No fluent configuration.
 

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.Extensions.Logging;
 using ScottPlot;
 using System;
 using System.Collections.Generic;
@@ -26,13 +27,16 @@ namespace Timesheeter.Classes
             String description,
             String customerName,
             String location,
-            IReadOnlyList<TimeEntries.TimeEntry> _reportEntries
+            String shortCode,
+            IReadOnlyList<TimeEntries.TimeEntry> _reportEntries,
+            LibLogging.ILoggerApp? logger = null
         )
         {
             
             if (projectCode.Length <= 0)
             {
                 MessageBox.Show(owner, "Invalid Project Code");
+                logger?.Warn("Invalid Project Code");
                 return false;
             }
 
@@ -113,7 +117,7 @@ namespace Timesheeter.Classes
                 dlg.AddExtension = true;
                 dlg.FileName =
                     $"{String.Format(fileDateFormat, monday.Year, monday.Month, monday.Day)}_" +
-                    $"{projectCode}_" +
+                    $"{shortCode}_" +
                     $"{customerName}_" +
                     $"Timesheet_" +
                     $"{firstName}_{lastName}" +

@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;
 using Timesheeter.Core.Data;
+using LibLogging;
 
 namespace Timesheeter.UserControls
 {
@@ -20,9 +21,9 @@ namespace Timesheeter.UserControls
         }
 
 
-        public void PostInit(IDataFactory factory)
+        public void PostInit(IDataFactory factory, ILoggerApp? logger = null)
         {
-            _ucSelectionMenu.PostInit(factory);
+            _ucSelectionMenu.PostInit(factory, logger);
         }
     }
 }

@@ -5,10 +5,12 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Timesheeter.Classes;
 using Timesheeter.Core.Data;
 using Timesheeter.Core.Interfaces;
 using Timesheeter.Core.Lib;
 using Timesheeter.Lib;
+using Windows.UI.WebUI;
 
 namespace Timesheeter.UserControls
 {
@@ -16,6 +18,11 @@ namespace Timesheeter.UserControls
     public partial class UCSettings : UCSubPage
     {
         private AppSettings? _settings;
+        private ClientServerSettings? _serverSettings;
+
+
+        //private bool _serverSettingsChanged = false;
+        //private bool _serverTestSuccess = false;
 
         // True while the controls are being set from the saved settings, so that doesn't count as a change.
         private bool _loading;
@@ -49,15 +56,25 @@ namespace Timesheeter.UserControls
 
             _btnSave.Enabled = false;
 
+            // The API key shows as dots, like a password.
+            _tbApi.UseSystemPasswordChar = true;
+
             Theme.Changed += (s, e) => MarkSelectedSwatch();
+
+            _pnlGrid.Visible = false;
+            _pnlSideBar.Dock = DockStyle.Fill;
         }
 
         protected override void PostInit()
         {
-            if (_factory == null) throw new ArgumentNullException(nameof(_factory));
 
-            _settings = _factory.GetData<AppSettings>();
+            if (_datFactory == null) throw new ArgumentNullException(nameof(_datFactory));
+
+            _settings = _datFactory.GetData<AppSettings>();
             if (_settings == null) throw new ArgumentNullException(nameof(_settings));
+
+            _serverSettings = _datFactory.GetData<ClientServerSettings>();
+            if (_serverSettings == null) throw new ArgumentNullException(nameof(_serverSettings));
 
             _loading = true;
             try
@@ -82,6 +99,24 @@ namespace Timesheeter.UserControls
             {
                 MessageBox.Show(this, $"First Name And / Or Last Name Not Entered - Head Over to the Settings Page to Enter Them!");
             }
+
+            _chkbUseServer.Checked = _serverSettings.UseServer;
+
+            _tbApi.Enabled = _chkbUseServer.Checked;
+            _tbServer.Enabled = _chkbUseServer.Checked;
+            _tbSecret.Enabled = _chkbUseServer.Checked;
+            _tbPort.Enabled = _chkbUseServer.Checked;
+            _btnSaveServer.Enabled = _chkbUseServer.Checked;
+            _accordionPanelSettings.Expanded = _chkbUseServer.Checked;
+            _btnTest.Enabled = _chkbUseServer.Checked;
+
+
+            var details = _serverSettings.ServerDetails;
+            _tbServer.Text = details.address;
+            _tbPort.Text = details.port > 0 ? details.port.ToString() : ""; // blank until a server is set up
+            _tbSecret.Text = details.secret;
+            _tbApi.Text = details.apiKey;
+
         }
 
         private void _themeMode_CheckedChanged(object? sender, EventArgs e)
@@ -136,8 +171,8 @@ namespace Timesheeter.UserControls
         private void CheckNamesEnableSave()
         {
             if (_settings == null) return;
-            if ((_settings.Name.FirstName != _tbFirstName.Text || _settings.Name.LastName != _tbLastName.Text) && 
-                _tbFirstName.Text.Length > 0 && 
+            if ((_settings.Name.FirstName != _tbFirstName.Text || _settings.Name.LastName != _tbLastName.Text) &&
+                _tbFirstName.Text.Length > 0 &&
                 _tbLastName.Text.Length > 0)
             {
                 _btnSave.Enabled = true;
@@ -154,7 +189,7 @@ namespace Timesheeter.UserControls
         {
             if (_settings == null) return;
             CheckNamesEnableSave();
-            
+
         }
 
         private void _tbLastName_TextChanged(object sender, EventArgs e)
@@ -180,6 +215,152 @@ namespace Timesheeter.UserControls
 
             _btnSave.Enabled = false;
 
+
+
+        }
+
+        private void _chkbUseServer_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_serverSettings == null) return;
+
+
+            _tbApi.Enabled = _chkbUseServer.Checked;
+            _tbServer.Enabled = _chkbUseServer.Checked;
+            _tbSecret.Enabled = _chkbUseServer.Checked;
+            _tbPort.Enabled = _chkbUseServer.Checked;
+            _btnSaveServer.Enabled = _chkbUseServer.Checked;
+            //_accordionPanelSettings.Expanded = _chkbUseServer.Checked;
+            _btnTest.Enabled = _chkbUseServer.Checked;
+
+
+
+
+            if (_serverSettings.UseServer != _chkbUseServer.Checked)
+            {
+                _serverSettings.UseServer = _chkbUseServer.Checked;
+                _serverSettings.Save();
+            }
+
+
+        }
+
+        private void _btnSaveServer_Click(object sender, EventArgs e)
+        {
+
+
+            if (_serverSettings == null) return;
+
+
+            if (_tbServer.Text.Length <= 0 || _tbPort.Text.Length <= 0 || _tbSecret.Text.Length <= 0 || _tbApi.Text.Trim().Length <= 0)
+            {
+                MessageBox.Show(this, $"Enter the Server, Port, API Key and Secret before saving.");
+                return;
+            }
+
+            int iPort = -1;
+
+            if (!int.TryParse(_tbPort.Text, out iPort) || iPort <= 0 || iPort > 65535)
+            {
+                MessageBox.Show(this, $"The Port must be a number from 1 to 65535.");
+                return;
+            }
+
+            var details = _serverSettings.ServerDetails;
+            details.port = iPort;
+            details.address = _tbServer.Text;
+            details.secret = _tbSecret.Text;
+            details.apiKey = _tbApi.Text.Trim(); // a pasted key often brings a space or line break along
+            _serverSettings.ServerDetails = details;
+            if (!_serverSettings.Save())
+            {
+                MessageBox.Show(this, $"Could Not Save the Server Settings.");
+            }
+
+
+        }
+
+        private void _btnTest_Click(object sender, EventArgs e)
+        {
+
+            if (_serverSettings == null)
+            {
+                MessageBox.Show($"Unknown error occured when testing connection");
+                return;
+            }
+
+            try
+            {
+
+                //var testRez = _serverSettings.TestConnection();
+
+                //ServerConnect serverConnect = new ServerConnect(_serverSettings);
+
+                // get settings from this page... not saved yet....
+
+                String address = _tbServer.Text;
+                String port = _tbPort.Text;
+                int iPort = -1;
+                if (!int.TryParse(port, out iPort) || iPort < 1)
+                {
+                    MessageBox.Show($"Port Must Be Numeric > 0");
+                    return;
+                }
+
+                String apiKey = _tbApi.Text;
+                String secret = _tbSecret.Text;
+
+                ServerConnect testServer = new ServerConnect(address, iPort, apiKey, secret);
+                
+                var testRez = testServer.TestConnection();
+
+
+                if (testRez == null)
+                {
+                    MessageBox.Show($"Test Unsuccessful - Unknown Reason - Check Logs");
+                    return;
+                }
+                else
+                {
+
+                    if (testRez.ResultsStatus == ServerConnect.EServerTestResults.SUCCESS)
+                    {
+
+                        MessageBox.Show($"Connection Successful");
+                        return;
+
+                    }
+                    else if (testRez.ResultsStatus == ServerConnect.EServerTestResults.FAILURE)
+                    {
+                        String reason = testRez.Message.Length <= 0 ? "Unknown Reason - Check Logs" : testRez.Message;
+                        MessageBox.Show($"Connection Unsuccessful with {reason}");
+                        return;
+                    }
+                    else if (testRez.ResultsStatus == ServerConnect.EServerTestResults.EXCEPTION)
+                    {
+                       
+                        if (testRez.Ex == null)
+                        {
+                            MessageBox.Show($"Test Returned Unknown Exception");
+                            return;
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Connection Unsuccessful With Exception: \n{testRez.Ex}");
+                            return;
+                        }
+                    }
+
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Test Connection Exception:\n{ex.Message}");
+                _logger?.Exception(ex);
+                return;
+            }
 
 
         }
